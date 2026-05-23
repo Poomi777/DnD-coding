@@ -3,361 +3,846 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homebrew Arsenal</title>
+  <title>Homebrew Arsenal — Seiros Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
   <style>
-    :root {
-      --bg:#0d1117; --bg-surface:#161b24; --bg-elevated:#1c2333;
-      --border:#2a3244; --border-dim:#1c2333;
-      --text:#e2e8f0; --text-muted:#64748b; --text-dim:#3a4558;
-      --gold:#c9a84c; --gold-bg:rgba(201,168,76,.12); --gold-border:rgba(201,168,76,.3);
-      --r-sm:4px; --r-md:8px; --r-lg:12px;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
+/* ═══════════════════════════════════════════
+   GALLERY PAGE
+═══════════════════════════════════════════ */
+:root {
+  --bg:#0d1117;--bg-s:#161b24;--bg-e:#1c2333;
+  --bdr:#2a3244;--bdr-d:#1c2333;
+  --txt:#e2e8f0;--muted:#64748b;--dim:#3a4558;
+  --gold:#c9a84c;--gold-bg:rgba(201,168,76,.12);--gold-bdr:rgba(201,168,76,.3);
+  --r:8px;--rl:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(201,168,76,.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
 
-    /* ── Page ── */
-    .page{position:relative;max-width:1200px;margin:0 auto;padding:32px 20px 64px;z-index:1;}
+.page{position:relative;max-width:1200px;margin:0 auto;padding:32px 20px 80px;z-index:1;}
 
-    /* ── Header ── */
-    .site-header{text-align:center;margin-bottom:36px;}
-    .site-header .eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;opacity:.8;}
-    .site-header h1{font-size:32px;font-weight:700;letter-spacing:-.5px;color:var(--text);}
-    .site-header .sub{font-size:14px;color:var(--text-muted);margin-top:6px;}
-    .header-divider{width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:16px auto 0;}
+.site-header{text-align:center;margin-bottom:36px;}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.site-header h1{font-family:'Cinzel',serif;font-size:30px;font-weight:700;color:var(--txt);}
+.site-header .sub{font-size:14px;color:var(--muted);margin-top:6px;}
+.hline{width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:14px auto 0;}
 
-    /* ── Controls ── */
-    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px;}
-    .search-wrap{flex:1;min-width:180px;position:relative;}
-    .search-wrap .ti{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px;pointer-events:none;}
-    .search-input{width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 10px 8px 32px;font-size:13px;color:var(--text);font-family:inherit;transition:border-color .15s;}
-    .search-input:focus{outline:none;border-color:var(--gold);}
-    .search-input::placeholder{color:var(--text-dim);}
-    .count{font-size:13px;color:var(--text-muted);white-space:nowrap;}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+.sw{flex:1;min-width:160px;position:relative;}
+.sw .ti{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+.si{width:100%;background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 10px 8px 30px;font-size:13px;color:var(--txt);font-family:inherit;transition:border-color .15s;}
+.si:focus{outline:none;border-color:var(--gold);}
+.si::placeholder{color:var(--dim);}
+.cnt{font-size:13px;color:var(--muted);white-space:nowrap;}
 
-    /* ── Tags filter ── */
-    .tag-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;}
-    .tag-btn{font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-muted);cursor:pointer;transition:all .12s;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;}
-    .tag-btn:hover{border-color:var(--gold-border);color:var(--gold);}
-    .tag-btn.active{background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);}
+.tf{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;}
+.tb{font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);color:var(--muted);cursor:pointer;transition:all .12s;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;}
+.tb:hover{border-color:var(--gold-bdr);color:var(--gold);}
+.tb.on{background:var(--gold-bg);border-color:var(--gold-bdr);color:var(--gold);}
 
-    /* ── Grid ── */
-    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
 
-    /* ── Card thumbnail ── */
-    .card-item{cursor:pointer;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);background:var(--bg-surface);transition:transform .18s,border-color .18s,box-shadow .18s;display:flex;flex-direction:column;}
-    .card-item:hover{transform:translateY(-4px);border-color:var(--gold-border);box-shadow:0 8px 32px rgba(201,168,76,.12);}
-    .card-img-wrap{aspect-ratio:.48/1;overflow:hidden;background:var(--bg-elevated);position:relative;}
-    .card-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .3s;}
-    .card-item:hover .card-img-wrap img{transform:scale(1.03);}
-    .card-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;}
-    .card-placeholder .ph-icon{font-size:36px;opacity:.15;}
-    .card-placeholder .ph-name{font-size:13px;font-weight:600;color:var(--text-muted);line-height:1.3;}
-    .card-info{padding:10px 12px 12px;}
-    .card-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:5px;}
-    .card-sub{font-size:11px;color:var(--text-muted);margin-bottom:7px;font-style:italic;}
-    .card-tags{display:flex;gap:4px;flex-wrap:wrap;}
-    .tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;}
-    .tag.gold{background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);}
+/* thumb card */
+.thumb{cursor:pointer;border-radius:var(--rl);overflow:hidden;border:1px solid var(--bdr);background:var(--bg-s);transition:transform .18s,border-color .18s,box-shadow .18s;display:flex;flex-direction:column;}
+.thumb:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.thumb-band{height:6px;flex-shrink:0;}
+.thumb-body{padding:14px 14px 12px;flex:1;display:flex;flex-direction:column;}
+.thumb-type{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.thumb-name{font-family:'Cinzel',serif;font-size:15px;font-weight:700;color:var(--txt);line-height:1.25;margin-bottom:4px;}
+.thumb-sub{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:10px;}
+.thumb-dmg{font-size:13px;font-weight:700;margin-bottom:10px;}
+.thumb-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:auto;}
+.tg{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;border:1px solid;text-transform:uppercase;letter-spacing:.4px;}
+.tg-plain{background:var(--bg-e);border-color:var(--bdr);color:var(--muted);}
 
-    /* ── Empty state ── */
-    .empty{text-align:center;padding:80px 20px;color:var(--text-muted);display:none;}
-    .empty.show{display:block;}
-    .empty-icon{font-size:48px;opacity:.12;display:block;margin-bottom:14px;}
-    .empty p{font-size:15px;margin-bottom:5px;}
-    .empty small{font-size:13px;opacity:.5;}
+.empty{text-align:center;padding:80px 20px;color:var(--muted);display:none;}
+.empty.show{display:block;}
+.empty .ei{font-size:48px;opacity:.12;display:block;margin-bottom:14px;}
 
-    /* ── Lightbox ── */
-    .lb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
-    .lb-overlay.open{opacity:1;pointer-events:auto;}
-    .lb-inner{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
-    .lb-img-wrap{max-height:92vh;max-width:90vw;overflow:auto;border-radius:var(--r-lg);box-shadow:0 24px 80px rgba(0,0,0,.8);line-height:0;}
-    .lb-img-wrap img{max-width:100%;max-height:92vh;width:auto;height:auto;display:block;border-radius:var(--r-lg);}
-    .lb-close{position:fixed;top:16px;right:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:910;}
-    .lb-close:hover{background:rgba(255,255,255,.18);}
-    .lb-nav{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;width:44px;height:64px;border-radius:var(--r-md);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:910;}
-    .lb-nav:hover{background:rgba(255,255,255,.18);}
-    .lb-prev{left:12px;}
-    .lb-next{right:12px;}
-    .lb-caption{position:fixed;bottom:0;left:0;right:0;padding:14px 20px;background:linear-gradient(transparent,rgba(0,0,0,.85));text-align:center;z-index:910;}
-    .lb-cap-name{font-size:16px;font-weight:600;color:#fff;margin-bottom:3px;}
-    .lb-cap-type{font-size:12px;color:rgba(255,255,255,.55);}
+/* ── Lightbox ── */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;opacity:0;pointer-events:none;transition:opacity .2s;overflow-y:auto;}
+.lb.open{opacity:1;pointer-events:auto;}
+.lb-inner{position:relative;width:100%;max-width:460px;margin:auto;}
+.lb-close{position:fixed;top:16px;right:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:910;}
+.lb-close:hover{background:rgba(255,255,255,.2);}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;width:44px;height:64px;border-radius:var(--r);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:910;}
+.lb-nav:hover{background:rgba(255,255,255,.2);}
+.lb-prev{left:12px;}
+.lb-next{right:12px;}
 
-    /* ── Toast ── */
-    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:13px;color:var(--text);z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:tin .2s ease,tout .3s ease 2s forwards;}
-    @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-    @keyframes tout{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
+/* ═══════════════════════════════════════════
+   WEAPON CARD
+═══════════════════════════════════════════ */
+.wc{
+  font-family:'Crimson Pro',Georgia,serif;
+  background:#0a0c0a;
+  border-radius:12px;
+  padding:28px 26px 20px;
+  position:relative;
+  color:#d4cfc0;
+  width:100%;
+  border:1px solid;
+}
 
-    @media(max-width:600px){
-      .site-header h1{font-size:24px;}
-      .card-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
-      .lb-nav{display:none;}
-    }
-    ::-webkit-scrollbar{width:4px;height:4px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+/* corners */
+.wc-corners{position:absolute;inset:6px;pointer-events:none;}
+.wc-corner{position:absolute;width:16px;height:16px;border-color:inherit;}
+.wc-corner.tl{top:0;left:0;border-top:2px solid;border-left:2px solid;}
+.wc-corner.tr{top:0;right:0;border-top:2px solid;border-right:2px solid;}
+.wc-corner.bl{bottom:0;left:0;border-bottom:2px solid;border-left:2px solid;}
+.wc-corner.br{bottom:0;right:0;border-bottom:2px solid;border-right:2px solid;}
+
+/* header */
+.wc-type{font-family:'Cinzel',serif;font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;text-align:center;color:inherit;opacity:.7;margin-bottom:10px;line-height:1.6;}
+.wc-name{font-family:'Cinzel',serif;font-size:26px;font-weight:700;text-align:center;color:inherit;line-height:1.2;margin-bottom:6px;}
+.wc-subtitle{font-family:'Cinzel',serif;font-size:13px;text-align:center;color:inherit;opacity:.75;margin-bottom:10px;}
+.wc-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:20px;border:1px solid;margin:0 auto 10px;display:table;text-align:center;}
+.wc-flavor{font-size:13px;font-style:italic;text-align:center;opacity:.6;margin-bottom:4px;line-height:1.5;padding:0 8px;}
+.wc-divider{border:none;border-top:1px solid;opacity:.2;margin:14px 0;}
+
+/* stats */
+.wc-stat{display:flex;align-items:center;border:1px solid;border-radius:6px;margin-bottom:8px;overflow:hidden;}
+.wc-stat-lbl{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 14px;opacity:.6;min-width:100px;flex-shrink:0;border-right:1px solid;opacity:.5;}
+.wc-stat-val{padding:10px 16px;font-size:17px;font-weight:700;flex:1;text-align:right;line-height:1.3;}
+.wc-stat-sub{font-size:11px;font-weight:400;opacity:.6;display:block;margin-top:2px;}
+
+.wc-range-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.wc-range-box{border:1px solid;border-radius:6px;padding:10px 14px;opacity:.85;}
+.wc-range-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;opacity:.6;margin-bottom:4px;}
+.wc-range-val{font-size:17px;font-weight:700;}
+.wc-range-note{font-size:11px;opacity:.5;margin-top:2px;}
+
+/* tags */
+.wc-tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 8px;}
+.wc-tag{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;padding:4px 10px;border-radius:4px;border:1px solid;text-transform:uppercase;}
+
+/* prop divider */
+.wc-pdiv{display:flex;align-items:center;gap:0;margin:14px 0 12px;}
+.wc-pdiv::before,.wc-pdiv::after{content:'';flex:1;height:1px;background:currentColor;opacity:.2;}
+.wc-pdiv-icon{font-size:10px;padding:0 10px;opacity:.5;}
+
+/* special props section */
+.wc-props-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:12px;}
+.wc-prop{background:rgba(255,255,255,.04);border:1px solid;border-radius:6px;padding:14px;margin-bottom:10px;}
+.wc-prop-title{font-family:'Cinzel',serif;font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.wc-prop-icon{font-size:11px;}
+.wc-prop-body{font-size:14px;line-height:1.65;}
+.wc-prop-body strong{font-weight:700;}
+.wc-prop-body p{margin-bottom:8px;}
+.wc-prop-body p:last-child{margin-bottom:0;}
+
+/* stat mini-boxes */
+.wc-sboxes{display:grid;gap:8px;margin-top:12px;}
+.wc-sbox{background:rgba(0,0,0,.25);border:1px solid;border-radius:6px;padding:10px 12px;text-align:center;}
+.wc-sbox-lbl{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;opacity:.55;margin-bottom:4px;line-height:1.4;}
+.wc-sbox-val{font-size:17px;font-weight:700;}
+.wc-sbox-note{font-size:10px;opacity:.55;margin-top:2px;}
+
+/* use counters */
+.wc-uses{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid;border-color:inherit;opacity:.7;}
+.wc-use-pips{display:flex;gap:5px;}
+.wc-use-pip{width:28px;height:28px;border-radius:6px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.wc-use-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;opacity:.7;}
+
+/* table */
+.wc-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+.wc-table th{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 8px;text-align:center;border-bottom:1px solid;opacity:.6;}
+.wc-table td{padding:7px 8px;text-align:center;border-bottom:1px solid;font-size:13px;}
+.wc-table tr:last-child td{border-bottom:none;}
+.wc-table td.hl{font-weight:700;}
+
+/* warning box */
+.wc-warn{border:1px solid;border-radius:6px;padding:12px 14px;margin-bottom:10px;}
+.wc-warn-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.wc-warn-body{font-size:13px;line-height:1.6;}
+
+/* element grid */
+.elem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;}
+.elem-btn{border-radius:5px;border:1px solid;padding:8px 4px;text-align:center;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.8px;text-transform:uppercase;font-weight:600;}
+.elem-icon{font-size:14px;display:block;margin-bottom:3px;}
+
+/* magazine */
+.wc-mag-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;opacity:.6;margin-bottom:6px;}
+.wc-mag-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px;}
+.wc-mag-pip{width:26px;height:26px;border-radius:4px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.wc-mag-info{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.8px;opacity:.7;margin-bottom:8px;}
+
+/* attack table */
+.wc-atk-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.wc-atk-box{border:1px solid;border-radius:6px;padding:10px;text-align:center;}
+.wc-atk-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.6;margin-bottom:4px;}
+.wc-atk-val{font-size:20px;font-weight:700;}
+.wc-atk-sub{font-size:10px;opacity:.55;margin-top:2px;}
+
+/* diagram */
+.wc-diagram{display:flex;flex-direction:column;align-items:center;padding:16px 0 8px;gap:6px;opacity:.75;}
+.diag-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;opacity:.6;}
+.diag-circle{width:80px;height:80px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;position:relative;}
+.diag-center{width:12px;height:12px;border-radius:50%;background:currentColor;}
+.diag-arrows{display:flex;align-items:center;gap:8px;font-size:12px;}
+
+.beam-diag{display:flex;flex-direction:column;align-items:center;padding:8px 0;}
+.beam-shape{width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:70px solid;opacity:.4;margin-bottom:4px;}
+.beam-zone{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 12px;border:1px solid;border-radius:10px;opacity:.7;}
+
+/* footer */
+.wc-footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid;border-color:inherit;}
+.wc-footer span{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.4;}
+
+/* toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1c2333;border:1px solid #2a3244;border-radius:20px;padding:8px 18px;font-size:13px;color:#e2e8f0;z-index:999;pointer-events:none;animation:ti .2s ease,to .3s ease 2s forwards;}
+@keyframes ti{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes to{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
+
+@media(max-width:600px){
+  .site-header h1{font-size:24px;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;}
+  .lb-nav{display:none;}
+}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#2a3244;border-radius:10px;}
   </style>
 </head>
 <body>
 <div class="page">
-
   <header class="site-header">
     <div class="eyebrow">DM Homebrew</div>
-    <h1>⚔️ Homebrew Arsenal</h1>
-    <div class="sub">Seiros Academy &amp; Custom Weapons — Browse &amp; share with your party</div>
-    <div class="header-divider"></div>
+    <h1>⚔ Homebrew Arsenal</h1>
+    <div class="sub">Seiros Academy &amp; Custom Weapons</div>
+    <div class="hline"></div>
   </header>
 
   <div class="controls">
-    <div class="search-wrap">
+    <div class="sw">
       <i class="ti ti-search"></i>
-      <input class="search-input" id="search" type="search" placeholder="Search weapons…" oninput="filterCards()">
+      <input class="si" id="search" type="search" placeholder="Search weapons…" oninput="filter()">
     </div>
-    <span class="count" id="count"></span>
+    <span class="cnt" id="cnt"></span>
   </div>
 
-  <div class="tag-filters" id="tag-filters"></div>
-
-  <div class="card-grid" id="card-grid"></div>
+  <div class="tf" id="tf"></div>
+  <div class="grid" id="grid"></div>
   <div class="empty" id="empty">
-    <i class="ti ti-sword-off empty-icon"></i>
+    <i class="ti ti-sword-off ei"></i>
     <p>No weapons found</p>
-    <small>Try a different search or tag</small>
+    <small>Try a different search or filter</small>
   </div>
-
 </div>
 
 <!-- Lightbox -->
-<div class="lb-overlay" id="lb-overlay" onclick="lbBgClick(event)">
-  <div class="lb-inner">
-    <div class="lb-img-wrap"><img id="lb-img" src="" alt=""></div>
-  </div>
+<div class="lb" id="lb" onclick="lbBg(event)">
+  <div class="lb-inner" id="lb-inner"></div>
   <button class="lb-close" onclick="closeLb()"><i class="ti ti-x"></i></button>
   <button class="lb-nav lb-prev" onclick="lbStep(-1)"><i class="ti ti-chevron-left"></i></button>
   <button class="lb-nav lb-next" onclick="lbStep(1)"><i class="ti ti-chevron-right"></i></button>
-  <div class="lb-caption">
-    <div class="lb-cap-name" id="lb-cap-name"></div>
-    <div class="lb-cap-type" id="lb-cap-type"></div>
-  </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// WEAPONS DATA — add new weapons here
-// image: path relative to this file, inside the cards/ folder
-// tags: used for filtering — keep lowercase, no spaces (use hyphens)
-// ─────────────────────────────────────────────
-const WEAPONS = [
-  {
-    name: 'Repeating Crossbow',
-    subtitle: 'Model Impact',
-    type: 'Martial Ranged Weapon · Homebrew',
-    tags: ['ranged','piercing','mechanical','two-handed'],
-    image: 'cards/repeating-crossbow.png',
-  },
-  {
-    name: 'Scroll Bow',
-    subtitle: null,
-    type: 'Martial Ranged Weapon · Arcane · Homebrew',
-    tags: ['ranged','piercing','two-handed','arcane'],
-    image: 'cards/scroll-bow.png',
-  },
-  {
-    name: 'Adaption Blade',
-    subtitle: '"The blade does not master one element — it masters all of them."',
-    type: 'Martial Melee Weapon · Versatile · Homebrew',
-    tags: ['melee','slashing','versatile','elemental'],
-    image: 'cards/adaption-blade.png',
-  },
-  {
-    name: 'Shock Axe',
-    subtitle: 'Seiros Academy Prototype',
-    type: 'Martial Melee Weapon · One-Handed · Homebrew',
-    tags: ['melee','slashing','one-handed','lightning','seiros','prototype'],
-    image: 'cards/shock-axe.png',
-  },
-  {
-    name: 'Impact Fang',
-    subtitle: 'Seiros Academy · Student Prototype',
-    type: 'Ranged Sidearm · One-Handed · Homebrew',
-    tags: ['ranged','one-handed','force','seiros','prototype'],
-    image: 'cards/impact-fang.png',
-  },
-  {
-    name: 'Charge Blade',
-    subtitle: 'Seiros Academy · Student Prototype',
-    type: 'Melee Weapon · Versatile · Katana · Homebrew',
-    tags: ['melee','slashing','one-handed','versatile','chargeable','seiros','prototype'],
-    image: 'cards/charge-blade.png',
-  },
-  {
-    name: 'Tremor Warden',
-    subtitle: 'Shockwave Pattern I',
-    type: 'Arcane Staff · Versatile · Homebrew',
-    tags: ['melee','bludgeoning','versatile','force','aoe','seiros','prototype'],
-    image: 'cards/tremor-warden.png',
-  },
-  {
-    name: 'Lumen',
-    subtitle: 'Field Medic Pattern I',
-    type: 'Martial Melee Weapon · Spear · Homebrew',
-    tags: ['melee','piercing','reach','versatile','radiant','healing','seiros','prototype'],
-    image: 'cards/lumen.png',
-  },
+// ═══════════════════════════════════════════════════
+//  WEAPON DATA
+// ═══════════════════════════════════════════════════
+const W = [
+{
+  id:'repeating-crossbow', name:'Repeating Crossbow', sub:'Model Impact',
+  type:'Martial Ranged Weapon · Homebrew',
+  accent:'#c9a84c', glow:null, acR:'201,168,76',
+  dmgPreview:'3d6 + ability mod',
+  filterTags:['ranged','piercing','mechanical','two-handed'],
+  previewTags:['Ranged','Mechanical'],
+},
+{
+  id:'scroll-bow', name:'Scroll Bow', sub:null,
+  type:'Martial Ranged Weapon · Arcane · Homebrew',
+  accent:'#5577aa', glow:null, acR:'85,119,170',
+  dmgPreview:'1d8 + ability mod',
+  filterTags:['ranged','piercing','two-handed','arcane'],
+  previewTags:['Ranged','Arcane'],
+},
+{
+  id:'adaption-blade', name:'Adaption Blade', sub:null,
+  type:'Martial Melee Weapon · Versatile · Homebrew',
+  accent:'#4a8f2a', glow:null, acR:'74,143,42',
+  dmgPreview:'1d8 + ability mod',
+  filterTags:['melee','slashing','versatile','elemental'],
+  previewTags:['Melee','Elemental'],
+},
+{
+  id:'shock-axe', name:'Shock Axe', sub:'Seiros Academy Prototype',
+  type:'Martial Melee Weapon · One-Handed · Homebrew',
+  accent:'#7c4de8', glow:'rgba(100,60,220,.7)', acR:'124,77,232',
+  dmgPreview:'2d6 + ability mod',
+  filterTags:['melee','slashing','one-handed','lightning','seiros','prototype'],
+  previewTags:['Melee','Lightning','Seiros'],
+},
+{
+  id:'impact-fang', name:'Impact Fang', sub:'Seiros Academy · Student Prototype',
+  type:'Ranged Sidearm · One-Handed · Homebrew',
+  accent:'#00b4d8', glow:'rgba(0,180,216,.7)', acR:'0,180,216',
+  dmgPreview:'1d8 + ability mod',
+  filterTags:['ranged','one-handed','force','seiros','prototype'],
+  previewTags:['Ranged','Force','Seiros'],
+},
+{
+  id:'charge-blade', name:'Charge Blade', sub:'Seiros Academy · Student Prototype',
+  type:'Melee Weapon · Versatile · Katana · Homebrew',
+  accent:'#cc2222', glow:'rgba(200,30,30,.75)', acR:'204,34,34',
+  dmgPreview:'1d8 + ability mod',
+  filterTags:['melee','slashing','versatile','chargeable','seiros','prototype'],
+  previewTags:['Melee','Chargeable','Seiros'],
+},
+{
+  id:'tremor-warden', name:'Tremor Warden', sub:'Shockwave Pattern I',
+  type:'Arcane Staff · Versatile · Homebrew',
+  accent:'#00b894', glow:'rgba(0,184,148,.7)', acR:'0,184,148',
+  dmgPreview:'1d8 / 1d10 two-handed',
+  filterTags:['melee','bludgeoning','versatile','force','aoe','seiros','prototype'],
+  previewTags:['Melee','Force','AOE','Seiros'],
+},
+{
+  id:'lumen', name:'Lumen', sub:'Field Medic Pattern I',
+  type:'Martial Melee Weapon · Spear · Homebrew',
+  accent:'#e8c020', glow:'rgba(232,192,32,.7)', acR:'232,192,32',
+  dmgPreview:'2d10 + ability mod',
+  filterTags:['melee','piercing','reach','versatile','radiant','healing','seiros','prototype'],
+  previewTags:['Melee','Radiant','Healing','Seiros'],
+},
 ];
 
-// ─────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────
-let activeTag = null;
-let lbIndex   = 0;
-let visible   = [];   // indices of currently shown weapons
-
-// ─────────────────────────────────────────────
-// Boot
-// ─────────────────────────────────────────────
-function boot() {
-  buildTagFilters();
-  renderGrid(WEAPONS.map((_,i)=>i));
+// ═══════════════════════════════════════════════════
+//  CARD HTML BUILDERS  (one per weapon)
+// ═══════════════════════════════════════════════════
+function buildCard(w) {
+  switch(w.id) {
+    case 'repeating-crossbow': return cardRepeatingCrossbow(w);
+    case 'scroll-bow':         return cardScrollBow(w);
+    case 'adaption-blade':     return cardAdaptionBlade(w);
+    case 'shock-axe':          return cardShockAxe(w);
+    case 'impact-fang':        return cardImpactFang(w);
+    case 'charge-blade':       return cardChargeBlade(w);
+    case 'tremor-warden':      return cardTremorWarden(w);
+    case 'lumen':              return cardLumen(w);
+  }
 }
 
-// ─────────────────────────────────────────────
-// Tag filters
-// ─────────────────────────────────────────────
-function buildTagFilters() {
+function cc(w,inner) {
+  const glow = w.glow ? `box-shadow:0 0 0 1px ${w.accent},0 0 30px ${w.glow},0 0 60px ${w.glow}40;` : '';
+  return `<div class="wc" style="border-color:${w.accent}40;${glow}color:${w.accent}">
+  <div class="wc-corners" style="border-color:${w.accent}">
+    <div class="wc-corner tl"></div><div class="wc-corner tr"></div>
+    <div class="wc-corner bl"></div><div class="wc-corner br"></div>
+  </div>
+  ${inner}
+  </div>`;
+}
+
+function wcStat(lbl, val, sub, ac) {
+  return `<div class="wc-stat" style="border-color:${ac}25;color:${ac}">
+    <div class="wc-stat-lbl" style="border-color:${ac}25">${lbl}</div>
+    <div class="wc-stat-val" style="color:${ac}">${val}${sub?`<span class="wc-stat-sub" style="color:${ac}99">${sub}</span>`:''}</div>
+  </div>`;
+}
+
+function wcRange(boxes, ac) {
+  return `<div class="wc-range-row">${boxes.map(b=>`
+    <div class="wc-range-box" style="border-color:${ac}25;background:${ac}08">
+      <div class="wc-range-lbl">${b.label}</div>
+      <div class="wc-range-val" style="color:${ac}">${b.value}</div>
+      ${b.note?`<div class="wc-range-note">${b.note}</div>`:''}
+    </div>`).join('')}</div>`;
+}
+
+function wcTags(tags, ac) {
+  return `<div class="wc-tags">${tags.map(t=>`
+    <span class="wc-tag" style="border-color:${t.sp?ac+'80':ac+'28'};color:${t.sp?ac:ac+'99'};background:${t.sp?ac+'18':'transparent'}">${t.text}</span>
+  `).join('')}</div>`;
+}
+
+function wcPdiv(icon, ac) {
+  return `<div class="wc-pdiv" style="color:${ac}"><span class="wc-pdiv-icon">${icon}</span></div>`;
+}
+
+function wcPropOpen(icon, title, ac) {
+  return `<div class="wc-prop" style="border-color:${ac}22;background:${ac}06">
+    <div class="wc-prop-title" style="color:${ac}"><span class="wc-prop-icon">${icon}</span> ${title}</div>
+    <div class="wc-prop-body" style="color:#c8c0b0">`;
+}
+
+function wcSboxes(boxes, cols, ac) {
+  return `<div class="wc-sboxes" style="grid-template-columns:repeat(${cols},1fr)">${boxes.map(b=>`
+    <div class="wc-sbox" style="border-color:${ac}25">
+      <div class="wc-sbox-lbl">${b.label}</div>
+      <div class="wc-sbox-val" style="color:${ac}">${b.value}</div>
+      ${b.note?`<div class="wc-sbox-note">${b.note}</div>`:''}
+    </div>`).join('')}</div>`;
+}
+
+function wcUses(count, pip, label, ac) {
+  const pips = Array(count).fill(`<div class="wc-use-pip" style="border-color:${ac}50;color:${ac}">${pip}</div>`).join('');
+  return `<div class="wc-uses" style="border-color:${ac}30">
+    <div class="wc-use-pips">${pips}</div>
+    <div class="wc-use-label">${label}</div>
+  </div>`;
+}
+
+function wcFooter(left, right, ac) {
+  return `<div class="wc-footer" style="border-color:${ac}20">
+    <span>${left}</span><span>${right}</span>
+  </div>`;
+}
+
+// ─── 1. Repeating Crossbow ──────────────────────────
+function cardRepeatingCrossbow(w) {
+  const ac = w.accent;
+  return cc(w, `
+    <div class="wc-type">Martial Ranged Weapon · Homebrew</div>
+    <div class="wc-name">Repeating Crossbow</div>
+    <div class="wc-subtitle">Model Impact</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('DAMAGE','3d6 + ability mod','',ac)}
+    ${wcRange([
+      {label:'NORMAL RANGE',value:'150 ft',note:'No disadvantage'},
+      {label:'LONG RANGE',value:'600 ft',note:'Disadvantage on attack'},
+    ],ac)}
+    ${wcTags([
+      {text:'RANGED'},{text:'PIERCING'},{text:'MECHANICAL'},{text:'TWO-HANDED'}
+    ],ac)}
+    ${wcPdiv('◆',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('◆','Scatter Impact',ac)}
+      <p>Each of the <strong>3d6</strong> damage dice is rolled individually. On each die, roll a <strong>d6</strong> — on a <strong>5 or 6</strong>, that die's damage also hits one random additional target within <strong>5 ft</strong> of the primary target. Each secondary hit uses that single die's result as its damage.</p>
+    </div></div>
+    ${wcFooter('WEAPON CARD','DM HOMEBREW',ac)}
+  `);
+}
+
+// ─── 2. Scroll Bow ──────────────────────────────────
+function cardScrollBow(w) {
+  const ac = w.accent;
+  return cc(w, `
+    <div class="wc-type">Martial Ranged Weapon · Arcane · Homebrew</div>
+    <div class="wc-name">Scroll Bow</div>
+    <div class="wc-flavor">"A bow that speaks the language of magic."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('DAMAGE','1d8 + ability mod','',ac)}
+    ${wcRange([
+      {label:'NORMAL RANGE',value:'150 ft',note:'No disadvantage'},
+      {label:'LONG RANGE',value:'600 ft',note:'Disadvantage on attack'},
+    ],ac)}
+    ${wcTags([
+      {text:'RANGED'},{text:'PIERCING'},{text:'TWO-HANDED'},
+      {text:'✦ ARCANE VESSEL',sp:true}
+    ],ac)}
+    ${wcPdiv('◆',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('●','Scroll Casting',ac)}
+      <p>The bow has a compartment that accepts <strong>spell scrolls</strong>. Once slotted, a scroll can be activated <strong>alongside an attack</strong> from this bow as part of the same action.</p>
+      <p>Roll <strong>1d20 + INT modifier</strong> vs. the scroll's activation DC. On a success, the spell fires. On a fail, the scroll is consumed with no effect.</p>
+      <table class="wc-table" style="border-color:${ac}25">
+        <thead><tr>
+          <th style="border-color:${ac}25;color:${ac}">Spell Level</th>
+          <th style="border-color:${ac}25;color:${ac}">Activation DC</th>
+          <th style="border-color:${ac}25;color:${ac}">Roll Required</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="hl" style="border-color:${ac}15;color:${ac}">1st</td><td style="border-color:${ac}15">5</td><td style="border-color:${ac}15">1d20 + INT ≥ 5</td></tr>
+          <tr><td class="hl" style="border-color:${ac}15;color:${ac}">2nd</td><td style="border-color:${ac}15">6</td><td style="border-color:${ac}15">1d20 + INT ≥ 6</td></tr>
+          <tr><td class="hl" style="border-color:${ac}15;color:${ac}">3rd</td><td style="border-color:${ac}15">7</td><td style="border-color:${ac}15">1d20 + INT ≥ 7</td></tr>
+          <tr><td class="hl" style="border-color:${ac}15;color:${ac}">4th</td><td style="border-color:${ac}15">8</td><td style="border-color:${ac}15">1d20 + INT ≥ 8</td></tr>
+          <tr><td class="hl" style="border-color:${ac}15;color:${ac}">5th+</td><td style="border-color:${ac}15">+1 per level</td><td style="border-color:${ac}15">…and so on</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+    <div class="wc-warn" style="border-color:#cc334440;background:#cc334415">
+      <div class="wc-warn-title" style="color:#cc8888">◆ FIZZLE — ON FAILED ROLL</div>
+      <div class="wc-warn-body" style="color:#b09090">The scroll is <strong>consumed</strong> and its magic dissipates harmlessly. The attack still resolves normally.</div>
+    </div>
+    ${wcFooter('WEAPON CARD','DM HOMEBREW',ac)}
+  `);
+}
+
+// ─── 3. Adaption Blade ──────────────────────────────
+function cardAdaptionBlade(w) {
+  const ac = w.accent;
+  const elements = [
+    {icon:'🔥',label:'FIRE',  color:'#e05020',bg:'#e0502018',bdr:'#e0502050'},
+    {icon:'❄️',label:'COLD',  color:'#4090c0',bg:'#4090c018',bdr:'#4090c050'},
+    {icon:'⚡',label:'LIGHTNING',color:'#e0c020',bg:'#e0c02018',bdr:'#e0c02050'},
+    {icon:'☠️',label:'POISON',color:'#60a020',bg:'#60a02018',bdr:'#60a02050'},
+    {icon:'🧪',label:'ACID',  color:'#90b020',bg:'#90b02018',bdr:'#90b02050'},
+    {icon:'💀',label:'NECROTIC',color:'#9050c0',bg:'#9050c018',bdr:'#9050c050'},
+    {icon:'✨',label:'RADIANT',color:'#d0a820',bg:'#d0a82018',bdr:'#d0a82050'},
+    {icon:'🌀',label:'FORCE', color:'#5050d0',bg:'#5050d018',bdr:'#5050d050'},
+  ];
+  return cc(w, `
+    <div class="wc-type">Martial Melee Weapon · Versatile · Homebrew</div>
+    <div class="wc-name">Adaption Blade</div>
+    <div class="wc-flavor">"The blade does not master one element — it masters all of them."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('DAMAGE','1d8 + ability mod','Two-handed: 1d10 + ability mod',ac)}
+    ${wcTags([
+      {text:'MELEE'},{text:'SLASHING'},{text:'VERSATILE'},
+      {text:'✦ ELEMENTAL',sp:true}
+    ],ac)}
+    ${wcPdiv('◆',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('◆','Elemental Absorption',ac)}
+      <p><strong>Once per battle.</strong> Rest the blade on a source of elemental energy for a moment, absorbing its essence into the steel.</p>
+      <p>For the next <strong>5 minutes</strong>, all damage dealt by this blade gains <strong>+2d4</strong> of the absorbed element's damage type.</p>
+      ${wcSboxes([
+        {label:'BONUS\nDAMAGE',value:'+2d4',note:''},
+        {label:'DURATION',value:'5 min',note:''},
+        {label:'USES',value:'1 / battle',note:''},
+      ],3,ac)}
+      <div style="margin-top:12px">
+        <div class="wc-range-lbl" style="margin-bottom:8px">EXAMPLE ELEMENTS</div>
+        <div class="elem-grid">${elements.map(e=>`
+          <div class="elem-btn" style="color:${e.color};border-color:${e.bdr};background:${e.bg}">
+            <span class="elem-icon">${e.icon}</span>${e.label}
+          </div>`).join('')}</div>
+      </div>
+    </div></div>
+    ${wcFooter('WEAPON CARD · PROTOTYPE','DM HOMEBREW',ac)}
+  `);
+}
+
+// ─── 4. Shock Axe ───────────────────────────────────
+function cardShockAxe(w) {
+  const ac = w.accent;
+  return cc(w, `
+    <div class="wc-type">Martial Melee Weapon · One-Handed · Homebrew</div>
+    <div class="wc-name">Shock Axe</div>
+    <div class="wc-badge" style="border-color:${ac}50;color:${ac}90;background:${ac}10">✦ SEIROS ACADEMY PROTOTYPE</div>
+    <div class="wc-flavor">"Forged in the workshops beneath Garreg Mach, this axe channels raw storm-energy through an experimental conductive alloy — brilliant in theory, volatile in practice."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('DAMAGE','2d6 + ability mod','Slashing',ac)}
+    ${wcRange([
+      {label:'RANGE',value:'5 ft',note:'Melee only'},
+      {label:'HANDED',value:'One-handed',note:'Off-hand free'},
+    ],ac)}
+    ${wcTags([
+      {text:'MELEE'},{text:'SLASHING'},{text:'ONE-HANDED'},
+      {text:'⚡ LIGHTNING',sp:true},{text:'◎ PROTOTYPE',sp:true}
+    ],ac)}
+    ${wcPdiv('⚡',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('⚡','Shock Stun',ac)}
+      <p>When you hit with this axe, you may trigger <strong>Shock Stun</strong>. The target takes an additional <strong style="color:${ac}">1d4 lightning damage</strong> and must make a <strong>Constitution saving throw</strong>.</p>
+      <p>On a failed save, the target is <strong>Stunned</strong> until the end of their next turn.</p>
+      ${wcSboxes([
+        {label:'BONUS\nDAMAGE',value:`+1d4 ⚡`,note:'Lightning'},
+        {label:'SAVE DC',value:'13 + prof',note:'Constitution'},
+        {label:'ON FAIL',value:'Stunned',note:'Until end of turn'},
+      ],3,ac)}
+      ${wcUses(3,'⚡','3 USES · RECHARGE ON LONG REST',ac)}
+    </div></div>
+    ${wcFooter('WEAPON CARD · PROTOTYPE','DM HOMEBREW',ac)}
+  `);
+}
+
+// ─── 5. Impact Fang ─────────────────────────────────
+function cardImpactFang(w) {
+  const ac = w.accent;
+  const mag = Array(10).fill(`<div class="wc-mag-pip" style="border-color:${ac}50;color:${ac}">◆</div>`).join('');
+  return cc(w, `
+    <div class="wc-type">Ranged Sidearm · One-Handed · Homebrew</div>
+    <div class="wc-name">Impact Fang</div>
+    <div class="wc-badge" style="border-color:${ac}50;color:${ac}90;background:${ac}10">✦ SEIROS ACADEMY · STUDENT PROTOTYPE</div>
+    <div class="wc-flavor">"Early energy weapons relied on the user channelling their own qi or mana directly into the frame. The Impact Fang represents the new school of thinking — purpose-built to accept standardised energy cartridges, removing the caster from the equation entirely and putting the power in anyone's hands."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('DAMAGE','1d8 + ability mod','Force',ac)}
+    ${wcRange([
+      {label:'NORMAL RANGE',value:'90 ft',note:'No disadvantage'},
+      {label:'LONG RANGE',value:'200 ft',note:'Disadvantage on attack'},
+    ],ac)}
+    ${wcTags([
+      {text:'RANGED'},{text:'ONE-HANDED'},
+      {text:'✦ FORCE',sp:true},{text:'✦ SEIROS',sp:true},{text:'◎ PROTOTYPE',sp:true}
+    ],ac)}
+    ${wcPdiv('◆',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('🔋','Energy Magazine',ac)}
+      <p>The Impact Fang is loaded with a magazine of <strong>10 energy cartridges</strong>. Each shot expends one cartridge. A fresh magazine costs <strong style="color:${ac}">10 gp — 1 gp per shot</strong>. Stock up before you head out.</p>
+      <div style="margin-top:12px">
+        <div class="wc-mag-info">MAGAZINE &nbsp;·&nbsp; 10 / 10 ROUNDS &nbsp;·&nbsp; 10 GP PER MAG</div>
+        <div class="wc-mag-row">${mag}</div>
+      </div>
+    </div></div>
+    ${wcPropOpen('🔄','Reload',ac)}
+      <p>When the magazine is empty, you must use your <strong>action, bonus action, or reaction</strong> (DM discretion) to swap in a fresh one before firing again.</p>
+    </div></div>
+    ${wcPropOpen('⚡','Rapid Fire',ac)}
+      <p>This weapon fires with exceptional speed. Each cartridge expended grants one shot.</p>
+      <div class="wc-atk-row">
+        <div class="wc-atk-box" style="border-color:${ac}25">
+          <div class="wc-atk-lbl">DEFAULT</div>
+          <div class="wc-atk-val" style="color:${ac}">2× Attacks</div>
+          <div class="wc-atk-sub">per Attack action</div>
+        </div>
+        <div class="wc-atk-box" style="border-color:${ac}40;background:${ac}0a">
+          <div class="wc-atk-lbl" style="color:${ac}99">LEVEL 10+</div>
+          <div class="wc-atk-val" style="color:${ac}">3× Attacks</div>
+          <div class="wc-atk-sub">per Attack action</div>
+        </div>
+      </div>
+    </div></div>
+    ${wcFooter('WEAPON CARD · PROTOTYPE','DM HOMEBREW',ac)}
+  `);
+}
+
+// ─── 6. Charge Blade ────────────────────────────────
+function cardChargeBlade(w) {
+  const ac = w.accent;
+  return cc(w, `
+    <div class="wc-type">Melee Weapon · Versatile · Katana · Homebrew</div>
+    <div class="wc-name">Charge Blade</div>
+    <div class="wc-badge" style="border-color:${ac}50;color:${ac}90;background:${ac}10">✦ SEIROS ACADEMY · STUDENT PROTOTYPE</div>
+    <div class="wc-flavor">"Blade and sheathe are one system. The edge alone cuts — but the moment it is drawn from a full charge, it screams. What leaves the steel is not just a slash, but the stored violence of every second it spent waiting."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('BASE DAMAGE','1d8 + ability mod','Slashing',ac)}
+    ${wcRange([
+      {label:'MELEE RANGE',value:'5 ft',note:'Standard strike'},
+      {label:'SLASH WAVE',value:'30 ft',note:'Requires charge'},
+    ],ac)}
+    ${wcTags([
+      {text:'MELEE'},{text:'SLASHING'},{text:'ONE-HANDED'},
+      {text:'✦ CHARGEABLE',sp:true},{text:'✦ SEIROS',sp:true},{text:'◎ PROTOTYPE',sp:true}
+    ],ac)}
+    ${wcPdiv('◆',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('⚔','Sheathe & Charge',ac)}
+      <p>Use your <strong style="color:${ac}">Action</strong> to sheathe the blade and begin charging. Each turn spent sheathed adds one charge. <strong>Maximum: 2 charges.</strong> Drawing and attacking expends all stored charges.</p>
+      <table class="wc-table" style="border-color:${ac}25;margin-top:10px">
+        <thead><tr>
+          <th style="border-color:${ac}25;color:${ac}">CHARGE</th>
+          <th style="border-color:${ac}25;color:${ac}">TOTAL DAMAGE</th>
+          <th style="border-color:${ac}25;color:${ac}">SLASH WAVE</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="border-color:${ac}15">Uncharged</td><td style="border-color:${ac}15">1d8 + mod</td><td style="border-color:${ac}15;color:${ac}88">No</td></tr>
+          <tr><td style="border-color:${ac}15;color:${ac}">1 Turn ◆</td><td class="hl" style="border-color:${ac}15;color:${ac}">1d8 + 1d10 + mod</td><td style="border-color:${ac}15;color:${ac}">Yes — 30 ft</td></tr>
+          <tr><td style="border-color:${ac}15;color:${ac}">2 Turns ◆◆</td><td class="hl" style="border-color:${ac}15;color:${ac}">1d8 + 2d10 + mod</td><td style="border-color:${ac}15;color:${ac}">Yes — 30 ft</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+    ${wcPropOpen('🌊','Slash Wave',ac)}
+      <p>When the blade is drawn at <strong>1 or 2 charges</strong>, the strike releases a <strong>slash wave</strong> that travels up to <strong style="color:${ac}">30 ft</strong> to the target. This uses the same attack and damage roll — no separate action required. The blade must be <strong>sheathed again</strong> to rebuild charges.</p>
+    </div></div>
+    ${wcFooter('WEAPON CARD · PROTOTYPE','✦ Seiros Academy',ac)}
+  `);
+}
+
+// ─── 7. Tremor Warden ───────────────────────────────
+function cardTremorWarden(w) {
+  const ac = w.accent;
+  return cc(w, `
+    <div class="wc-type">Arcane Staff · Versatile · Homebrew</div>
+    <div class="wc-name">Tremor Warden</div>
+    <div class="wc-subtitle">Shockwave Pattern I</div>
+    <div class="wc-badge" style="border-color:${ac}50;color:${ac}90;background:${ac}10">✦ SEIROS ACADEMY · ENGINEERING PROTOTYPE</div>
+    <div class="wc-flavor">"Designed from the ground up for backline casters who found themselves outflanked. When the enemy closes in, the Tremor Warden doesn't retreat — it answers. One slam, and the world moves everyone else out of the way."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('BASE DAMAGE','1d8 / 1d10 two-handed + mod','',ac)}
+    ${wcRange([
+      {label:'STRIKE RANGE',value:'5 ft',note:'Melee only'},
+      {label:'SHOCKWAVE AOE',value:'10 ft',note:'From point of impact'},
+    ],ac)}
+    ${wcTags([
+      {text:'MELEE'},{text:'BLUDGEONING'},{text:'VERSATILE'},
+      {text:'✦ FORCE',sp:true},{text:'⚡ AOE',sp:true},{text:'✦ SEIROS',sp:true},{text:'◎ PROTOTYPE',sp:true}
+    ],ac)}
+    ${wcPdiv('◆',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('🌊','Warden\'s Slam',ac)}
+      <p>Slam the staff hard into a surface, unleashing a <strong>shockwave</strong> in a <strong style="color:${ac}">10 ft radius</strong> from the point of impact. All creatures in range — <strong style="color:#e07070">allies and enemies alike</strong> — must make a <strong style="color:${ac}">Strength saving throw.</strong></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <div class="wc-sbox" style="border-color:#cc222240;background:#cc222210">
+          <div class="wc-sbox-lbl" style="color:#cc8888">ON FAIL</div>
+          <div class="wc-sbox-val" style="color:#cc4444">2d6 Force</div>
+          <div class="wc-sbox-note" style="color:#cc666660">Pushed 10 ft away</div>
+        </div>
+        <div class="wc-sbox" style="border-color:${ac}30;background:${ac}08">
+          <div class="wc-sbox-lbl">ON SAVE</div>
+          <div class="wc-sbox-val" style="color:${ac}">No damage</div>
+          <div class="wc-sbox-note">Remains in place</div>
+        </div>
+      </div>
+      ${wcSboxes([
+        {label:'SAVE DC',value:'13 + proficiency',note:'Strength saving throw'},
+        {label:'PUSH\nDISTANCE',value:'10 ft',note:'Away from impact'},
+        {label:'AOE\nRADIUS',value:'10 ft',note:'All creatures'},
+      ],3,ac)}
+      <div style="margin-top:14px">
+        <div class="wc-range-lbl" style="margin-bottom:8px;text-align:center">IMPACT DIAGRAM</div>
+        <div class="wc-diagram" style="color:${ac}">
+          <div class="diag-arrows">← <span style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;opacity:.7">10 FT AOE</span> →</div>
+          <div class="diag-circle" style="border-color:${ac}60">
+            <div class="diag-center" style="background:${ac}"></div>
+          </div>
+          <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;opacity:.5">IMPACT</div>
+        </div>
+      </div>
+      ${wcUses(2,'⚡','2 CHARGES · RECHARGE ON LONG REST',ac)}
+    </div></div>
+    ${wcFooter('WEAPON CARD · PROTOTYPE','✦ Seiros Academy',ac)}
+  `);
+}
+
+// ─── 8. Lumen ───────────────────────────────────────
+function cardLumen(w) {
+  const ac = w.accent;
+  return cc(w, `
+    <div class="wc-type">Martial Melee Weapon · Spear · Homebrew · Prototype</div>
+    <div class="wc-name">Lumen</div>
+    <div class="wc-subtitle">Field Medic Pattern I</div>
+    <div class="wc-badge" style="border-color:${ac}50;color:${ac}90;background:${ac}10">✦ SEIROS ACADEMY · ENGINEERING PROTOTYPE</div>
+    <div class="wc-flavor">"Combat medics can't always stop fighting to heal. The Lumen solves that — a spear that keeps enemies at bay with one end, and calls down restorative light from the other. Distance is the best medicine."</div>
+    <hr class="wc-divider" style="border-color:${ac}30">
+    ${wcStat('TO HIT','1d20 + ability mod + proficiency','',ac)}
+    ${wcStat('BASE DAMAGE','2d10','2d12 two-handed + mod',ac)}
+    ${wcRange([
+      {label:'REACH',value:'10 ft',note:'Melee Piercing'},
+      {label:'BEAM ZONE',value:'5 ft',note:'Radius at target point'},
+    ],ac)}
+    ${wcTags([
+      {text:'MELEE'},{text:'PIERCING'},{text:'REACH'},{text:'VERSATILE'},
+      {text:'✦ RADIANT',sp:true},{text:'✦ HEALING',sp:true},{text:'✦ SEIROS',sp:true},{text:'◎ PROTOTYPE',sp:true}
+    ],ac)}
+    ${wcPdiv('✦',ac)}
+    <div class="wc-props-title">Special Properties</div>
+    ${wcPropOpen('✦','Lumen Beam',ac)}
+      <p>Call down a <strong>beam of restorative light</strong> at a point within <strong style="color:${ac}">30 ft</strong>. The beam covers a <strong>5 ft zone</strong> at that location. All creatures standing within the beam are <strong style="color:${ac}">healed for 2d6 HP.</strong></p>
+      ${wcSboxes([
+        {label:'HEALING',value:'2d6 HP',note:''},
+        {label:'CAST\nRANGE',value:'30 ft',note:''},
+        {label:'ZONE\nSIZE',value:'5 ft',note:''},
+        {label:'CHARGES',value:'2 / rest',note:''},
+      ],4,ac)}
+      <div style="margin-top:14px">
+        <div class="wc-range-lbl" style="margin-bottom:8px;text-align:center">BEAM DIAGRAM</div>
+        <div class="beam-diag">
+          <div class="beam-shape" style="border-bottom-color:${ac}"></div>
+          <div class="beam-zone" style="border-color:${ac}50;color:${ac}90">5 FT ZONE</div>
+        </div>
+        <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.8px;text-align:center;opacity:.45;margin-top:6px">All creatures in the light are healed · Range 30 ft</div>
+      </div>
+      ${wcUses(2,'✦','2 CHARGES · RECHARGE ON LONG REST',ac)}
+    </div></div>
+    ${wcFooter('WEAPON CARD · PROTOTYPE','✦ Seiros Academy',ac)}
+  `);
+}
+
+// ═══════════════════════════════════════════════════
+//  GALLERY
+// ═══════════════════════════════════════════════════
+let activeTag = null, lbIdx = 0, visible = [];
+
+function boot() {
+  buildFilters();
+  showAll();
+}
+
+function buildFilters() {
   const all = new Set();
-  WEAPONS.forEach(w => w.tags.forEach(t => all.add(t)));
-  const order = ['melee','ranged','versatile','one-handed','two-handed','seiros','prototype','elemental','lightning','force','aoe','radiant','healing','arcane','mechanical','chargeable','piercing','slashing','bludgeoning','reach'];
-  const sorted = [...order.filter(t=>all.has(t)), ...[...all].filter(t=>!order.includes(t)).sort()];
+  W.forEach(w => w.filterTags.forEach(t => all.add(t)));
+  const order = ['melee','ranged','versatile','one-handed','two-handed','seiros','prototype','elemental','lightning','force','aoe','radiant','healing','arcane','chargeable','mechanical','piercing','slashing','bludgeoning','reach'];
+  const sorted = [...order.filter(t=>all.has(t)),...[...all].filter(t=>!order.includes(t)).sort()];
 
-  const wrap = document.getElementById('tag-filters');
-  const allBtn = document.createElement('button');
-  allBtn.className = 'tag-btn active';
-  allBtn.textContent = 'All';
-  allBtn.dataset.tag = '';
-  allBtn.onclick = () => setTag(null, allBtn);
+  const wrap = document.getElementById('tf');
+  const allBtn = mkBtn('All','',true);
+  allBtn.onclick = () => { activeTag=null; document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); allBtn.classList.add('on'); filter(); };
   wrap.appendChild(allBtn);
-
   sorted.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'tag-btn';
-    btn.textContent = t;
-    btn.dataset.tag = t;
-    btn.onclick = () => setTag(t, btn);
-    wrap.appendChild(btn);
+    const b = mkBtn(t,t,false);
+    b.onclick = () => { activeTag=t; document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); b.classList.add('on'); filter(); };
+    wrap.appendChild(b);
   });
 }
 
-function setTag(tag, btn) {
-  activeTag = tag;
-  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  filterCards();
+function mkBtn(text, tag, on) {
+  const b = document.createElement('button');
+  b.className = 'tb' + (on?' on':'');
+  b.textContent = text;
+  b.dataset.tag = tag;
+  return b;
 }
 
-// ─────────────────────────────────────────────
-// Filter + render
-// ─────────────────────────────────────────────
-function filterCards() {
+function showAll() { filter(); }
+
+function filter() {
   const q = document.getElementById('search').value.trim().toLowerCase();
-  const indices = WEAPONS.reduce((acc, w, i) => {
-    const matchQ = !q || w.name.toLowerCase().includes(q) || (w.subtitle||'').toLowerCase().includes(q) || w.type.toLowerCase().includes(q) || w.tags.some(t=>t.includes(q));
-    const matchT = !activeTag || w.tags.includes(activeTag);
-    if (matchQ && matchT) acc.push(i);
+  visible = W.reduce((acc,w,i) => {
+    const mq = !q || w.name.toLowerCase().includes(q) || (w.sub||'').toLowerCase().includes(q) || w.type.toLowerCase().includes(q) || w.filterTags.some(t=>t.includes(q));
+    const mt = !activeTag || w.filterTags.includes(activeTag);
+    if (mq && mt) acc.push(i);
     return acc;
   }, []);
-  renderGrid(indices);
+  renderGrid();
 }
 
-function renderGrid(indices) {
-  visible = indices;
-  const grid  = document.getElementById('card-grid');
+function renderGrid() {
+  const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
-  const count = document.getElementById('count');
-  count.textContent = indices.length + ' weapon' + (indices.length !== 1 ? 's' : '');
-
-  if (!indices.length) { grid.innerHTML=''; empty.classList.add('show'); return; }
+  document.getElementById('cnt').textContent = visible.length + ' weapon' + (visible.length!==1?'s':'');
+  if (!visible.length) { grid.innerHTML=''; empty.classList.add('show'); return; }
   empty.classList.remove('show');
 
-  grid.innerHTML = indices.map((wi, pos) => {
-    const w = WEAPONS[wi];
-    const specialTags = ['seiros','prototype','elemental','lightning','force','aoe','radiant','healing','arcane','chargeable'];
-    const tagHtml = w.tags
-      .filter(t => specialTags.includes(t))
-      .map(t => `<span class="tag gold">${t}</span>`)
-      .concat(w.tags.filter(t=>!specialTags.includes(t)).slice(0,3).map(t=>`<span class="tag">${t}</span>`))
-      .join('');
-
-    return `
-      <div class="card-item" onclick="openLb(${pos})" title="${esc(w.name)}">
-        <div class="card-img-wrap">
-          <img src="${esc(w.image)}" alt="${esc(w.name)}"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="card-placeholder" style="display:none">
-            <i class="ti ti-sword ph-icon"></i>
-            <div class="ph-name">${esc(w.name)}</div>
-          </div>
-        </div>
-        <div class="card-info">
-          <div class="card-name">${esc(w.name)}</div>
-          ${w.subtitle ? `<div class="card-sub">${esc(w.subtitle)}</div>` : ''}
-          <div class="card-tags">${tagHtml}</div>
-        </div>
-      </div>`;
+  grid.innerHTML = visible.map((wi,pos) => {
+    const w = W[wi];
+    const tags = w.previewTags.slice(0,3).map(t=>`<span class="tg tg-plain">${t}</span>`).join('');
+    const borderStyle = w.glow
+      ? `border-color:${w.accent}60;box-shadow:0 0 14px ${w.glow.replace('.7','.25')}`
+      : `border-color:${w.accent}40`;
+    return `<div class="thumb" style="${borderStyle}" onclick="openLb(${pos})">
+      <div class="thumb-band" style="background:${w.accent}"></div>
+      <div class="thumb-body">
+        <div class="thumb-type">${w.type.split('·')[0].trim()}</div>
+        <div class="thumb-name" style="color:${w.accent}">${w.name}</div>
+        ${w.sub?`<div class="thumb-sub">${w.sub}</div>`:''}
+        <div class="thumb-dmg" style="color:${w.accent}">${w.dmgPreview}</div>
+        <div class="thumb-tags">${tags}</div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-// ─────────────────────────────────────────────
-// Lightbox
-// ─────────────────────────────────────────────
-function openLb(pos) {
-  lbIndex = pos;
-  showLb();
-  document.getElementById('lb-overlay').classList.add('open');
-}
+// ═══════════════════════════════════════════════════
+//  LIGHTBOX
+// ═══════════════════════════════════════════════════
+function openLb(pos) { lbIdx=pos; renderLb(); document.getElementById('lb').classList.add('open'); document.getElementById('lb').scrollTop=0; }
+function closeLb() { document.getElementById('lb').classList.remove('open'); }
 
-function showLb() {
-  const w = WEAPONS[visible[lbIndex]];
-  const img = document.getElementById('lb-img');
-  img.src = w.image;
-  img.alt = w.name;
-  document.getElementById('lb-cap-name').textContent = w.name;
-  document.getElementById('lb-cap-type').textContent = w.type;
-  // scroll to top of image wrap
-  document.querySelector('.lb-img-wrap').scrollTop = 0;
-}
-
-function closeLb() {
-  document.getElementById('lb-overlay').classList.remove('open');
+function renderLb() {
+  const w = W[visible[lbIdx]];
+  document.getElementById('lb-inner').innerHTML = buildCard(w);
 }
 
 function lbStep(dir) {
-  lbIndex = (lbIndex + dir + visible.length) % visible.length;
-  showLb();
+  lbIdx = (lbIdx + dir + visible.length) % visible.length;
+  renderLb();
+  document.getElementById('lb').scrollTop = 0;
 }
 
-function lbBgClick(e) {
-  if (e.target === document.getElementById('lb-overlay') || e.target.closest('.lb-inner')?.tagName !== 'DIV') return;
-  if (!e.target.closest('.lb-img-wrap')) closeLb();
-}
+function lbBg(e) { if (e.target === document.getElementById('lb')) closeLb(); }
 
-// ─────────────────────────────────────────────
-// Keyboard
-// ─────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  const lb = document.getElementById('lb-overlay');
+  const lb = document.getElementById('lb');
   if (!lb.classList.contains('open')) return;
-  if (e.key === 'Escape')     closeLb();
-  if (e.key === 'ArrowRight') lbStep(1);
-  if (e.key === 'ArrowLeft')  lbStep(-1);
+  if (e.key==='Escape') closeLb();
+  if (e.key==='ArrowRight') lbStep(1);
+  if (e.key==='ArrowLeft') lbStep(-1);
 });
-
-// ─────────────────────────────────────────────
-// Util
-// ─────────────────────────────────────────────
-function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function toast(msg) { const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600); }
 
 boot();
 </script>
