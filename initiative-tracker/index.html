@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encounter Tracker — D&D 5e</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    :root {
+      --bg:          #0d1117;
+      --bg-surface:  #161b24;
+      --bg-elevated: #1c2333;
+      --bg-input:    #10151e;
+      --border:      #2a3244;
+      --border-dim:  #1c2333;
+
+      --text:        #e2e8f0;
+      --text-muted:  #64748b;
+      --text-dim:    #3a4558;
+
+      --player:        #22c55e;
+      --player-bg:     rgba(34,197,94,.1);
+      --player-border: rgba(34,197,94,.3);
+
+      --enemy:        #ef4444;
+      --enemy-bg:     rgba(239,68,68,.1);
+      --enemy-border: rgba(239,68,68,.3);
+
+      --ally:        #3b82f6;
+      --ally-bg:     rgba(59,130,246,.1);
+      --ally-border: rgba(59,130,246,.3);
+
+      --neutral:        #f59e0b;
+      --neutral-bg:     rgba(245,158,11,.1);
+      --neutral-border: rgba(245,158,11,.3);
+
+      --active:      #3b82f6;
+      --active-glow: rgba(59,130,246,.12);
+
+      --r-sm: 4px;
+      --r-md: 8px;
+      --r-lg: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* subtle ambient glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(59,130,246,.05) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 85% 90%, rgba(185,28,28,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .app {
+      position: relative;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+      z-index: 1;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(185,28,28,.45);
+    }
+
+    .header-text { flex: 1; }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.3px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .round-badge {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .round-badge strong { color: var(--text); }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 7px 13px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .12s, border-color .12s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn:hover  { background: #222c3d; border-color: #374560; }
+    .btn:active { transform: scale(.97); }
+
+    .btn-primary {
+      background: rgba(59,130,246,.13);
+      border-color: rgba(59,130,246,.35);
+      color: #93c5fd;
+    }
+    .btn-primary:hover { background: rgba(59,130,246,.22); }
+
+    .btn-danger {
+      background: rgba(239,68,68,.1);
+      border-color: rgba(239,68,68,.3);
+      color: #fca5a5;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,.2); }
+
+    .btn-success {
+      background: rgba(34,197,94,.1);
+      border-color: rgba(34,197,94,.3);
+      color: #86efac;
+    }
+    .btn-success:hover { background: rgba(34,197,94,.2); }
+
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    /* ── Combatant list ── */
+    .combatant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* ── Card ── */
+    .ccard {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .ccard[data-type="player"]  { border-left-color: var(--player); }
+    .ccard[data-type="enemy"]   { border-left-color: var(--enemy); }
+    .ccard[data-type="ally"]    { border-left-color: var(--ally); }
+    .ccard[data-type="neutral"] { border-left-color: var(--neutral); }
+
+    .ccard.active {
+      border-color: rgba(59,130,246,.6);
+      border-left-color: var(--active);
+      box-shadow: 0 0 0 1px rgba(59,130,246,.15), 0 4px 24px rgba(59,130,246,.08);
+    }
+
+    .ccard.dead { opacity: .38; filter: grayscale(.5); }
+
+    /* Card header row */
+    .ccard-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .ccard-header:hover { background: rgba(255,255,255,.018); }
+
+    .init-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--r-md);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .ccard.active .init-badge {
+      background: rgba(59,130,246,.2);
+      border-color: rgba(59,130,246,.45);
+      color: #93c5fd;
+    }
+
+    .turn-arrow {
+      color: #60a5fa;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .cname {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ccard.active .cname { color: #fff; }
+
+    .type-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+      border: 1px solid;
+      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+    .type-player  { background: var(--player-bg);  color: var(--player);  border-color: var(--player-border); }
+    .type-enemy   { background: var(--enemy-bg);   color: var(--enemy);   border-color: var(--enemy-border); }
+    .type-ally    { background: var(--ally-bg);     color: var(--ally);    border-color: var(--ally-border); }
+    .type-neutral { background: var(--neutral-bg);  color: var(--neutral); border-color: var(--neutral-border); }
+
+    .hp-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .hp-bar-track {
+      width: 68px;
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .hp-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .4s ease, background-color .4s ease;
+    }
+
+    .hp-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      min-width: 52px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ac-badge {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .chevron {
+      font-size: 14px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      transition: transform .2s;
+    }
+    .ccard.expanded > .ccard-header .chevron { transform: rotate(180deg); }
+
+    /* Header condition pips */
+    .header-conds {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .cond-pip {
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    /* ── Card body ── */
+    .ccard-body {
+      padding: 2px 13px 12px;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 4px;
+      margin: 10px 0 8px;
+    }
+
+    .stat-box {
+      flex: 1;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 5px 3px;
+      text-align: center;
+    }
+
+    .stat-lbl {
+      display: block;
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .stat-val {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .stat-mod {
+      display: block;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border-dim);
+      margin: 8px 0;
+    }
+
+    /* HP controls */
+    .hp-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .hp-controls input[type="number"] {
+      width: 72px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 5px 8px;
+      font-size: 13px;
+      color: var(--text);
+      font-family: inherit;
+    }
+    .hp-controls input[type="number"]:focus { outline: none; border-color: var(--active); }
+
+    /* Conditions */
+    .sec-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      margin-bottom: 5px;
+    }
+
+    .cond-display {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin: 6px 0 8px;
+    }
+
+    .cond-tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(245,158,11,.12);
+      color: #fbbf24;
+      border: 1px solid rgba(245,158,11,.25);
+    }
+
+    .cond-grid {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .cond-btn {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .12s;
+      font-family: inherit;
+    }
+    .cond-btn:hover { border-color: rgba(245,158,11,.4); color: #fbbf24; }
+    .cond-btn.on    { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.3); color: #fbbf24; }
+
+    .notes-box {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 6px 10px;
+      background: var(--bg-elevated);
+      border-radius: var(--r-sm);
+      border-left: 2px solid var(--border);
+      margin-top: 6px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 64px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon { font-size: 52px; opacity: .15; display: block; margin-bottom: 14px; }
+    .empty-state p { font-size: 15px; margin-bottom: 5px; }
+    .empty-state small { font-size: 13px; opacity: .55; }
+
+    /* ── Drawer (replaces full-screen dim modal) ── */
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 360px;
+      max-width: 96vw;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -12px 0 40px rgba(0,0,0,.5);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .25s cubic-bezier(.4,0,.2,1);
+      z-index: 300;
+    }
+
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .drawer-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      border-radius: var(--r-sm);
+      padding: 2px 4px;
+      transition: color .12s;
+    }
+    .drawer-close:hover { color: var(--text); }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px;
+    }
+
+    .drawer-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    /* Form */
+    .field { margin-bottom: 11px; }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .65px;
+      margin-bottom: 4px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 7px 11px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: inherit;
+      transition: border-color .15s;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus   { outline: none; border-color: var(--active); }
+    .field select option    { background: var(--bg-elevated); color: var(--text); }
+    .field input.invalid    { border-color: var(--enemy); }
+
+    .fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+    .form-section {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-muted);
+      margin: 14px 0 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    /* ── Keyboard hint bar ── */
+    .kbd-bar {
+      display: flex;
+      gap: 14px;
+      margin-top: 14px;
+      padding: 7px 11px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-md);
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    kbd {
+      font-size: 10px;
+      font-family: monospace;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--text-muted);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #374560; }
+
+    input[type="number"]::-webkit-inner-spin-button { opacity: .35; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo">⚔️</div>
+    <div class="header-text">
+      <h1>Encounter Tracker</h1>
+      <div class="header-sub">D&amp;D 5e — Combat Initiative</div>
+    </div>
+    <span class="round-badge" id="round-display">Round <strong>1</strong></span>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="openAddDrawer()">
+      <i class="ti ti-plus"></i> Add Combatant
+    </button>
+    <button class="btn" onclick="nextTurn()">
+      <i class="ti ti-player-skip-forward"></i> Next Turn
+    </button>
+    <button class="btn" onclick="sortByInit()">
+      <i class="ti ti-sort-descending"></i> Sort Initiative
+    </button>
+    <button class="btn btn-danger" onclick="resetEncounter()">
+      <i class="ti ti-refresh"></i> Reset
+    </button>
+  </div>
+
+  <div class="combatant-list" id="combatant-list"></div>
+
+  <div id="empty-state" class="empty-state">
+    <i class="ti ti-swords empty-icon"></i>
+    <p>No combatants yet</p>
+    <small>Click "Add Combatant" or press <kbd>A</kbd> to begin</small>
+  </div>
+
+  <div class="kbd-bar">
+    <span><kbd>A</kbd> Add combatant</span>
+    <span><kbd>N</kbd> Next turn</span>
+    <span><kbd>Esc</kbd> Close panel</span>
+    <span><kbd>Enter</kbd> Save form</span>
+  </div>
+
+</div>
+
+<!-- Right-side drawer — no overlay, no dimming -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="drawer-title">Add Combatant</span>
+    <button class="drawer-close" onclick="closeDrawer()" title="Close (Esc)">
+      <i class="ti ti-x"></i>
+    </button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="field">
+      <label>Name *</label>
+      <input id="f-name" type="text" placeholder="Goblin Scout, Aria the Ranger…">
+    </div>
+
+    <div class="fg2">
+      <div class="field">
+        <label>Type</label>
+        <select id="f-type">
+          <option value="player">Player</option>
+          <option value="enemy" selected>Enemy</option>
+          <option value="ally">Ally</option>
+          <option value="neutral">Neutral</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Initiative</label>
+        <input id="f-init" type="number" placeholder="15">
+      </div>
+    </div>
+
+    <div class="fg2">
+      <div class="field">
+        <label>Max HP</label>
+        <input id="f-maxhp" type="number" placeholder="30" oninput="syncCurrentHp()">
+      </div>
+      <div class="field">
+        <label>Current HP</label>
+        <input id="f-hp" type="number" placeholder="30">
+      </div>
+      <div class="field">
+        <label>Armour Class</label>
+        <input id="f-ac" type="number" placeholder="14">
+      </div>
+      <div class="field">
+        <label>Speed (ft)</label>
+        <input id="f-speed" type="number" placeholder="30">
+      </div>
+    </div>
+
+    <div class="form-section">Ability Scores</div>
+    <div class="fg3">
+      <div class="field"><label>STR</label><input id="f-str" type="number" placeholder="10"></div>
+      <div class="field"><label>DEX</label><input id="f-dex" type="number" placeholder="10"></div>
+      <div class="field"><label>CON</label><input id="f-con" type="number" placeholder="10"></div>
+      <div class="field"><label>INT</label><input id="f-int" type="number" placeholder="10"></div>
+      <div class="field"><label>WIS</label><input id="f-wis" type="number" placeholder="10"></div>
+      <div class="field"><label>CHA</label><input id="f-cha" type="number" placeholder="10"></div>
+    </div>
+
+    <div class="field">
+      <label>Notes / Special Abilities</label>
+      <input id="f-notes" type="text" placeholder="Darkvision 60ft, Nimble Escape…">
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn" onclick="closeDrawer()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveCombatant()">
+      <i class="ti ti-check"></i> Save
+    </button>
+  </div>
+</div>
+
+<script>
+  let combatants = [];
+  let currentIndex = 0;
+  let round = 1;
+  let editingId = null;
+  let nextId = 1;
+
+  const CONDITIONS = [
+    'Blinded','Charmed','Deafened','Frightened','Grappled',
+    'Incapacitated','Invisible','Paralyzed','Petrified',
+    'Poisoned','Prone','Restrained','Stunned','Unconscious'
+  ];
+
+  const COND_ICON = {
+    Blinded:'👁️', Charmed:'💕', Deafened:'🔇', Frightened:'😨',
+    Grappled:'🤼', Incapacitated:'💫', Invisible:'👻', Paralyzed:'⚡',
+    Petrified:'🪨', Poisoned:'☠️', Prone:'⬇️', Restrained:'⛓️',
+    Stunned:'⭐', Unconscious:'💤'
+  };
+
+  // ── Helpers ──────────────────────────────────────────────────
+
+  function mod(v) {
+    const m = Math.floor(((parseInt(v) || 10) - 10) / 2);
+    return (m >= 0 ? '+' : '') + m;
+  }
+
+  function hpColor(pct) {
+    if (pct > .6)  return '#22c55e';
+    if (pct > .3)  return '#f59e0b';
+    if (pct > 0)   return '#ef4444';
+    return '#7f1d1d';
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Persistence ──────────────────────────────────────────────
+
+  function save() {
+    try {
+      localStorage.setItem('dnd-tracker', JSON.stringify({ combatants, currentIndex, round, nextId }));
+    } catch(e) {}
+  }
+
+  function load() {
+    try {
+      const s = localStorage.getItem('dnd-tracker');
+      if (!s) return;
+      const d = JSON.parse(s);
+      combatants   = d.combatants   ?? [];
+      currentIndex = d.currentIndex ?? 0;
+      round        = d.round        ?? 1;
+      nextId       = d.nextId       ?? 1;
+    } catch(e) {}
+  }
+
+  // ── Render ───────────────────────────────────────────────────
+
+  function render() {
+    const list  = document.getElementById('combatant-list');
+    const empty = document.getElementById('empty-state');
+    const rd    = document.getElementById('round-display');
+
+    rd.innerHTML = `Round <strong>${round}</strong>`;
+
+    if (combatants.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      save();
+      return;
+    }
+    empty.style.display = 'none';
+
+    list.innerHTML = combatants.map((c, i) => {
+      const pct      = c.maxhp > 0 ? Math.max(0, c.hp / c.maxhp) : 0;
+      const active   = i === currentIndex;
+      const dead     = c.hp <= 0;
+      const expanded = !!c.expanded;
+      const typeLabel = { player:'Player', enemy:'Enemy', ally:'Ally', neutral:'Neutral' }[c.type] || c.type;
+
+      const headerConds = (c.conditions || []).slice(0, 5).map(cd =>
+        `<span class="cond-pip" title="${esc(cd)}">${COND_ICON[cd] || '●'}</span>`
+      ).join('');
+
+      const condDisplay = (c.conditions || []).map(cd =>
+        `<span class="cond-tag">${COND_ICON[cd] || '●'} ${esc(cd)}</span>`
+      ).join('');
+
+      const condButtons = CONDITIONS.map(cd => {
+        const on = (c.conditions || []).includes(cd);
+        return `<button class="cond-btn${on ? ' on' : ''}" onclick="toggleCondition(${c.id},'${cd}')">${COND_ICON[cd] || ''} ${cd}</button>`;
+      }).join('');
+
+      const statKeys = ['str','dex','con','int','wis','cha'];
+      const statLabels = ['STR','DEX','CON','INT','WIS','CHA'];
+      const statsHtml = statKeys.map((k, si) =>
+        `<div class="stat-box">
+          <span class="stat-lbl">${statLabels[si]}</span>
+          <span class="stat-val">${c[k] || 10}</span>
+          <span class="stat-mod">${mod(c[k])}</span>
+        </div>`
+      ).join('') + (c.speed ? `<div class="stat-box"><span class="stat-lbl">Speed</span><span class="stat-val">${c.speed}</span><span class="stat-mod">ft</span></div>` : '');
+
+      return `
+      <div class="ccard${active ? ' active' : ''}${dead ? ' dead' : ''}${expanded ? ' expanded' : ''}"
+           data-type="${esc(c.type)}" id="card-${c.id}">
+        <div class="ccard-header" onclick="toggleExpand(${c.id})">
+          <div class="init-badge">${esc(String(c.init ?? '—'))}</div>
+          ${active ? '<i class="ti ti-caret-right-filled turn-arrow"></i>' : ''}
+          <div class="cname">${esc(c.name) || 'Unknown'}</div>
+          ${headerConds ? `<div class="header-conds">${headerConds}</div>` : ''}
+          <span class="type-tag type-${esc(c.type)}">${typeLabel}</span>
+          <div class="hp-group">
+            <div class="hp-bar-track">
+              <div class="hp-bar-fill" style="width:${Math.round(pct*100)}%;background:${hpColor(pct)}"></div>
+            </div>
+            <span class="hp-label">${c.hp}/${c.maxhp}</span>
+          </div>
+          <span class="ac-badge"><i class="ti ti-shield" style="font-size:11px"></i> ${c.ac || '—'}</span>
+          <i class="ti ti-chevron-down chevron"></i>
+        </div>
+        ${expanded ? `
+        <div class="ccard-body">
+          ${condDisplay ? `<div class="cond-display">${condDisplay}</div>` : ''}
+          <div class="stats-row">${statsHtml}</div>
+          <div class="divider"></div>
+          <div class="hp-controls">
+            <input type="number" id="hp-amt-${c.id}" placeholder="Amount" min="0">
+            <button class="btn btn-sm btn-danger"  onclick="changeHp(${c.id},-1)"><i class="ti ti-minus"></i> Dmg</button>
+            <button class="btn btn-sm btn-success" onclick="changeHp(${c.id}, 1)"><i class="ti ti-plus"></i> Heal</button>
+            <button class="btn btn-sm"             onclick="setHpDirect(${c.id})"><i class="ti ti-pencil"></i> Set</button>
+          </div>
+          <div class="divider"></div>
+          <div class="sec-label">Conditions</div>
+          <div class="cond-grid">${condButtons}</div>
+          ${c.notes ? `<div class="divider"></div><div class="notes-box">${esc(c.notes)}</div>` : ''}
+          <div class="action-row">
+            <button class="btn btn-sm" onclick="openEditDrawer(${c.id})"><i class="ti ti-edit"></i> Edit</button>
+            <button class="btn btn-sm" onclick="duplicateCombatant(${c.id})"><i class="ti ti-copy"></i> Duplicate</button>
+            <button class="btn btn-sm btn-danger" onclick="removeCombatant(${c.id})"><i class="ti ti-trash"></i> Remove</button>
+          </div>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+
+    save();
+  }
+
+  // ── Card interactions ─────────────────────────────────────────
+
+  function toggleExpand(id) {
+    const c = combatants.find(x => x.id === id);
+    if (c) c.expanded = !c.expanded;
+    render();
+  }
+
+  function toggleCondition(id, cond) {
+    const c = combatants.find(x => x.id === id);
+    if (!c) return;
+    if (!c.conditions) c.conditions = [];
+    const idx = c.conditions.indexOf(cond);
+    if (idx >= 0) c.conditions.splice(idx, 1); else c.conditions.push(cond);
+    render();
+  }
+
+  function changeHp(id, dir) {
+    const c   = combatants.find(x => x.id === id);
+    const inp = document.getElementById('hp-amt-' + id);
+    const amt = parseInt(inp?.value) || 0;
+    if (!amt) return;
+    c.hp = Math.max(0, Math.min(c.maxhp, c.hp + dir * amt));
+    inp.value = '';
+    render();
+  }
+
+  function setHpDirect(id) {
+    const c   = combatants.find(x => x.id === id);
+    const inp = document.getElementById('hp-amt-' + id);
+    const amt = parseInt(inp?.value);
+    if (isNaN(amt)) return;
+    c.hp = Math.max(0, Math.min(c.maxhp, amt));
+    inp.value = '';
+    render();
+  }
+
+  // ── Turn management ───────────────────────────────────────────
+
+  function nextTurn() {
+    if (combatants.length === 0) return;
+    currentIndex = (currentIndex + 1) % combatants.length;
+    if (currentIndex === 0) round++;
+    combatants[currentIndex].expanded = true;
+    render();
+    document.getElementById('card-' + combatants[currentIndex].id)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function sortByInit() {
+    combatants.sort((a, b) => (parseInt(b.init) || 0) - (parseInt(a.init) || 0));
+    currentIndex = 0;
+    render();
+  }
+
+  function resetEncounter() {
+    if (combatants.length > 0 && !confirm('Reset the encounter? This clears all combatants.')) return;
+    combatants = []; currentIndex = 0; round = 1;
+    render();
+  }
+
+  // ── Drawer ────────────────────────────────────────────────────
+
+  function openAddDrawer() {
+    editingId = null;
+    document.getElementById('drawer-title').textContent = 'Add Combatant';
+    const fields = ['name','init','maxhp','hp','ac','speed','str','dex','con','int','wis','cha','notes'];
+    fields.forEach(f => {
+      const el = document.getElementById('f-' + f);
+      if (el) el.value = '';
+    });
+    document.getElementById('f-type').value = 'enemy';
+    document.getElementById('f-name').classList.remove('invalid');
+    document.getElementById('drawer').classList.add('open');
+    setTimeout(() => document.getElementById('f-name').focus(), 60);
+  }
+
+  function openEditDrawer(id) {
+    editingId = id;
+    const c = combatants.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('drawer-title').textContent = 'Edit — ' + c.name;
+    const map = {
+      name:c.name, type:c.type, init:c.init, maxhp:c.maxhp, hp:c.hp,
+      ac:c.ac, speed:c.speed, str:c.str, dex:c.dex, con:c.con,
+      int:c.int, wis:c.wis, cha:c.cha, notes:c.notes
+    };
+    Object.entries(map).forEach(([k, v]) => {
+      const el = document.getElementById('f-' + k);
+      if (el) el.value = v ?? '';
+    });
+    document.getElementById('f-name').classList.remove('invalid');
+    document.getElementById('drawer').classList.add('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+  }
+
+  function syncCurrentHp() {
+    if (editingId) return;
+    const hp = document.getElementById('f-hp');
+    if (!hp.value) hp.value = document.getElementById('f-maxhp').value;
+  }
+
+  function saveCombatant() {
+    const nameEl = document.getElementById('f-name');
+    const name   = nameEl.value.trim();
+    if (!name) {
+      nameEl.classList.add('invalid');
+      nameEl.focus();
+      return;
+    }
+    nameEl.classList.remove('invalid');
+
+    const maxhp = parseInt(document.getElementById('f-maxhp').value) || 1;
+    const hpRaw = document.getElementById('f-hp').value;
+
+    const data = {
+      name,
+      type:  document.getElementById('f-type').value,
+      init:  parseInt(document.getElementById('f-init').value)  || 0,
+      maxhp,
+      hp:    hpRaw ? Math.max(0, Math.min(maxhp, parseInt(hpRaw))) : maxhp,
+      ac:    parseInt(document.getElementById('f-ac').value)    || 10,
+      speed: parseInt(document.getElementById('f-speed').value) || 30,
+      str:   parseInt(document.getElementById('f-str').value)   || 10,
+      dex:   parseInt(document.getElementById('f-dex').value)   || 10,
+      con:   parseInt(document.getElementById('f-con').value)   || 10,
+      int:   parseInt(document.getElementById('f-int').value)   || 10,
+      wis:   parseInt(document.getElementById('f-wis').value)   || 10,
+      cha:   parseInt(document.getElementById('f-cha').value)   || 10,
+      notes: document.getElementById('f-notes').value.trim(),
+    };
+
+    if (editingId) {
+      const idx = combatants.findIndex(x => x.id === editingId);
+      if (idx >= 0) {
+        const { conditions, expanded } = combatants[idx];
+        combatants[idx] = { ...combatants[idx], ...data, conditions, expanded };
+      }
+    } else {
+      combatants.push({ id: nextId++, conditions: [], expanded: true, ...data });
+    }
+
+    closeDrawer();
+    render();
+  }
+
+  function removeCombatant(id) {
+    const idx = combatants.findIndex(x => x.id === id);
+    if (idx < 0) return;
+    combatants.splice(idx, 1);
+    if (currentIndex >= combatants.length) currentIndex = Math.max(0, combatants.length - 1);
+    render();
+  }
+
+  function duplicateCombatant(id) {
+    const c = combatants.find(x => x.id === id);
+    if (!c) return;
+    combatants.push({ ...JSON.parse(JSON.stringify(c)), id: nextId++, name: c.name + ' (copy)', expanded: false });
+    render();
+  }
+
+  // ── Keyboard ──────────────────────────────────────────────────
+
+  document.addEventListener('keydown', e => {
+    const drawerOpen = document.getElementById('drawer').classList.contains('open');
+
+    if (e.key === 'Escape') { closeDrawer(); return; }
+
+    if (!drawerOpen) {
+      if (e.key === 'n' || e.key === 'N') nextTurn();
+      if (e.key === 'a' || e.key === 'A') openAddDrawer();
+      return;
+    }
+
+    if (e.key === 'Enter' && document.activeElement?.tagName !== 'BUTTON') {
+      e.preventDefault();
+      saveCombatant();
+    }
+  });
+
+  // ── Boot ──────────────────────────────────────────────────────
+
+  load();
+  render();
+</script>
+</body>
+</html>
