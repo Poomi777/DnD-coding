@@ -2,6 +2,9 @@ Initiative Tracker — Version History
 =====================================
 Format: 1.X  (user controls major version bumps)
 
+v1.1 — Navigation bar
+  - Added top nav bar linking to Weapons Arsenal and Players from the tracker
+
 v1.0 — Baseline versioned release
   - Combat initiative tracking with turn/round management
   - HP, AC, conditions, notes per combatant

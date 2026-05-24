@@ -8,6 +8,7 @@ A personal collection of Dungeons & Dragons tools built as standalone web apps �
 |------|--------|-------------|
 | [Initiative Tracker](initiative-tracker/) | ✅ Live | Track initiative order, HP, AC, conditions, and turn state during combat |
 | [Homebrew Arsenal](weapons/) | ✅ Live | Browse homebrew weapon cards — shareable link for players |
+| [Player Compendium](players/) | ✅ Live | Per-player homebrew abilities, inventory, and character info |
 | [Map Creator](map-creator/) | 🔜 Planned | Build and annotate encounter maps |
 | [Character Creator](character-creator/) | 🔜 Planned | Build and manage character sheets |
 

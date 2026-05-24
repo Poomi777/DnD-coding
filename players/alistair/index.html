@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alistair — Player Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    :root{--bg:#0d1117;--bg-s:#161b24;--bg-e:#1c2333;--bg-in:#10151e;--bdr:#2a3244;--bdr-d:#1c2333;--txt:#e2e8f0;--muted:#64748b;--dim:#3a4558;--r:8px;--rl:12px;--active:#3b82f6;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(139,92,246,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(59,130,246,.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    .page{max-width:1100px;margin:0 auto;padding:24px 20px 60px;position:relative;z-index:1;}
+
+    /* ── Nav ── */
+    .nav{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+    .nav-brand{font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:7px;}
+    .nav-icon{width:30px;height:30px;background:linear-gradient(135deg,#7f1d1d,#1e1b4b);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .nav-sep{color:var(--bdr);}
+    .nav-links{display:flex;gap:5px;flex-wrap:wrap;}
+    .nav-link{font-size:11px;color:var(--muted);text-decoration:none;padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+    .nav-link:hover{color:var(--txt);border-color:rgba(255,255,255,.13);}
+
+    /* ── Breadcrumb ── */
+    .bc{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-bottom:16px;}
+    .bc a{color:var(--muted);text-decoration:none;}
+    .bc a:hover{color:var(--txt);}
+    .bc-sep{opacity:.35;}
+
+    /* ── Char header ── */
+    .char-head{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px 22px;display:flex;align-items:center;gap:18px;margin-bottom:18px;flex-wrap:wrap;}
+    .char-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#312e81,#4c1d95);border:2px solid rgba(139,92,246,.35);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:#c4b5fd;flex-shrink:0;box-shadow:0 0 22px rgba(139,92,246,.2);}
+    .char-info{flex:1;min-width:0;}
+    .char-name{font-family:'Cinzel',serif;font-size:21px;font-weight:700;color:var(--txt);margin-bottom:3px;}
+    .char-sub{font-size:12px;color:var(--muted);margin-bottom:9px;}
+    .char-stats{display:flex;gap:7px;flex-wrap:wrap;}
+    .cst{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:5px 11px;text-align:center;min-width:50px;}
+    .cst-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:1px;}
+    .cst-v{font-size:13px;font-weight:700;color:var(--txt);}
+
+    /* ── Tabs ── */
+    .tabs{display:flex;gap:3px;border-bottom:1px solid var(--bdr);margin-bottom:16px;}
+    .tab{font-size:13px;font-weight:500;padding:7px 15px;cursor:pointer;color:var(--muted);background:none;border:1px solid transparent;border-bottom:none;border-radius:var(--r) var(--r) 0 0;position:relative;bottom:-1px;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}
+    .tab.active{color:var(--txt);background:var(--bg-s);border-color:var(--bdr);}
+    .tab:hover:not(.active){color:var(--txt);background:rgba(255,255,255,.03);}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+
+    /* ── Toolbar ── */
+    .toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+    .search{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px 7px 30px;font-size:13px;color:var(--txt);font-family:inherit;width:200px;transition:border-color .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px center;}
+    .search:focus{outline:none;border-color:rgba(139,92,246,.5);}
+    .search::placeholder{color:var(--dim);}
+    .filter-btns{display:flex;gap:4px;flex-wrap:wrap;}
+    .fbtn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;}
+    .fbtn:hover{color:var(--txt);}
+    .count{font-size:12px;color:var(--muted);margin-left:auto;}
+    .add-btn{font-size:12px;padding:5px 13px;border-radius:var(--r);border:1px solid rgba(139,92,246,.35);background:rgba(139,92,246,.1);color:#c4b5fd;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+    .add-btn:hover{background:rgba(139,92,246,.2);}
+
+    /* ── Ability card grid ── */
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+
+    /* ── Ability card ── */
+    .ac{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);overflow:visible;cursor:pointer;transition:transform .15s,border-color .2s,box-shadow .2s;--accent:#64748b;position:relative;}
+    .ac:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 28px rgba(0,0,0,.3);}
+    .ac-stripe{height:4px;background:var(--accent);border-radius:var(--rl) var(--rl) 0 0;}
+    .ac-body{padding:11px 12px 9px;}
+    .ac-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+    .ac-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);padding:2px 7px;border-radius:20px;border:1px solid var(--accent);opacity:.85;}
+    .ac-cost{font-size:10px;color:var(--muted);}
+    .ac-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--txt);line-height:1.3;margin-bottom:3px;}
+    .ac-sub{font-size:11px;color:var(--muted);margin-bottom:6px;}
+    .ac-desc{font-family:'Crimson Pro',serif;font-size:13px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .ac-foot{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-top:1px solid var(--bdr-d);}
+    .ac-pips{display:flex;gap:4px;}
+    .ac-pip{width:7px;height:7px;border-radius:50%;background:var(--accent);opacity:.2;}
+    .ac-pip.on{opacity:1;}
+    .ac-note{font-size:10px;color:var(--muted);}
+    /* Delete button on card */
+    .ac-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:3px 4px;border-radius:4px;transition:color .12s,background .12s;opacity:0;z-index:2;}
+    .ac:hover .ac-del{opacity:1;}
+    .ac-del:hover{color:#fca5a5;background:rgba(239,68,68,.12);}
+
+    /* ── Lightbox ── */
+    .lb{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+    .lb.open{display:flex;}
+    .lb-card{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);max-width:450px;width:100%;max-height:88vh;overflow-y:auto;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.7);--la:#64748b;}
+    .lb-stripe{height:5px;background:var(--la);border-radius:var(--rl) var(--rl) 0 0;}
+    .lb-body{padding:16px 18px 18px;}
+    .lb-close{position:absolute;top:9px;right:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;border-radius:4px;transition:color .12s;z-index:1;}
+    .lb-close:hover{color:var(--txt);}
+    .lb-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+    .lb-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--la);padding:3px 9px;border-radius:20px;border:1px solid var(--la);opacity:.9;}
+    .lb-rech{font-size:11px;color:var(--muted);}
+    .lb-name{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--txt);margin-bottom:3px;}
+    .lb-sub{font-size:12px;color:var(--muted);margin-bottom:11px;}
+    .lb-div{height:1px;background:var(--bdr-d);margin:10px 0;}
+    .lb-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px;}
+    .lb-stat{flex:1;min-width:68px;background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:6px 8px;text-align:center;}
+    .lb-stat-l{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:block;margin-bottom:2px;}
+    .lb-stat-v{font-size:13px;font-weight:700;color:var(--txt);}
+    .lb-desc{font-family:'Crimson Pro',serif;font-size:15px;color:var(--txt);line-height:1.65;}
+    .lb-uses{display:flex;align-items:center;gap:7px;}
+    .lb-pip{width:10px;height:10px;border-radius:50%;}
+    .lb-pip.on{background:var(--la);}
+    .lb-pip.off{background:var(--bg-e);border:1px solid var(--bdr);}
+    .lb-nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:13px;}
+    .lb-nbtn{font-size:12px;color:var(--muted);background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:5px 11px;cursor:pointer;transition:all .12s;font-family:inherit;}
+    .lb-nbtn:hover:not(:disabled){color:var(--txt);border-color:rgba(255,255,255,.13);}
+    .lb-nbtn:disabled{opacity:.25;cursor:default;}
+    .lb-pos{font-size:11px;color:var(--muted);}
+
+    /* ── Inventory ── */
+    .inv-cat{margin-bottom:20px;}
+    .inv-cat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid var(--bdr-d);}
+    .inv-cat-title{display:flex;align-items:center;gap:6px;font-family:'Cinzel',serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+    .inv-table{width:100%;border-collapse:collapse;}
+    .inv-table th{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);text-align:left;padding:5px 9px;border-bottom:1px solid var(--bdr);}
+    .inv-table td{font-size:13px;color:var(--txt);padding:7px 9px;border-bottom:1px solid var(--bdr-d);}
+    .inv-table tr:last-child td{border-bottom:none;}
+    .inv-table tr:hover td{background:rgba(255,255,255,.018);}
+    .inv-qty{font-weight:600;color:var(--muted);}
+    .inv-notes{font-size:12px;color:var(--muted);font-style:italic;}
+    .inv-tag{font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid var(--bdr);color:var(--muted);background:var(--bg-e);white-space:nowrap;}
+    .inv-tag.weapon    {border-color:rgba(239,68,68,.3);    color:#fca5a5;background:rgba(239,68,68,.08);}
+    .inv-tag.armor     {border-color:rgba(59,130,246,.3);   color:#93c5fd;background:rgba(59,130,246,.08);}
+    .inv-tag.consumable{border-color:rgba(34,197,94,.3);    color:#86efac;background:rgba(34,197,94,.08);}
+    .inv-tag.quest     {border-color:rgba(245,158,11,.3);   color:#fcd34d;background:rgba(245,158,11,.08);}
+    .inv-tag.misc      {border-color:var(--bdr);color:var(--muted);}
+    .inv-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:3px;border-radius:4px;transition:color .12s;display:flex;align-items:center;}
+    .inv-del:hover{color:#fca5a5;}
+    .inv-add-btn{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-e);color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+    .inv-add-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.13);}
+
+    /* ── Modal overlay ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-ov.open{display:flex;}
+    .modal{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);width:100%;max-width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bdr);flex-shrink:0;}
+    .modal-title{font-size:14px;font-weight:600;color:var(--txt);}
+    .modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:3px;border-radius:4px;transition:color .12s;display:flex;align-items:center;}
+    .modal-close:hover{color:var(--txt);}
+    .modal-body{padding:14px 16px;}
+    .modal-foot{padding:10px 16px;border-top:1px solid var(--bdr);display:flex;gap:7px;justify-content:flex-end;}
+    /* Form fields inside modal */
+    .mf{margin-bottom:10px;}
+    .mf label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+    .mf input,.mf select,.mf textarea{width:100%;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px;font-size:13px;color:var(--txt);font-family:inherit;transition:border-color .15s;resize:vertical;}
+    .mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:rgba(139,92,246,.5);}
+    .mf select option{background:var(--bg-e);}
+    .mf textarea{min-height:80px;}
+    .mf.invalid input,.mf.invalid textarea{border-color:#ef4444;}
+    .mfg2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+    .mf-hint{font-size:11px;color:var(--dim);margin-top:3px;}
+    /* Buttons */
+    .btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:6px 13px;font-size:12px;font-family:inherit;color:var(--txt);cursor:pointer;transition:all .12s;}
+    .btn:hover{background:#222c3d;border-color:#374560;}
+    .btn-primary{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.35);color:#c4b5fd;}
+    .btn-primary:hover{background:rgba(139,92,246,.22);}
+
+    /* ── Empty state ── */
+    .empty{text-align:center;padding:44px 20px;color:var(--muted);grid-column:1/-1;}
+    .empty i{font-size:36px;opacity:.13;display:block;margin-bottom:10px;}
+
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:10px;}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-icon">🎲</div> D&amp;D Tools</div>
+    <span class="nav-sep">|</span>
+    <div class="nav-links">
+      <a href="../../initiative-tracker/" class="nav-link"><i class="ti ti-swords"></i> Initiative Tracker</a>
+      <a href="../../weapons/" class="nav-link"><i class="ti ti-bow-arrow"></i> Weapons Arsenal</a>
+      <a href="../" class="nav-link"><i class="ti ti-users"></i> Players</a>
+    </div>
+  </nav>
+
+  <div class="bc">
+    <a href="../">Players</a>
+    <span class="bc-sep">/</span>
+    <span>Alistair</span>
+  </div>
+
+  <!-- Character header -->
+  <div class="char-head">
+    <div class="char-av">A</div>
+    <div class="char-info">
+      <div class="char-name">Alistair</div>
+      <div class="char-sub" id="char-sub">— · —</div>
+      <div class="char-stats" id="char-stats"></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('abilities',this)"><i class="ti ti-sparkles"></i> Abilities</button>
+    <button class="tab" onclick="switchTab('inventory',this)"><i class="ti ti-backpack"></i> Inventory</button>
+  </div>
+
+  <!-- Abilities panel -->
+  <div class="tab-panel active" id="tab-abilities">
+    <div class="toolbar">
+      <input class="search" id="ab-search" placeholder="Search abilities…" oninput="filterAbilities()">
+      <div class="filter-btns" id="ab-filters"></div>
+      <span class="count" id="ab-count"></span>
+      <button class="add-btn" onclick="openAbilityModal()"><i class="ti ti-plus"></i> Add Ability</button>
+    </div>
+    <div class="card-grid" id="ab-grid"></div>
+  </div>
+
+  <!-- Inventory panel -->
+  <div class="tab-panel" id="tab-inventory">
+    <div id="inv-body"></div>
+  </div>
+
+</div>
+
+<!-- Lightbox -->
+<div class="lb" id="lb" onclick="lbBgClick(event)">
+  <div class="lb-card" id="lb-card">
+    <div class="lb-stripe" id="lb-stripe"></div>
+    <button class="lb-close" onclick="closeLb()"><i class="ti ti-x"></i></button>
+    <div class="lb-body" id="lb-body"></div>
+  </div>
+</div>
+
+<!-- Add Ability Modal -->
+<div class="modal-ov" id="ability-modal" onclick="modalBgClick(event,'ability-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Add Ability</span>
+      <button class="modal-close" onclick="closeAbilityModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf" id="af-name-f"><label>Name *</label><input id="af-name" placeholder="e.g. Shield Slam"></div>
+      <div class="mf"><label>Subtitle</label><input id="af-sub" placeholder="e.g. Homebrew Combat Ability"></div>
+      <div class="mfg2">
+        <div class="mf"><label>Type</label>
+          <select id="af-type">
+            <option value="combat">Combat</option>
+            <option value="magic">Magic</option>
+            <option value="passive">Passive</option>
+            <option value="utility">Utility</option>
+            <option value="reaction">Reaction</option>
+            <option value="legendary">Legendary</option>
+          </select>
+        </div>
+        <div class="mf"><label>Action Cost</label><input id="af-cost" placeholder="Action / Bonus Action…"></div>
+      </div>
+      <div class="mfg2">
+        <div class="mf"><label>Range</label><input id="af-range" placeholder="Melee / 30 ft / Self…"></div>
+        <div class="mf"><label>Save DC (optional)</label><input id="af-save" placeholder="STR DC 14…"></div>
+      </div>
+      <div class="mfg2">
+        <div class="mf"><label>Max Uses <small style="text-transform:none;letter-spacing:0">(0 = passive)</small></label><input id="af-uses" type="number" min="0" max="99" value="1"></div>
+        <div class="mf"><label>Recharge</label><input id="af-recharge" placeholder="Short Rest / Long Rest…"></div>
+      </div>
+      <div class="mf" id="af-desc-f"><label>Description *</label><textarea id="af-desc" placeholder="Describe the ability's effect…"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeAbilityModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAbility()"><i class="ti ti-check"></i> Add Ability</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal-ov" id="item-modal" onclick="modalBgClick(event,'item-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="item-modal-title">Add Item</span>
+      <button class="modal-close" onclick="closeItemModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf" id="if-name-f"><label>Name *</label><input id="if-name" placeholder="e.g. Health Potion"></div>
+      <div class="mfg2">
+        <div class="mf"><label>Quantity</label><input id="if-qty" type="number" min="1" value="1"></div>
+        <div class="mf"><label>Category</label>
+          <select id="if-type">
+            <option value="weapon">Weapon</option>
+            <option value="armor">Armor</option>
+            <option value="consumable">Consumable</option>
+            <option value="quest">Quest Item</option>
+            <option value="misc" selected>Misc</option>
+          </select>
+        </div>
+      </div>
+      <div class="mf"><label>Notes</label><input id="if-notes" placeholder="Damage, effects, weight…"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeItemModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem()"><i class="ti ti-check"></i> Add Item</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CHARACTER CONFIG — edit to update Alistair's info
+// ═══════════════════════════════════════════════════
+const CHAR = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
+
+// Ability type definitions
+const TYPES = {
+  combat:    { color:'#ef4444', label:'Combat'    },
+  magic:     { color:'#a855f7', label:'Magic'     },
+  passive:   { color:'#22c55e', label:'Passive'   },
+  utility:   { color:'#3b82f6', label:'Utility'   },
+  reaction:  { color:'#f59e0b', label:'Reaction'  },
+  legendary: { color:'#eab308', label:'Legendary' },
+};
+
+// ── Default abilities (used on first load only) ──
+const DEFAULT_ABILITIES = [
+  { id:1, name:'Relentless Strike',  sub:'Homebrew Combat Ability', type:'combat',    cost:'Bonus Action', range:'Melee', save:'',          uses:2, usesMax:2, recharge:'Short Rest',    desc:"When you miss with a melee attack roll, you may use your bonus action to immediately make one additional melee attack against the same target. This second attack cannot trigger Relentless Strike again." },
+  { id:2, name:'Iron Will',          sub:'Legendary Trait',         type:'legendary', cost:'—',            range:'Self',  save:'',          uses:1, usesMax:1, recharge:'Long Rest',     desc:"When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. You then gain resistance to all damage until the start of your next turn." },
+  { id:3, name:'Battle Instinct',    sub:'Passive Trait',           type:'passive',   cost:'Passive',      range:'Self',  save:'',          uses:0, usesMax:0, recharge:'Always Active', desc:"You cannot be surprised while conscious. You add +2 to initiative rolls and have advantage on Perception checks that rely on hearing." },
+  { id:4, name:'Shield Slam',        sub:'Homebrew Combat Ability', type:'combat',    cost:'Action',       range:'5 ft',  save:'STR DC 14', uses:3, usesMax:3, recharge:'Short Rest',    desc:"You slam your shield into a creature within 5 ft. The target must succeed on a DC 14 Strength saving throw or be knocked prone and pushed 10 ft away. On a hit, deal 1d6 + STR modifier bludgeoning damage." },
+  { id:5, name:"Guardian's Ward",    sub:'Homebrew Reaction',       type:'reaction',  cost:'Reaction',     range:'5 ft',  save:'',          uses:2, usesMax:2, recharge:'Short Rest',    desc:"When an ally within 5 ft is hit by an attack, you can use your reaction to interpose yourself. Reduce the damage dealt to that ally by 1d8 + your Constitution modifier. Any remainder is dealt to you instead." },
+  { id:6, name:'War Cry',            sub:'Homebrew Active Ability', type:'combat',    cost:'Bonus Action', range:'30 ft', save:'',          uses:1, usesMax:1, recharge:'Long Rest',     desc:"You unleash a fearsome battle cry. All allies within 30 ft who can hear you gain advantage on their next attack roll and are immune to the Frightened condition until the start of your next turn." },
+  { id:7, name:'Shadow Step',        sub:'Utility Ability',         type:'utility',   cost:'Bonus Action', range:'30 ft', save:'',          uses:3, usesMax:3, recharge:'Long Rest',     desc:"You meld into shadows and teleport to an unoccupied space within 30 ft that you can see. This movement does not provoke opportunity attacks. You must be in dim light or darkness to use this ability." },
+  { id:8, name:'Arcane Bulwark',     sub:'Magical Defense',         type:'magic',     cost:'Reaction',     range:'Self',  save:'',          uses:2, usesMax:2, recharge:'Long Rest',     desc:"When you are targeted by a spell, you can use your reaction to erect a shimmering arcane barrier. You gain resistance to the spell's damage and advantage on any saving throw it requires." },
+];
+
+// ── Default inventory (used on first load only) ──
+const DEFAULT_INVENTORY = [
+  { id:1,  name:'Longsword +1',       qty:1, type:'weapon',     notes:'1d8+1 slashing, versatile (1d10+1)' },
+  { id:2,  name:'Throwing Knives',    qty:5, type:'weapon',     notes:'1d4 piercing, range 20/60 ft' },
+  { id:3,  name:'Chainmail',          qty:1, type:'armor',      notes:'AC 16, disadvantage on Stealth' },
+  { id:4,  name:'Shield',             qty:1, type:'armor',      notes:'+2 AC' },
+  { id:5,  name:'Health Potion',      qty:3, type:'consumable', notes:'Restores 2d4+2 HP' },
+  { id:6,  name:'Antitoxin',         qty:1, type:'consumable', notes:'Advantage on saving throws vs. poison for 1 hour' },
+  { id:7,  name:'Mysterious Amulet',  qty:1, type:'quest',      notes:'Warm to the touch — origin unknown' },
+  { id:8,  name:'Hempen Rope (50ft)', qty:1, type:'misc',       notes:'' },
+  { id:9,  name:'Tinderbox',          qty:1, type:'misc',       notes:'' },
+  { id:10, name:'Rations',            qty:5, type:'misc',       notes:'5 days of trail rations' },
+  { id:11, name:'Coin Pouch',         qty:1, type:'misc',       notes:'45 GP · 12 SP · 8 CP' },
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const STORE_KEY = 'alistair-data';
+let abilities = [], inventory = [], nextAbilityId = 1, nextItemId = 1;
+let activeType = 'all', lbIndex = 0, filteredIds = [];
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_KEY));
+    if (s && Array.isArray(s.abilities)) {
+      abilities    = s.abilities;
+      inventory    = s.inventory    || [];
+      nextAbilityId = s.nextAbilityId || (Math.max(0, ...abilities.map(a=>a.id)) + 1);
+      nextItemId    = s.nextItemId    || (Math.max(0, ...inventory.map(i=>i.id), 0) + 1);
+      return;
+    }
+  } catch(e) {}
+  // First visit — clone defaults
+  abilities     = DEFAULT_ABILITIES.map(a => ({...a}));
+  inventory     = DEFAULT_INVENTORY.map(i => ({...i}));
+  nextAbilityId = DEFAULT_ABILITIES.length + 1;
+  nextItemId    = DEFAULT_INVENTORY.length + 1;
+  persist();
+}
+
+function persist() {
+  localStorage.setItem(STORE_KEY, JSON.stringify({abilities, inventory, nextAbilityId, nextItemId}));
+}
+
+// ═══════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════
+function boot() {
+  loadState();
+  // Character header
+  document.getElementById('char-sub').textContent =
+    [CHAR.race, CHAR.class].filter(v => v && v !== '—').join(' · ') || '— · —';
+  document.getElementById('char-stats').innerHTML =
+    [['Class',CHAR.class],['Level',CHAR.level],['Race',CHAR.race],['HP',CHAR.hp],['AC',CHAR.ac],['Speed',CHAR.speed]]
+    .map(([l,v]) => `<div class="cst"><span class="cst-l">${l}</span><span class="cst-v">${esc(String(v))}</span></div>`).join('');
+  buildFilters();
+  filterAbilities();
+  renderInventory();
+}
+
+// ═══════════════════════════════════════════════════
+// ABILITIES
+// ═══════════════════════════════════════════════════
+function buildFilters() {
+  const types = ['all', ...[...new Set(abilities.map(a => a.type))]];
+  document.getElementById('ab-filters').innerHTML = types.map(t => {
+    if (t === 'all') return `<button class="fbtn active" data-type="all" onclick="setType('all')">All</button>`;
+    const cfg = TYPES[t] || {color:'#64748b',label:t};
+    return `<button class="fbtn" data-type="${t}" onclick="setType('${t}')">${cfg.label}</button>`;
+  }).join('');
+}
+
+function setType(type) {
+  activeType = type;
+  document.querySelectorAll('.fbtn').forEach(b => {
+    const on = b.dataset.type === type;
+    b.classList.toggle('active', on);
+    if (on && type !== 'all') {
+      const c = (TYPES[type]||{color:'#64748b'}).color;
+      b.style.cssText = `color:${c};border-color:${c}70;background:${c}18`;
+    } else { b.style.cssText = ''; }
+  });
+  filterAbilities();
+}
+
+function filterAbilities() {
+  const q = document.getElementById('ab-search').value.toLowerCase().trim();
+  const vis = abilities.filter(a => {
+    const matchType   = activeType === 'all' || a.type === activeType;
+    const matchSearch = !q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q) || (TYPES[a.type]||{label:''}).label.toLowerCase().includes(q);
+    return matchType && matchSearch;
+  });
+  filteredIds = vis.map(a => a.id);
+  document.getElementById('ab-count').textContent = `${vis.length} abilit${vis.length!==1?'ies':'y'}`;
+
+  const grid = document.getElementById('ab-grid');
+  if (!vis.length) {
+    grid.innerHTML = `<div class="empty"><i class="ti ti-search-off"></i><p>No abilities match</p></div>`;
+    return;
+  }
+  grid.innerHTML = vis.map(a => {
+    const cfg = TYPES[a.type] || {color:'#64748b',label:a.type};
+    const pips = a.usesMax > 0
+      ? Array.from({length:a.usesMax},(_,i)=>`<span class="ac-pip${i<a.uses?' on':''}"></span>`).join('') : '';
+    return `<div class="ac" style="--accent:${cfg.color}" onclick="openLb(${abilities.indexOf(a)})">
+      <div class="ac-stripe"></div>
+      <button class="ac-del" onclick="event.stopPropagation();deleteAbility(${a.id})" title="Delete ability"><i class="ti ti-trash"></i></button>
+      <div class="ac-body">
+        <div class="ac-row1"><span class="ac-badge">${cfg.label}</span><span class="ac-cost">${esc(a.cost)}</span></div>
+        <div class="ac-name">${esc(a.name)}</div>
+        <div class="ac-sub">${esc(a.sub)}</div>
+        <div class="ac-desc">${esc(a.desc)}</div>
+      </div>
+      <div class="ac-foot">
+        ${a.usesMax>0
+          ? `<div class="ac-pips">${pips}</div><span class="ac-note">${esc(a.recharge)}</span>`
+          : `<span class="ac-note" style="font-style:italic">Always active</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteAbility(id) {
+  if (!confirm('Delete this ability?')) return;
+  abilities = abilities.filter(a => a.id !== id);
+  persist();
+  buildFilters();
+  filterAbilities();
+}
+
+// ── Add ability modal ──────────────────────────────
+function openAbilityModal() {
+  ['af-name','af-sub','af-cost','af-range','af-save','af-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('af-uses').value = 1;
+  document.getElementById('af-recharge').value = '';
+  document.getElementById('af-type').value = 'combat';
+  ['af-name-f','af-desc-f'].forEach(id => document.getElementById(id).classList.remove('invalid'));
+  document.getElementById('ability-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('af-name').focus(), 80);
+}
+function closeAbilityModal() { document.getElementById('ability-modal').classList.remove('open'); }
+
+function saveAbility() {
+  const name = document.getElementById('af-name').value.trim();
+  const desc = document.getElementById('af-desc').value.trim();
+  let valid = true;
+  document.getElementById('af-name-f').classList.toggle('invalid', !name); if (!name) valid = false;
+  document.getElementById('af-desc-f').classList.toggle('invalid', !desc); if (!desc) valid = false;
+  if (!valid) return;
+
+  const usesMax = Math.max(0, parseInt(document.getElementById('af-uses').value) || 0);
+  const a = {
+    id: nextAbilityId++,
+    name,
+    sub:      document.getElementById('af-sub').value.trim()      || 'Custom Ability',
+    type:     document.getElementById('af-type').value,
+    cost:     document.getElementById('af-cost').value.trim()     || '—',
+    range:    document.getElementById('af-range').value.trim()    || '—',
+    save:     document.getElementById('af-save').value.trim(),
+    usesMax,
+    uses:     usesMax,
+    recharge: document.getElementById('af-recharge').value.trim() || (usesMax===0?'Always Active':'—'),
+    desc,
+  };
+  abilities.push(a);
+  persist();
+  closeAbilityModal();
+  buildFilters();
+  filterAbilities();
+}
+
+// ═══════════════════════════════════════════════════
+// LIGHTBOX
+// ═══════════════════════════════════════════════════
+function openLb(idx) { lbIndex=idx; renderLb(); document.getElementById('lb').classList.add('open'); }
+function closeLb()   { document.getElementById('lb').classList.remove('open'); }
+function lbBgClick(e){ if(e.target===document.getElementById('lb')) closeLb(); }
+
+function lbStep(dir) {
+  const pos = filteredIds.indexOf(abilities[lbIndex].id);
+  const np  = Math.max(0, Math.min(filteredIds.length-1, pos+dir));
+  lbIndex   = abilities.findIndex(a => a.id===filteredIds[np]);
+  renderLb();
+}
+
+function renderLb() {
+  const a   = abilities[lbIndex];
+  const cfg = TYPES[a.type] || {color:'#64748b',label:a.type};
+  const pos = filteredIds.indexOf(a.id);
+  document.getElementById('lb-stripe').style.background = cfg.color;
+  document.getElementById('lb-card').style.setProperty('--la', cfg.color);
+
+  const stats = [];
+  if (a.cost  && a.cost  !== '—') stats.push({l:'Cost',  v:a.cost });
+  if (a.range && a.range !== '—') stats.push({l:'Range', v:a.range});
+  if (a.save)                     stats.push({l:'Save',  v:a.save });
+
+  const pips = a.usesMax>0
+    ? Array.from({length:a.usesMax},(_,i)=>`<div class="lb-pip ${i<a.uses?'on':'off'}"></div>`).join('') : '';
+
+  document.getElementById('lb-body').innerHTML = `
+    <div class="lb-hd"><span class="lb-badge">${cfg.label}</span><span class="lb-rech">${esc(a.recharge)}</span></div>
+    <div class="lb-name">${esc(a.name)}</div>
+    <div class="lb-sub">${esc(a.sub)}</div>
+    <div class="lb-div"></div>
+    ${stats.length?`<div class="lb-stats">${stats.map(s=>`<div class="lb-stat"><span class="lb-stat-l">${s.l}</span><span class="lb-stat-v">${esc(s.v)}</span></div>`).join('')}</div>`:''}
+    <div class="lb-desc">${esc(a.desc)}</div>
+    <div class="lb-div"></div>
+    ${a.usesMax>0
+      ?`<div class="lb-uses"><div style="display:flex;gap:5px">${pips}</div><span style="font-size:12px;color:var(--muted)">${a.uses}/${a.usesMax} · ${esc(a.recharge)}</span></div>`
+      :`<span style="font-size:11px;color:var(--muted);font-style:italic">Passive — always active, no charges required</span>`}
+    <div class="lb-nav-row">
+      <button class="lb-nbtn" onclick="lbStep(-1)" ${pos===0?'disabled':''}>← Prev</button>
+      <span class="lb-pos">${pos+1} / ${filteredIds.length}</span>
+      <button class="lb-nbtn" onclick="lbStep(1)"  ${pos===filteredIds.length-1?'disabled':''}>Next →</button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════════════════
+const INV_CATS = [
+  { key:'weapon',     label:'Weapons',         icon:'ti-sword'  },
+  { key:'armor',      label:'Armor & Shields',  icon:'ti-shield' },
+  { key:'consumable', label:'Consumables',      icon:'ti-flask'  },
+  { key:'quest',      label:'Quest Items',      icon:'ti-star'   },
+  { key:'misc',       label:'Miscellaneous',    icon:'ti-box'    },
+];
+
+function renderInventory() {
+  document.getElementById('inv-body').innerHTML = INV_CATS.map(cat => {
+    const items = inventory.filter(i => i.type === cat.key);
+    return `<div class="inv-cat">
+      <div class="inv-cat-head">
+        <div class="inv-cat-title"><i class="ti ${cat.icon}"></i>${cat.label}</div>
+        <button class="inv-add-btn" onclick="openItemModal('${cat.key}')"><i class="ti ti-plus"></i> Add</button>
+      </div>
+      ${items.length ? `<table class="inv-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th></th></tr></thead>
+        <tbody>${items.map(i=>`<tr>
+          <td>${esc(i.name)}</td>
+          <td><span class="inv-qty">×${i.qty}</span></td>
+          <td>${i.notes?`<span class="inv-notes">${esc(i.notes)}</span>`:''}</td>
+          <td><button class="inv-del" onclick="deleteItem(${i.id})" title="Remove item"><i class="ti ti-trash"></i></button></td>
+        </tr>`).join('')}</tbody>
+      </table>` : `<div style="font-size:12px;color:var(--dim);padding:8px 2px;font-style:italic">No items</div>`}
+    </div>`;
+  }).join('');
+}
+
+function deleteItem(id) {
+  if (!confirm('Remove this item?')) return;
+  inventory = inventory.filter(i => i.id !== id);
+  persist();
+  renderInventory();
+}
+
+// ── Add item modal ─────────────────────────────────
+let itemModalCat = 'misc';
+
+function openItemModal(cat) {
+  itemModalCat = cat || 'misc';
+  document.getElementById('if-name').value  = '';
+  document.getElementById('if-qty').value   = 1;
+  document.getElementById('if-notes').value = '';
+  document.getElementById('if-type').value  = itemModalCat;
+  document.getElementById('if-name-f').classList.remove('invalid');
+  document.getElementById('item-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('if-name').focus(), 80);
+}
+function closeItemModal() { document.getElementById('item-modal').classList.remove('open'); }
+
+function saveItem() {
+  const name = document.getElementById('if-name').value.trim();
+  if (!name) { document.getElementById('if-name-f').classList.add('invalid'); return; }
+  document.getElementById('if-name-f').classList.remove('invalid');
+  inventory.push({
+    id:    nextItemId++,
+    name,
+    qty:   Math.max(1, parseInt(document.getElementById('if-qty').value)||1),
+    type:  document.getElementById('if-type').value,
+    notes: document.getElementById('if-notes').value.trim(),
+  });
+  persist();
+  closeItemModal();
+  renderInventory();
+}
+
+// ═══════════════════════════════════════════════════
+// TABS + KEYBOARD + UTILS
+// ═══════════════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function modalBgClick(e, id) { if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    closeLb();
+    closeAbilityModal();
+    closeItemModal();
+  }
+  if (!document.getElementById('lb').classList.contains('open')) return;
+  if (e.key==='ArrowLeft')  lbStep(-1);
+  if (e.key==='ArrowRight') lbStep(1);
+});
+
+// Enter key submits open modal
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+  if (document.getElementById('ability-modal').classList.contains('open')) { saveAbility(); e.preventDefault(); }
+  else if (document.getElementById('item-modal').classList.contains('open')) { saveItem(); e.preventDefault(); }
+});
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+boot();
+</script>
+</body>
+</html>

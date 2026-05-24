@@ -206,10 +206,29 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#2a3244;border-radius:10px;}
+
+/* ── Site nav ── */
+.snav{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+.snav-brand{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:7px;}
+.snav-icon{width:30px;height:30px;background:linear-gradient(135deg,#7f1d1d,#1e1b4b);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.snav-sep{color:var(--bdr);margin:0 2px;}
+.snav-links{display:flex;gap:5px;flex-wrap:wrap;}
+.snav-link{font-size:11px;color:var(--muted);text-decoration:none;padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+.snav-link:hover{color:var(--txt);border-color:rgba(255,255,255,.12);}
+.snav-link.on{color:var(--gold);border-color:var(--gold-bdr);background:var(--gold-bg);}
   </style>
 </head>
 <body>
 <div class="page">
+  <nav class="snav">
+    <div class="snav-brand"><div class="snav-icon">🎲</div> D&amp;D Tools</div>
+    <span class="snav-sep">|</span>
+    <div class="snav-links">
+      <a href="../initiative-tracker/" class="snav-link"><i class="ti ti-swords"></i> Initiative Tracker</a>
+      <a href="./" class="snav-link on"><i class="ti ti-bow-arrow"></i> Weapons Arsenal</a>
+      <a href="../players/" class="snav-link"><i class="ti ti-users"></i> Players</a>
+    </div>
+  </nav>
   <header class="site-header">
     <div class="eyebrow">DM Homebrew</div>
     <h1>⚔ Homebrew Arsenal</h1>
