@@ -488,13 +488,35 @@
   function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
 
   // ── Math expressions ───────────────────────────────────────
+  function safeCalc(expr){
+    const e=String(expr).replace(/\s+/g,'');
+    if(!e||!/^[\d.+\-*/]+$/.test(e))return NaN;
+    const toks=[];let num='';
+    for(let i=0;i<e.length;i++){
+      const c=e[i];
+      if('+-*/'.includes(c)){if(!num)return NaN;toks.push(parseFloat(num),c);num='';}
+      else num+=c;
+    }
+    if(!num)return NaN;toks.push(parseFloat(num));
+    let i=1;
+    while(i<toks.length){if(toks[i]==='*'||toks[i]==='/'){const r=toks[i]==='*'?toks[i-1]*toks[i+1]:toks[i-1]/toks[i+1];toks.splice(i-1,3,r);}else i+=2;}
+    let result=toks[0];for(let j=1;j<toks.length;j+=2)result=toks[j]==='+'?result+toks[j+1]:result-toks[j+1];
+    return result;
+  }
   function setupMathInputs(){
     document.addEventListener('focusin',e=>{if('num'in(e.target.dataset||{})){e.target.dataset.prev=e.target.value;e.target.classList.remove('math-active');}});
-    document.addEventListener('input',e=>{if(!('num'in(e.target.dataset||{})))return;e.target.classList.toggle('math-active',/^[+\-*\/]\s*\d/.test(e.target.value.trim()));});
+    document.addEventListener('input',e=>{
+      if(!('num'in(e.target.dataset||{})))return;
+      const v=e.target.value.trim();
+      e.target.classList.toggle('math-active',/^[+\-*\/]\s*\d/.test(v)||/\d[+\-*/]\d/.test(v));
+    });
     document.addEventListener('focusout',e=>{if('num'in(e.target.dataset||{}))resolveMath(e.target);});
   }
   function resolveMath(el){
     const raw=el.value.trim();if(!raw)return;
+    // Absolute expression: 10+6, 8*2, etc.
+    if(/\d[+\-*/]\d/.test(raw)){const r=safeCalc(raw);if(!isNaN(r)){el.value=Math.round(r);el.classList.remove('math-active');delete el.dataset.prev;return;}}
+    // Relative expression: +6, -3 (applies to the previous value when field was focused)
     const prev=parseFloat(el.dataset.prev??'');
     const m=raw.match(/^([+\-*\/])\s*(\d+\.?\d*)$/);
     if(m&&!isNaN(prev)){const n=parseFloat(m[2]);let r=prev;switch(m[1]){case'+':r=prev+n;break;case'-':r=prev-n;break;case'*':r=Math.round(prev*n);break;case'/':if(n)r=prev/n;break;}el.value=Math.round(r);}
