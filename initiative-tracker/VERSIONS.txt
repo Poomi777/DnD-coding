@@ -1,0 +1,13 @@
+Initiative Tracker — Version History
+=====================================
+Format: 1.X  (user controls major version bumps)
+
+v1.0 — Baseline versioned release
+  - Combat initiative tracking with turn/round management
+  - HP, AC, conditions, notes per combatant
+  - Add/Edit combatant drawer (fixed-position, slides in from right)
+  - Roster sidebar (save/load/export/import characters)
+  - Math expressions in all numeric stat fields (e.g. 16+2 → 18, +3 → relative add)
+  - Portrait upload, drag-and-drop, paste, with crop tool and zoom
+  - LocalStorage persistence
+  - Version label in header
