@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alistair — Player Sheet</title>
+  <title>Araitz — Player Sheet</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
     :root{--bg:#0d1117;--bg-s:#161b24;--bg-e:#1c2333;--bg-in:#10151e;--bdr:#2a3244;--bdr-d:#1c2333;--txt:#e2e8f0;--muted:#64748b;--dim:#3a4558;--r:8px;--rl:12px;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(139,92,246,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(59,130,246,.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(8,145,178,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(6,182,212,.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
     .page{max-width:1100px;margin:0 auto;padding:24px 20px 60px;position:relative;z-index:1;}
 
     /* ── Nav ── */
@@ -32,7 +32,7 @@
 
     /* ── Char header ── */
     .char-head{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px 22px;display:flex;align-items:center;gap:18px;margin-bottom:18px;flex-wrap:wrap;}
-    .char-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#312e81,#4c1d95);border:2px solid rgba(139,92,246,.35);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:#c4b5fd;flex-shrink:0;box-shadow:0 0 22px rgba(139,92,246,.2);}
+    .char-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#065f73,#0891b2);border:2px solid rgba(8,145,178,.35);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:#a5f3fc;flex-shrink:0;box-shadow:0 0 22px rgba(8,145,178,.2);}
     .char-info{flex:1;min-width:0;}
     .char-name{font-family:'Cinzel',serif;font-size:21px;font-weight:700;color:var(--txt);margin-bottom:3px;}
     .char-sub{font-size:12px;color:var(--muted);margin-bottom:9px;}
@@ -52,14 +52,14 @@
     /* ── Toolbar ── */
     .toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
     .search{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px 7px 30px;font-size:13px;color:var(--txt);font-family:inherit;width:200px;transition:border-color .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:9px center;}
-    .search:focus{outline:none;border-color:rgba(139,92,246,.5);}
+    .search:focus{outline:none;border-color:rgba(8,145,178,.5);}
     .search::placeholder{color:var(--dim);}
     .filter-btns{display:flex;gap:4px;flex-wrap:wrap;}
     .fbtn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;}
     .fbtn:hover{color:var(--txt);}
     .count{font-size:12px;color:var(--muted);margin-left:auto;}
-    .add-btn{font-size:12px;padding:5px 13px;border-radius:var(--r);border:1px solid rgba(139,92,246,.35);background:rgba(139,92,246,.1);color:#c4b5fd;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
-    .add-btn:hover{background:rgba(139,92,246,.2);}
+    .add-btn{font-size:12px;padding:5px 13px;border-radius:var(--r);border:1px solid rgba(8,145,178,.35);background:rgba(8,145,178,.1);color:#a5f3fc;cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+    .add-btn:hover{background:rgba(8,145,178,.2);}
 
     /* ── Ability card grid ── */
     .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
@@ -124,7 +124,6 @@
     .inv-table tr:hover td{background:rgba(255,255,255,.018);}
     .inv-qty{font-weight:600;color:var(--muted);}
     .inv-notes{font-size:12px;color:var(--muted);font-style:italic;}
-    /* Arsenal badge on weapon rows */
     .inv-arsenal{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--muted);text-decoration:none;padding:1px 6px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-e);margin-left:6px;transition:all .12s;vertical-align:middle;}
     .inv-arsenal:hover{color:var(--txt);border-color:rgba(255,255,255,.15);}
     .inv-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:3px 5px;border-radius:4px;transition:color .12s;display:flex;align-items:center;}
@@ -163,7 +162,7 @@
     .mf{margin-bottom:10px;}
     .mf label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
     .mf input,.mf select,.mf textarea{width:100%;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px;font-size:13px;color:var(--txt);font-family:inherit;transition:border-color .15s;resize:vertical;}
-    .mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:rgba(139,92,246,.5);}
+    .mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:rgba(8,145,178,.5);}
     .mf select option{background:var(--bg-e);}
     .mf textarea{min-height:80px;}
     .mf.invalid input,.mf.invalid textarea{border-color:#ef4444;}
@@ -173,8 +172,8 @@
     /* ── Buttons ── */
     .btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:6px 13px;font-size:12px;font-family:inherit;color:var(--txt);cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:5px;}
     .btn:hover{background:#222c3d;border-color:#374560;}
-    .btn-primary{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.35);color:#c4b5fd;}
-    .btn-primary:hover{background:rgba(139,92,246,.22);}
+    .btn-primary{background:rgba(8,145,178,.12);border-color:rgba(8,145,178,.35);color:#a5f3fc;}
+    .btn-primary:hover{background:rgba(8,145,178,.22);}
 
     /* ── Toast ── */
     .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-e);border:1px solid var(--bdr);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--txt);z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:t-in .2s ease,t-out .3s ease 1.8s forwards;}
@@ -191,7 +190,7 @@
     .notes-tbtn:hover{background:var(--bg-e);border-color:rgba(255,255,255,.15);}
     .notes-hint{font-size:11px;color:var(--dim);margin-left:4px;}
     .notes-ed{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;min-height:340px;color:var(--txt);font-family:'Crimson Pro',serif;font-size:15px;line-height:1.7;outline:none;transition:border-color .15s;word-break:break-word;}
-    .notes-ed:focus{border-color:rgba(139,92,246,.4);}
+    .notes-ed:focus{border-color:rgba(8,145,178,.4);}
     .notes-ed img{max-width:100%;border-radius:var(--r);margin:6px 0;display:block;}
     .notes-ed:empty::before{content:attr(data-placeholder);color:var(--dim);pointer-events:none;font-style:italic;}
 
@@ -240,14 +239,14 @@
   <div class="bc">
     <a href="../index.html">Players</a>
     <span class="bc-sep">/</span>
-    <span>Alistair</span>
+    <span>Araitz</span>
   </div>
 
   <!-- Character header -->
   <div class="char-head">
     <div class="char-av">A</div>
     <div class="char-info">
-      <div class="char-name">Alistair</div>
+      <div class="char-name">Araitz</div>
       <div class="char-sub" id="char-sub">— · —</div>
       <div class="char-stats" id="char-stats"></div>
     </div>
@@ -346,7 +345,7 @@
       <button class="modal-close" onclick="closeArsenalModal()"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body">
-      <p class="arsenal-hint">Select a weapon from the Homebrew Arsenal to add to Alistair's inventory. These are the existing homebrew weapon cards.</p>
+      <p class="arsenal-hint">Select a weapon from the Homebrew Arsenal to add to Araitz's inventory. These are the existing homebrew weapon cards.</p>
       <div class="arsenal-grid" id="arsenal-grid"></div>
     </div>
     <div class="modal-foot">
@@ -385,9 +384,6 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// CHARACTER CONFIG
-// ═══════════════════════════════════════════════════
 const CHAR = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
 
 const TYPES = {
@@ -399,8 +395,6 @@ const TYPES = {
   legendary: { color:'#eab308', label:'Legendary' },
 };
 
-// ── Homebrew weapons from the Arsenal ──────────────
-// Kept in sync with weapons/index.html WEAPONS array
 const HOMEBREW_WEAPONS = [
   { id:'repeating-crossbow', name:'Repeating Crossbow', type:'Martial Ranged · Homebrew',      accent:'#c9a84c', dmg:'3d6 + ability mod'   },
   { id:'scroll-bow',         name:'Scroll Bow',         type:'Martial Ranged · Arcane',         accent:'#5577aa', dmg:'1d8 + ability mod'   },
@@ -412,22 +406,13 @@ const HOMEBREW_WEAPONS = [
   { id:'lumen',              name:'Lumen',              type:'Martial Melee · Spear',           accent:'#e8c020', dmg:'2d10 + ability mod'  },
 ];
 
-// ── Default abilities (first-load seed) ────────────
 const DEFAULT_ABILITIES = [
-  { id:9, name:'Agile Dodge', sub:'Homebrew Reaction', type:'reaction', cost:'Reaction', range:'Self', save:'', uses:1, usesMax:1, recharge:'Per Battle', desc:"+3 AC until the start of your next turn." },
+  { id:1, name:'Chi Blast', sub:'Homebrew Combat Ability', type:'combat', cost:'Action', range:'15 ft', save:'', uses:1, usesMax:1, recharge:'Per Battle', desc:'Ranged strike of focused chi energy. To hit: 1d20 + Wisdom modifier + proficiency bonus. Damage: 2d8 + Wisdom modifier.' },
 ];
-// IDs that were once defaults but have been removed — purge from any existing save
-const PURGE_IDS = [1,2,3,4,5,6,7,8];
-
-// Inventory starts empty — add weapons from the Arsenal or items via the Add buttons
 const DEFAULT_INVENTORY = [];
 
-// ═══════════════════════════════════════════════════
-// STATE — persisted to localStorage
-// INV_VERSION: bump this number to wipe & reset inventory from defaults
-// ═══════════════════════════════════════════════════
-const STORE_KEY    = 'alistair-data';
-const INV_VERSION  = 2; // bumped to clear old placeholder inventory
+const STORE_KEY   = 'araitz-data';
+const INV_VERSION = 1;
 
 let abilities = [], inventory = [], notes = '', nextAbilityId = 1, nextItemId = 1;
 let deletedDefaultIds = [];
@@ -437,31 +422,24 @@ function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE_KEY));
     if (s && Array.isArray(s.abilities)) {
-      abilities         = s.abilities.filter(a => !PURGE_IDS.includes(a.id));
+      abilities         = s.abilities;
       deletedDefaultIds = s.deletedDefaultIds || [];
       DEFAULT_ABILITIES.forEach(da => {
         if (!deletedDefaultIds.includes(da.id) && !abilities.find(a => a.id === da.id))
           abilities.push({...da});
       });
       nextAbilityId = Math.max(s.nextAbilityId||1, ...abilities.map(a=>a.id+1), 1);
-      // Inventory: only restore if version matches, otherwise reset to defaults
       if (s.invVersion === INV_VERSION && Array.isArray(s.inventory)) {
         inventory  = s.inventory;
         nextItemId = s.nextItemId || (Math.max(0, ...inventory.map(i=>i.id), 0) + 1);
       } else {
-        inventory  = DEFAULT_INVENTORY.map(i=>({...i}));
-        nextItemId = DEFAULT_INVENTORY.length + 1;
+        inventory  = []; nextItemId = 1;
       }
       notes = s.notes || '';
-      persist();
-      return;
+      persist(); return;
     }
   } catch(e) {}
-  // First visit — clone defaults
-  abilities     = DEFAULT_ABILITIES.map(a=>({...a}));
-  inventory     = DEFAULT_INVENTORY.map(i=>({...i}));
-  nextAbilityId = DEFAULT_ABILITIES.length + 1;
-  nextItemId    = DEFAULT_INVENTORY.length + 1;
+  abilities = []; inventory = []; nextAbilityId = 1; nextItemId = 1;
   persist();
 }
 
@@ -473,9 +451,6 @@ function persist() {
   } catch(e) { toast('Storage full — some notes may not have saved'); }
 }
 
-// ═══════════════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════════════
 function boot() {
   loadState();
   document.getElementById('char-sub').textContent =
@@ -483,15 +458,9 @@ function boot() {
   document.getElementById('char-stats').innerHTML =
     [['Class',CHAR.class],['Level',CHAR.level],['Race',CHAR.race],['HP',CHAR.hp],['AC',CHAR.ac],['Speed',CHAR.speed]]
     .map(([l,v])=>`<div class="cst"><span class="cst-l">${l}</span><span class="cst-v">${esc(String(v))}</span></div>`).join('');
-  buildFilters();
-  filterAbilities();
-  renderInventory();
-  initNotes();
+  buildFilters(); filterAbilities(); renderInventory(); initNotes();
 }
 
-// ═══════════════════════════════════════════════════
-// ABILITIES
-// ═══════════════════════════════════════════════════
 function buildFilters() {
   const types = ['all', ...[...new Set(abilities.map(a=>a.type))]];
   document.getElementById('ab-filters').innerHTML = types.map(t => {
@@ -521,9 +490,8 @@ function filterAbilities() {
   });
   filteredIds = vis.map(a=>a.id);
   document.getElementById('ab-count').textContent = `${vis.length} abilit${vis.length!==1?'ies':'y'}`;
-
   const grid = document.getElementById('ab-grid');
-  if (!vis.length) { grid.innerHTML=`<div class="empty"><i class="ti ti-search-off"></i><p>No abilities match</p></div>`; return; }
+  if (!vis.length) { grid.innerHTML=`<div class="empty"><i class="ti ti-sparkles"></i><p>No abilities yet — add one above</p></div>`; return; }
   grid.innerHTML = vis.map(a => {
     const cfg = TYPES[a.type]||{color:'#64748b',label:a.type};
     const pips = a.usesMax>0 ? Array.from({length:a.usesMax},(_,i)=>`<span class="ac-pip${i<a.uses?' on':''}"></span>`).join('') : '';
@@ -537,9 +505,7 @@ function filterAbilities() {
         <div class="ac-desc">${esc(a.desc)}</div>
       </div>
       <div class="ac-foot">
-        ${a.usesMax>0
-          ?`<div class="ac-pips">${pips}</div><span class="ac-note">${esc(a.recharge)}</span>`
-          :`<span class="ac-note" style="font-style:italic">Always active</span>`}
+        ${a.usesMax>0?`<div class="ac-pips">${pips}</div><span class="ac-note">${esc(a.recharge)}</span>`:`<span class="ac-note" style="font-style:italic">Always active</span>`}
       </div>
     </div>`;
   }).join('');
@@ -585,9 +551,6 @@ function saveAbility() {
   persist(); closeAbilityModal(); buildFilters(); filterAbilities();
 }
 
-// ═══════════════════════════════════════════════════
-// LIGHTBOX
-// ═══════════════════════════════════════════════════
 function openLb(idx)  { lbIndex=idx; renderLb(); document.getElementById('lb').classList.add('open'); }
 function closeLb()    { document.getElementById('lb').classList.remove('open'); }
 function lbBgClick(e) { if(e.target===document.getElementById('lb')) closeLb(); }
@@ -627,9 +590,6 @@ function renderLb() {
     </div>`;
 }
 
-// ═══════════════════════════════════════════════════
-// INVENTORY
-// ═══════════════════════════════════════════════════
 const INV_CATS = [
   { key:'weapon',     label:'Weapons',        icon:'ti-sword'  },
   { key:'armor',      label:'Armor & Shields', icon:'ti-shield' },
@@ -671,11 +631,7 @@ function deleteItem(id) {
   persist(); renderInventory();
 }
 
-// ── Arsenal picker (weapons only) ─────────────────
-function openArsenalModal() {
-  renderArsenalGrid();
-  document.getElementById('arsenal-modal').classList.add('open');
-}
+function openArsenalModal() { renderArsenalGrid(); document.getElementById('arsenal-modal').classList.add('open'); }
 function closeArsenalModal() { document.getElementById('arsenal-modal').classList.remove('open'); }
 
 function renderArsenalGrid() {
@@ -689,9 +645,7 @@ function renderArsenalGrid() {
         <div class="wp-type">${esc(w.type)}</div>
         <div class="wp-dmg">${esc(w.dmg)}</div>
         ${countLabel}
-        <button class="wp-add-btn" onclick="addWeaponFromArsenal('${w.id}')">
-          <i class="ti ti-plus"></i> Add
-        </button>
+        <button class="wp-add-btn" onclick="addWeaponFromArsenal('${w.id}')"><i class="ti ti-plus"></i> Add</button>
       </div>
     </div>`;
   }).join('');
@@ -701,13 +655,10 @@ function addWeaponFromArsenal(weaponId) {
   const w = HOMEBREW_WEAPONS.find(x=>x.id===weaponId);
   if (!w) return;
   inventory.push({ id:nextItemId++, name:w.name, qty:1, type:'weapon', notes:w.type, weaponRef:w.id });
-  persist();
-  renderArsenalGrid();   // refresh the "in inventory" counts
-  renderInventory();     // update inventory tab
+  persist(); renderArsenalGrid(); renderInventory();
   toast(`${w.name} added to inventory`);
 }
 
-// ── Generic item modal (non-weapons) ──────────────
 let itemModalCat = 'misc';
 
 function openItemModal(cat) {
@@ -736,9 +687,6 @@ function saveItem() {
   persist(); closeItemModal(); renderInventory();
 }
 
-// ═══════════════════════════════════════════════════
-// TABS + KEYBOARD + UTILS
-// ═══════════════════════════════════════════════════
 function switchTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
@@ -758,7 +706,7 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keydown', e => {
   if (e.key!=='Enter' || e.target.tagName==='TEXTAREA' || e.target.tagName==='BUTTON' || e.target.isContentEditable) return;
   if (document.getElementById('ability-modal').classList.contains('open')) { saveAbility(); e.preventDefault(); }
-  else if (document.getElementById('item-modal').classList.contains('open'))   { saveItem();    e.preventDefault(); }
+  else if (document.getElementById('item-modal').classList.contains('open')) { saveItem(); e.preventDefault(); }
 });
 
 function toast(msg) {
@@ -770,9 +718,6 @@ function toast(msg) {
 
 function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ═══════════════════════════════════════════════════
-// NOTES
-// ═══════════════════════════════════════════════════
 function initNotes() {
   const ed = document.getElementById('notes-ed');
   ed.innerHTML = notes;
