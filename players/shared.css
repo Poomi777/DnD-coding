@@ -33,6 +33,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cst-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:1px;}
 .cst-v{font-size:13px;font-weight:700;color:var(--txt);}
 
+/* ── Training Points stat ── */
+.tp-cst{cursor:pointer;min-width:72px;border-color:rgba(var(--player-accent-rgb),.25);transition:border-color .15s,background .15s;}
+.tp-cst:hover{border-color:rgba(var(--player-accent-rgb),.5);background:rgba(var(--player-accent-rgb),.06);}
+.tp-cst .cst-v{color:var(--player-accent-text);}
+.tp-input{width:64px;background:var(--bg-in);border:1px solid rgba(var(--player-accent-rgb),.5);border-radius:4px;padding:1px 4px;font-size:13px;font-weight:700;color:var(--txt);font-family:inherit;text-align:center;}
+.tp-input:focus{outline:none;}
+
 /* ── Tabs ── */
 .tabs{display:flex;gap:3px;border-bottom:1px solid var(--bdr);margin-bottom:16px;}
 .tab{font-size:13px;font-weight:500;padding:7px 15px;cursor:pointer;color:var(--muted);background:none;border:1px solid transparent;border-bottom:none;border-radius:var(--r) var(--r) 0 0;position:relative;bottom:-1px;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}

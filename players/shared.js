@@ -36,6 +36,7 @@ let deletedDefaultIds = [];
 let editingAbilityId = null, editingItemId = null;
 let activeType = 'all', lbIndex = 0, filteredIds = [];
 let itemModalCat = 'misc';
+let trainingPoints = 200;
 
 function loadState() {
   try {
@@ -56,6 +57,7 @@ function loadState() {
         nextItemId = DEFAULT_INVENTORY.length + 1;
       }
       notes = s.notes || '';
+      trainingPoints = s.trainingPoints ?? 200;
       persist(); return;
     }
   } catch(e) {}
@@ -69,9 +71,47 @@ function loadState() {
 function persist() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
-      abilities, inventory, notes, nextAbilityId, nextItemId, invVersion: INV_VERSION, deletedDefaultIds,
+      abilities, inventory, notes, nextAbilityId, nextItemId, invVersion: INV_VERSION, deletedDefaultIds, trainingPoints,
     }));
   } catch(e) { toast('Storage full — some notes may not have saved'); }
+}
+
+// ─── Training Points ─────────────────────────────────────
+function renderTP() {
+  const el = document.getElementById('tp-val');
+  if (el) el.textContent = trainingPoints;
+}
+
+function editTP() {
+  const stat = document.getElementById('tp-stat');
+  if (stat.querySelector('input')) return;
+  const val = document.getElementById('tp-val');
+  stat.removeEventListener('click', editTP);
+  const inp = document.createElement('input');
+  inp.type = 'number'; inp.min = 0; inp.value = trainingPoints;
+  inp.className = 'tp-input';
+  val.textContent = '';
+  val.appendChild(inp);
+  inp.focus(); inp.select();
+  let done = false;
+  function commit() {
+    if (done) return; done = true;
+    trainingPoints = Math.max(0, parseInt(inp.value) || 0);
+    persist();
+    stat.addEventListener('click', editTP);
+    renderTP();
+    toast(`Training Points: ${trainingPoints}`);
+  }
+  function cancel() {
+    if (done) return; done = true;
+    stat.addEventListener('click', editTP);
+    renderTP();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { inp.removeEventListener('blur', commit); commit(); }
+    if (e.key === 'Escape') { inp.removeEventListener('blur', commit); cancel(); }
+  });
 }
 
 // ─── Boot ────────────────────────────────────────────────
@@ -87,6 +127,10 @@ function boot() {
   document.getElementById('char-stats').innerHTML =
     [['Class',CHAR.class],['Level',CHAR.level],['Race',CHAR.race],['HP',CHAR.hp],['AC',CHAR.ac],['Speed',CHAR.speed]]
     .map(([l,v])=>`<div class="cst"><span class="cst-l">${l}</span><span class="cst-v">${esc(String(v))}</span></div>`).join('');
+  document.getElementById('char-stats').insertAdjacentHTML('beforeend',
+    '<div class="cst tp-cst" id="tp-stat" title="Click to edit Training Points"><span class="cst-l"><i class="ti ti-dumbbell" style="font-size:8px;margin-right:2px;vertical-align:middle"></i>Train. Pts</span><span class="cst-v tp-val" id="tp-val"></span></div>');
+  document.getElementById('tp-stat').addEventListener('click', editTP);
+  renderTP();
   buildFilters();
   filterAbilities();
   renderInventory();
