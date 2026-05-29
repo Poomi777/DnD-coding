@@ -182,8 +182,9 @@
     /* ── Form ── */
     .field{margin-bottom:9px;}
     .field label{display:block;font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.65px;margin-bottom:4px;}
-    .field input,.field select{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;transition:border-color .15s;}
-    .field input:focus,.field select:focus{outline:none;border-color:var(--active);}
+    .field input,.field select,.field textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;transition:border-color .15s;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--active);}
+    .field textarea{resize:vertical;min-height:72px;line-height:1.5;}
     .field select option{background:var(--bg-elevated);color:var(--text);}
     .field input.invalid{border-color:var(--enemy);}
     .field input.math-active{border-color:var(--neutral);color:var(--neutral);}
@@ -515,7 +516,7 @@
 
             <div class="field">
               <label>Notes / Special Abilities</label>
-              <input id="f-notes" type="text" placeholder="Darkvision 60ft, Nimble Escape…">
+              <textarea id="f-notes" placeholder="Darkvision 60ft, Nimble Escape…&#10;Use new lines to separate abilities."></textarea>
             </div>
             <div style="height:6px"></div>
           </div>
@@ -715,7 +716,7 @@
           <div class="divider"></div>
           <div class="sec-label">Conditions</div>
           <div class="cond-grid">${cb}</div>
-          ${c.notes?`<div class="divider"></div><div class="notes-box">${esc(c.notes)}</div>`:''}
+          ${c.notes?`<div class="divider"></div><div class="notes-box">${esc(c.notes).replace(/\n/g,'<br>')}</div>`:''}
           <div class="action-row">
             <button class="btn btn-sm" onclick="openEditForm(${c.id})"><i class="ti ti-edit"></i> Edit</button>
             <button class="btn btn-sm" onclick="duplicateCombatant(${c.id})"><i class="ti ti-copy"></i> Duplicate</button>
@@ -1004,7 +1005,7 @@
     if(e.key==='Enter'){
       const el=document.activeElement;
       if(el&&'num'in(el.dataset||{})){resolveMath(el);e.preventDefault();return;}
-      if(el?.tagName!=='BUTTON'&&!document.getElementById('crop-overlay').classList.contains('open')){
+      if(el?.tagName!=='BUTTON'&&el?.tagName!=='TEXTAREA'&&!document.getElementById('crop-overlay').classList.contains('open')){
         if(document.getElementById('form-drawer').classList.contains('open')){e.preventDefault();saveCombatant();}
       }
     }
