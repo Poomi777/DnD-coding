@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map Grid Maker — D&D Tools</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --bg:#0d1117;--bg-s:#161b24;--bg-e:#1c2333;--bg-in:#10151e;
+      --bdr:#2a3244;--bdr-d:#1c2333;
+      --txt:#e2e8f0;--muted:#64748b;--dim:#3a4558;
+      --r:8px;--rl:12px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;}
+
+    /* ── Nav ── */
+    .top-nav{display:flex;align-items:center;gap:8px;padding:9px 16px;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg-s);flex-wrap:wrap;}
+    .nav-brand{font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:7px;}
+    .nav-icon{width:28px;height:28px;background:linear-gradient(135deg,#7f1d1d,#1e1b4b);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:13px;}
+    .nav-sep{color:var(--bdr);margin:0 2px;}
+    .nav-links{display:flex;gap:5px;flex-wrap:wrap;}
+    .nav-link{font-size:11px;color:var(--muted);text-decoration:none;padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg);transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+    .nav-link:hover{color:var(--txt);border-color:rgba(255,255,255,.12);}
+    .nav-link.on{color:#93c5fd;border-color:rgba(59,130,246,.35);background:rgba(59,130,246,.08);}
+
+    /* ── Layout ── */
+    .app-body{display:flex;flex:1;min-height:0;}
+
+    /* ── Canvas area ── */
+    .canvas-wrap{flex:1;min-width:0;position:relative;background:#070a0f;overflow:hidden;}
+    #gc{display:block;cursor:grab;touch-action:none;}
+    #gc.grabbing{cursor:grabbing;}
+    #gc.offset-cur{cursor:crosshair;}
+
+    /* upload overlay */
+    .up-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;pointer-events:none;}
+    .up-overlay.gone{display:none;}
+    .up-icon{font-size:58px;color:var(--dim);opacity:.3;}
+    .up-title{font-size:17px;font-weight:600;color:var(--muted);}
+    .up-sub{font-size:13px;color:var(--dim);}
+    .up-sub kbd{font-size:11px;font-family:monospace;background:var(--bg-e);border:1px solid var(--bdr);border-radius:3px;padding:1px 5px;color:var(--muted);}
+
+    /* drop highlight */
+    .canvas-wrap.drag-hi{outline:2px solid rgba(59,130,246,.55);outline-offset:-2px;}
+
+    /* ── Controls panel ── */
+    .panel{width:272px;flex-shrink:0;background:var(--bg-s);border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;}
+    .panel-scroll{flex:1;overflow-y:auto;padding:14px 14px 6px;}
+    .panel-scroll::-webkit-scrollbar{width:3px;}
+    .panel-scroll::-webkit-scrollbar-track{background:transparent;}
+    .panel-scroll::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:10px;}
+
+    /* sections */
+    .sec{margin-bottom:18px;}
+    .sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bdr-d);display:flex;align-items:center;gap:6px;}
+
+    /* controls */
+    .ctrl{margin-bottom:10px;}
+    .ctrl-lbl{font-size:11px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;}
+    .ctrl-v{font-size:11px;font-weight:700;color:var(--txt);}
+    input[type=range]{width:100%;accent-color:#3b82f6;cursor:pointer;height:16px;}
+
+    /* color row */
+    .color-row{display:flex;align-items:center;gap:7px;}
+    input[type=color]{width:34px;height:28px;border:1px solid var(--bdr);border-radius:var(--r);background:var(--bg-in);cursor:pointer;padding:2px;flex-shrink:0;}
+    .hex-in{flex:1;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--txt);font-family:monospace;min-width:0;}
+    .hex-in:focus{outline:none;border-color:rgba(59,130,246,.5);}
+
+    /* color presets */
+    .presets{display:flex;gap:5px;margin-top:6px;}
+    .preset{width:22px;height:22px;border-radius:5px;cursor:pointer;border:1.5px solid transparent;transition:transform .12s,border-color .12s;flex-shrink:0;}
+    .preset:hover,.preset.on{border-color:rgba(255,255,255,.55);transform:scale(1.12);}
+
+    /* line width picker */
+    .lw-row{display:flex;gap:5px;}
+    .lw-btn{flex:1;height:30px;background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-size:11px;color:var(--muted);transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;}
+    .lw-btn:hover{border-color:rgba(59,130,246,.4);color:#93c5fd;}
+    .lw-btn.on{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.4);color:#93c5fd;}
+
+    /* toggle btn */
+    .tog-btn{width:100%;height:30px;background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-size:11px;color:var(--muted);transition:all .12s;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;}
+    .tog-btn.on{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#86efac;}
+    .tog-btn:hover:not(.on){border-color:rgba(255,255,255,.12);color:var(--txt);}
+
+    /* buttons */
+    .btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:6px 12px;font-size:12px;font-family:inherit;color:var(--txt);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap;}
+    .btn:hover{background:#222c3d;border-color:#374560;}
+    .btn-primary{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.35);color:#93c5fd;}
+    .btn-primary:hover{background:rgba(59,130,246,.22);}
+    .btn-success{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#86efac;}
+    .btn-success:hover{background:rgba(34,197,94,.2);}
+    .btn-danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5;}
+    .btn-danger:hover{background:rgba(239,68,68,.2);}
+    .btn-amber{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#fcd34d;}
+    .btn-amber:hover{background:rgba(245,158,11,.2);}
+    .btn-full{width:100%;justify-content:center;padding:7px 12px;}
+    .btn-row{display:flex;gap:6px;flex-wrap:wrap;}
+
+    /* upload zone */
+    .up-zone{border:1.5px dashed var(--bdr);border-radius:var(--r);padding:13px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:9px;}
+    .up-zone:hover,.up-zone.drag-over{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.05);}
+    .up-zone-t{font-size:12px;color:var(--muted);}
+    .up-zone-s{font-size:11px;color:var(--dim);margin-top:2px;}
+
+    /* loaded file strip */
+    .file-strip{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px;display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+    .file-name{font-size:12px;color:var(--txt);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .file-dim{font-size:10px;color:var(--muted);flex-shrink:0;}
+
+    /* zoom row */
+    .zoom-row{display:flex;align-items:center;gap:6px;}
+    .zoom-disp{font-size:13px;font-weight:700;color:var(--txt);min-width:54px;text-align:center;background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:4px 6px;}
+
+    /* cell count badge */
+    .cell-badge{font-size:10px;color:var(--dim);margin-top:5px;}
+
+    /* hint */
+    .hint{font-size:11px;color:var(--dim);padding:7px 9px;background:var(--bg-e);border-radius:var(--r);border-left:2px solid var(--bdr);line-height:1.55;margin-top:8px;}
+    .hint kbd{font-size:10px;font-family:monospace;background:var(--bg-s);border:1px solid var(--bdr);border-radius:3px;padding:1px 4px;color:var(--muted);}
+
+    /* status bar */
+    .status{height:26px;border-top:1px solid var(--bdr-d);display:flex;align-items:center;gap:14px;padding:0 14px;flex-shrink:0;background:var(--bg);font-size:10px;color:var(--dim);}
+    .st-right{margin-left:auto;}
+
+    /* toast */
+    .toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:var(--bg-e);border:1px solid var(--bdr);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--txt);z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5);animation:t-in .2s ease,t-out .3s ease 1.8s forwards;}
+    @keyframes t-in{from{opacity:0;transform:translateX(-50%) translateY(6px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+    @keyframes t-out{to{opacity:0;transform:translateX(-50%) translateY(6px);}}
+
+    /* responsive */
+    @media(max-width:680px){
+      .app-body{flex-direction:column;}
+      .panel{width:100%;max-height:280px;border-left:none;border-top:1px solid var(--bdr);}
+    }
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:10px;}
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-brand"><div class="nav-icon">🎲</div> D&amp;D Tools</div>
+  <span class="nav-sep">|</span>
+  <div class="nav-links">
+    <a href="../initiative-tracker/index.html" class="nav-link"><i class="ti ti-swords"></i> Initiative Tracker</a>
+    <a href="../weapons/index.html" class="nav-link"><i class="ti ti-bow-arrow"></i> Weapons Arsenal</a>
+    <a href="../players/index.html" class="nav-link"><i class="ti ti-users"></i> Players</a>
+    <a href="./index.html" class="nav-link on"><i class="ti ti-grid-dots"></i> Map Grid</a>
+  </div>
+</nav>
+
+<div class="app-body">
+
+  <!-- ── Canvas ── -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="gc"></canvas>
+    <div class="up-overlay" id="up-overlay">
+      <i class="ti ti-photo-up up-icon"></i>
+      <div class="up-title">Upload a Battle Map</div>
+      <div class="up-sub">Click anywhere · Drag &amp; Drop · <kbd>Ctrl+V</kbd> paste</div>
+    </div>
+  </div>
+
+  <!-- ── Controls ── -->
+  <aside class="panel">
+    <div class="panel-scroll">
+
+      <!-- Image -->
+      <div class="sec">
+        <div class="sec-title"><i class="ti ti-photo"></i> Image</div>
+        <div class="file-strip" id="file-strip" style="display:none">
+          <i class="ti ti-photo" style="font-size:15px;color:var(--muted)"></i>
+          <span class="file-name" id="fname">—</span>
+          <span class="file-dim" id="fdim"></span>
+        </div>
+        <div class="up-zone" id="side-zone"
+             onclick="triggerFile()"
+             ondragover="sideOver(event)"
+             ondragleave="sideDragLeave()"
+             ondrop="sideDrop(event)">
+          <div class="up-zone-t"><i class="ti ti-upload"></i> Click or drop image here</div>
+          <div class="up-zone-s">PNG · JPG · WEBP · GIF</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="triggerFile()"><i class="ti ti-folder-open"></i> Browse</button>
+          <button class="btn btn-danger" id="clear-btn" onclick="clearImg()" style="display:none"><i class="ti ti-trash"></i> Clear</button>
+        </div>
+        <input type="file" id="file-inp" accept="image/*" style="display:none" onchange="onFileChange(event)">
+      </div>
+
+      <!-- Grid -->
+      <div class="sec">
+        <div class="sec-title"><i class="ti ti-grid-dots"></i> Grid</div>
+        <div class="ctrl">
+          <div class="ctrl-lbl">Cell Size <span class="ctrl-v" id="gs-v">50 px</span></div>
+          <input type="range" id="gs" min="8" max="256" value="50" oninput="setGS(this.value)">
+          <div class="cell-badge" id="cell-badge"></div>
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl">Color</div>
+          <div class="color-row">
+            <input type="color" id="gc-pick" value="#ffffff" oninput="setColor(this.value)">
+            <input class="hex-in" id="gc-hex" value="#ffffff" maxlength="7" oninput="setColorHex(this.value)">
+          </div>
+          <div class="presets" id="presets"></div>
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl">Opacity <span class="ctrl-v" id="op-v">65%</span></div>
+          <input type="range" id="op" min="5" max="100" value="65" oninput="setOpacity(this.value)">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl">Line Width</div>
+          <div class="lw-row" id="lw-row"></div>
+        </div>
+        <div class="ctrl">
+          <button class="tog-btn on" id="grid-tog" onclick="toggleGrid()">
+            <i class="ti ti-grid-dots"></i> Grid Visible
+          </button>
+        </div>
+      </div>
+
+      <!-- Alignment -->
+      <div class="sec">
+        <div class="sec-title"><i class="ti ti-arrows-move"></i> Alignment</div>
+        <div class="ctrl">
+          <div class="ctrl-lbl">Offset X <span class="ctrl-v" id="ox-v">0 px</span></div>
+          <input type="range" id="ox" min="0" max="1000" value="0" oninput="setOX(this.value)">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl-lbl">Offset Y <span class="ctrl-v" id="oy-v">0 px</span></div>
+          <input type="range" id="oy" min="0" max="1000" value="0" oninput="setOY(this.value)">
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="resetOffset()"><i class="ti ti-crosshair"></i> Reset Offset</button>
+        </div>
+        <div class="hint">
+          <kbd>Ctrl</kbd> + drag on the map to slide the grid into alignment.<br>
+          <kbd>Ctrl</kbd> + arrow keys for 1 px nudge.
+        </div>
+      </div>
+
+      <!-- View -->
+      <div class="sec">
+        <div class="sec-title"><i class="ti ti-zoom-in"></i> View</div>
+        <div class="ctrl">
+          <div class="zoom-row">
+            <button class="btn" onclick="zoomStep(-0.15)"><i class="ti ti-minus"></i></button>
+            <span class="zoom-disp" id="zoom-disp">100%</span>
+            <button class="btn" onclick="zoomStep(0.15)"><i class="ti ti-plus"></i></button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="fitView()"><i class="ti ti-aspect-ratio"></i> Fit</button>
+          <button class="btn" onclick="view100()"><i class="ti ti-maximize"></i> 100%</button>
+        </div>
+        <div class="hint">
+          Scroll wheel to zoom · Drag to pan
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="sec">
+        <div class="sec-title"><i class="ti ti-download"></i> Export</div>
+        <button class="btn btn-success btn-full" onclick="exportPNG()">
+          <i class="ti ti-download"></i> Apply Grid &amp; Download PNG
+        </button>
+        <div class="hint" style="margin-top:10px">
+          Exports at the original image resolution with the grid baked in.
+        </div>
+      </div>
+
+    </div><!-- /panel-scroll -->
+
+    <div class="status">
+      <span id="st-img">No image</span>
+      <span id="st-grid"></span>
+      <span class="st-right" id="st-cur"></span>
+    </div>
+  </aside>
+
+</div><!-- /app-body -->
+
+<script>
+// ── State ───────────────────────────────────────────────────────
+let img = null;
+let zoom = 1, panX = 0, panY = 0;
+let gridSize = 50, offsetX = 0, offsetY = 0;
+let gridColor = '#ffffff', gridOpacity = 0.65, gridLineWidth = 1;
+let gridVisible = true;
+let canvasW = 0, canvasH = 0;
+let dragging = false, offsetDrag = false, lastMX = 0, lastMY = 0;
+let lastTouchDist = 0;
+
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
+const wrap = document.getElementById('canvas-wrap');
+
+// ── Resize ──────────────────────────────────────────────────────
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvasW = wrap.clientWidth;
+  canvasH = wrap.clientHeight;
+  canvas.width  = canvasW * dpr;
+  canvas.height = canvasH * dpr;
+  canvas.style.width  = canvasW + 'px';
+  canvas.style.height = canvasH + 'px';
+  draw();
+}
+new ResizeObserver(resizeCanvas).observe(wrap);
+
+// ── Draw ────────────────────────────────────────────────────────
+function draw() {
+  const dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = '#070a0f';
+  ctx.fillRect(0, 0, canvasW, canvasH);
+
+  if (!img) { ctx.restore(); return; }
+
+  ctx.save();
+  ctx.translate(panX, panY);
+  ctx.scale(zoom, zoom);
+  ctx.drawImage(img, 0, 0);
+  if (gridVisible) drawGrid(ctx, img.width, img.height, false);
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function drawGrid(c, iW, iH, forExport) {
+  const [r,g,b] = hexRGB(gridColor);
+  c.strokeStyle = `rgba(${r},${g},${b},${gridOpacity})`;
+  c.lineWidth = forExport ? gridLineWidth : gridLineWidth / zoom;
+
+  const ox = ((Math.round(offsetX) % gridSize) + gridSize) % gridSize;
+  const oy = ((Math.round(offsetY) % gridSize) + gridSize) % gridSize;
+
+  c.beginPath();
+  for (let x = ox; x <= iW; x += gridSize) {
+    c.moveTo(x, 0); c.lineTo(x, iH);
+  }
+  // ensure right edge line when grid aligns
+  for (let y = oy; y <= iH; y += gridSize) {
+    c.moveTo(0, y); c.lineTo(iW, y);
+  }
+  c.stroke();
+}
+
+function hexRGB(hex) {
+  const c = hex.replace('#','');
+  return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)];
+}
+
+// ── Load image ──────────────────────────────────────────────────
+function loadImageSrc(src, name, size) {
+  const i = new Image();
+  i.onload = () => {
+    img = i;
+    document.getElementById('up-overlay').classList.add('gone');
+    document.getElementById('file-strip').style.display = 'flex';
+    document.getElementById('clear-btn').style.display = '';
+    document.getElementById('fname').textContent = name || 'image';
+    document.getElementById('fdim').textContent = `${i.width}×${i.height}`;
+    document.getElementById('st-img').textContent = `${i.width} × ${i.height} px`;
+    updateOffsetMax();
+    updateCellBadge();
+    fitView();
+  };
+  i.src = src;
+}
+
+function clearImg() {
+  img = null;
+  document.getElementById('up-overlay').classList.remove('gone');
+  document.getElementById('file-strip').style.display = 'none';
+  document.getElementById('clear-btn').style.display = 'none';
+  document.getElementById('st-img').textContent = 'No image';
+  document.getElementById('st-grid').textContent = '';
+  document.getElementById('cell-badge').textContent = '';
+  updateOffsetMax();
+  draw();
+}
+
+function triggerFile() { document.getElementById('file-inp').click(); }
+
+function onFileChange(e) {
+  const f = e.target.files?.[0]; if (!f) return;
+  readFile(f); e.target.value = '';
+}
+
+function readFile(f) {
+  const r = new FileReader();
+  r.onload = ev => loadImageSrc(ev.target.result, f.name, f.size);
+  r.readAsDataURL(f);
+}
+
+// canvas drag-drop
+wrap.addEventListener('dragover', e => { e.preventDefault(); wrap.classList.add('drag-hi'); });
+wrap.addEventListener('dragleave', e => { if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('drag-hi'); });
+wrap.addEventListener('drop', e => {
+  e.preventDefault(); wrap.classList.remove('drag-hi');
+  const f = e.dataTransfer?.files?.[0];
+  if (f && f.type.startsWith('image/')) readFile(f);
+});
+wrap.addEventListener('click', e => {
+  if (!img && e.target === canvas) triggerFile();
+});
+
+// sidebar zone
+function sideOver(e) { e.preventDefault(); document.getElementById('side-zone').classList.add('drag-over'); }
+function sideDragLeave() { document.getElementById('side-zone').classList.remove('drag-over'); }
+function sideDrop(e) {
+  e.preventDefault(); sideDragLeave();
+  const f = e.dataTransfer?.files?.[0];
+  if (f && f.type.startsWith('image/')) readFile(f);
+}
+
+// Ctrl+V paste
+document.addEventListener('paste', e => {
+  for (const item of (e.clipboardData?.items || [])) {
+    if (item.type.startsWith('image/')) {
+      const blob = item.getAsFile();
+      const r = new FileReader();
+      r.onload = ev => loadImageSrc(ev.target.result, 'pasted-image.png');
+      r.readAsDataURL(blob);
+      e.preventDefault(); break;
+    }
+  }
+});
+
+// ── Grid controls ────────────────────────────────────────────────
+function setGS(v) {
+  gridSize = parseInt(v);
+  document.getElementById('gs-v').textContent = v + ' px';
+  updateCellBadge();
+  draw();
+}
+
+function updateOffsetMax() {
+  document.getElementById('ox').max = img ? img.width  - 1 : 1000;
+  document.getElementById('oy').max = img ? img.height - 1 : 1000;
+}
+
+function updateCellBadge() {
+  if (!img) { document.getElementById('cell-badge').textContent = ''; return; }
+  const cols = Math.ceil(img.width  / gridSize);
+  const rows = Math.ceil(img.height / gridSize);
+  document.getElementById('cell-badge').textContent = `≈ ${cols} × ${rows} cells`;
+  document.getElementById('st-grid').textContent = `${gridSize}px grid · ${cols}×${rows}`;
+}
+
+function setColor(v) {
+  gridColor = v;
+  document.getElementById('gc-hex').value = v;
+  syncPresets();
+  draw();
+}
+
+function setColorHex(v) {
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    gridColor = v;
+    document.getElementById('gc-pick').value = v;
+    syncPresets();
+    draw();
+  }
+}
+
+function setOpacity(v) {
+  gridOpacity = v / 100;
+  document.getElementById('op-v').textContent = v + '%';
+  draw();
+}
+
+function setLineWidth(w) {
+  gridLineWidth = w;
+  document.querySelectorAll('.lw-btn').forEach(b => b.classList.toggle('on', +b.dataset.w === w));
+  draw();
+}
+
+function toggleGrid() {
+  gridVisible = !gridVisible;
+  const btn = document.getElementById('grid-tog');
+  btn.classList.toggle('on', gridVisible);
+  btn.innerHTML = gridVisible
+    ? '<i class="ti ti-grid-dots"></i> Grid Visible'
+    : '<i class="ti ti-grid-dots"></i> Grid Hidden';
+  draw();
+}
+
+function setOX(v) { offsetX = parseInt(v); syncOffsetUI(); draw(); }
+function setOY(v) { offsetY = parseInt(v); syncOffsetUI(); draw(); }
+
+function resetOffset() {
+  offsetX = 0; offsetY = 0;
+  document.getElementById('ox').value = 0;
+  document.getElementById('oy').value = 0;
+  syncOffsetUI(); draw();
+}
+
+function syncOffsetUI() {
+  document.getElementById('ox-v').textContent = Math.round(offsetX) + ' px';
+  document.getElementById('oy-v').textContent = Math.round(offsetY) + ' px';
+}
+
+// ── View ────────────────────────────────────────────────────────
+function updateZoomDisp() {
+  document.getElementById('zoom-disp').textContent = Math.round(zoom * 100) + '%';
+}
+
+function fitView() {
+  if (!img) return;
+  const m = 24;
+  zoom = Math.min((canvasW - m*2) / img.width, (canvasH - m*2) / img.height);
+  panX = (canvasW - img.width  * zoom) / 2;
+  panY = (canvasH - img.height * zoom) / 2;
+  updateZoomDisp(); draw();
+}
+
+function view100() {
+  if (!img) return;
+  zoom = 1;
+  panX = (canvasW - img.width)  / 2;
+  panY = (canvasH - img.height) / 2;
+  updateZoomDisp(); draw();
+}
+
+function zoomAt(factor, cx, cy) {
+  cx = cx ?? canvasW / 2;
+  cy = cy ?? canvasH / 2;
+  const nz = Math.max(0.04, Math.min(30, zoom * factor));
+  panX = cx - (cx - panX) * nz / zoom;
+  panY = cy - (cy - panY) * nz / zoom;
+  zoom = nz;
+  updateZoomDisp(); draw();
+}
+
+function zoomStep(delta) { zoomAt(1 + delta); }
+
+// ── Mouse / touch ────────────────────────────────────────────────
+canvas.addEventListener('mousedown', e => {
+  dragging = true;
+  offsetDrag = e.ctrlKey || e.metaKey;
+  lastMX = e.clientX; lastMY = e.clientY;
+  canvas.classList.add(offsetDrag ? 'offset-cur' : 'grabbing');
+  e.preventDefault();
+});
+
+window.addEventListener('mousemove', e => {
+  // update cursor pos in status bar
+  if (img && !dragging) {
+    const rect = canvas.getBoundingClientRect();
+    const ix = Math.round((e.clientX - rect.left - panX) / zoom);
+    const iy = Math.round((e.clientY - rect.top  - panY) / zoom);
+    if (ix >= 0 && iy >= 0 && ix <= img.width && iy <= img.height)
+      document.getElementById('st-cur').textContent = `${ix}, ${iy}`;
+  }
+  if (!dragging) return;
+
+  const dx = e.clientX - lastMX;
+  const dy = e.clientY - lastMY;
+  lastMX = e.clientX; lastMY = e.clientY;
+
+  if (offsetDrag) {
+    // slide grid in image-pixel space
+    offsetX = ((offsetX + dx / zoom) % gridSize + gridSize) % gridSize;
+    offsetY = ((offsetY + dy / zoom) % gridSize + gridSize) % gridSize;
+    document.getElementById('ox').value = Math.round(offsetX);
+    document.getElementById('oy').value = Math.round(offsetY);
+    syncOffsetUI();
+  } else {
+    panX += dx; panY += dy;
+  }
+  draw();
+});
+
+window.addEventListener('mouseup', () => {
+  dragging = false;
+  canvas.classList.remove('grabbing', 'offset-cur');
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const cx = e.clientX - rect.left;
+  const cy = e.clientY - rect.top;
+  const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  zoomAt(factor, cx, cy);
+}, { passive: false });
+
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// touch
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    dragging = true; offsetDrag = false;
+    lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+  } else if (e.touches.length === 2) {
+    dragging = false;
+    lastTouchDist = Math.hypot(
+      e.touches[1].clientX - e.touches[0].clientX,
+      e.touches[1].clientY - e.touches[0].clientY
+    );
+  }
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  if (e.touches.length === 1 && dragging) {
+    const dx = e.touches[0].clientX - lastMX;
+    const dy = e.touches[0].clientY - lastMY;
+    lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+    panX += dx; panY += dy; draw();
+  } else if (e.touches.length === 2) {
+    const dist = Math.hypot(
+      e.touches[1].clientX - e.touches[0].clientX,
+      e.touches[1].clientY - e.touches[0].clientY
+    );
+    const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const rect = canvas.getBoundingClientRect();
+    zoomAt(dist / lastTouchDist, mx - rect.left, my - rect.top);
+    lastTouchDist = dist;
+  }
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => { dragging = false; });
+
+// ── Keyboard ────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomStep(0.12); }
+  if (e.key === '-') { e.preventDefault(); zoomStep(-0.12); }
+  if (e.key === '0') { e.preventDefault(); fitView(); }
+  if (e.key === '1') { e.preventDefault(); view100(); }
+  if (e.key === 'g' || e.key === 'G') toggleGrid();
+  // Ctrl+arrows → nudge offset 1px
+  if ((e.ctrlKey || e.metaKey) && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+    e.preventDefault();
+    const dx = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    const dy = e.key === 'ArrowDown'  ? 1 : e.key === 'ArrowUp'   ? -1 : 0;
+    offsetX = ((offsetX + dx) % gridSize + gridSize) % gridSize;
+    offsetY = ((offsetY + dy) % gridSize + gridSize) % gridSize;
+    document.getElementById('ox').value = Math.round(offsetX);
+    document.getElementById('oy').value = Math.round(offsetY);
+    syncOffsetUI(); draw();
+  }
+});
+
+// ── Export ──────────────────────────────────────────────────────
+function exportPNG() {
+  if (!img) { toast('Load an image first.'); return; }
+  const ec = document.createElement('canvas');
+  ec.width = img.width; ec.height = img.height;
+  const ectx = ec.getContext('2d');
+  ectx.drawImage(img, 0, 0);
+  if (gridVisible) drawGrid(ectx, img.width, img.height, true);
+  const a = document.createElement('a');
+  a.download = 'battle-map-grid.png';
+  a.href = ec.toDataURL('image/png');
+  a.click();
+  toast('Downloaded battle-map-grid.png');
+}
+
+// ── Colour presets ───────────────────────────────────────────────
+const PRESETS = ['#ffffff','#000000','#ef4444','#fbbf24','#22d3ee','#a78bfa'];
+
+function buildPresets() {
+  const row = document.getElementById('presets');
+  row.innerHTML = PRESETS.map(c =>
+    `<div class="preset${c===gridColor?' on':''}" style="background:${c}" data-c="${c}" onclick="setColor('${c}')"></div>`
+  ).join('');
+}
+
+function syncPresets() {
+  document.querySelectorAll('.preset').forEach(p =>
+    p.classList.toggle('on', p.dataset.c === gridColor));
+}
+
+// ── Line-width buttons ───────────────────────────────────────────
+function buildLWBtns() {
+  document.getElementById('lw-row').innerHTML = [1,2,3].map(w =>
+    `<button class="lw-btn${w===1?' on':''}" data-w="${w}" onclick="setLineWidth(${w})">
+      <svg width="22" height="6" viewBox="0 0 22 6"><line x1="1" y1="3" x2="21" y2="3" stroke="currentColor" stroke-width="${w}" stroke-linecap="round"/></svg>
+      ${w}px
+    </button>`
+  ).join('');
+}
+
+// ── Toast ────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+buildPresets();
+buildLWBtns();
+resizeCanvas();
+</script>
+</body>
+</html>
