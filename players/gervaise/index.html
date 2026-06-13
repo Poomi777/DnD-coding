@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gervaise — Player Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    :root {
+      --player-glow-1:    rgba(236,72,153,.06);
+      --player-glow-2:    rgba(217,70,239,.05);
+      --player-av-grad:   linear-gradient(135deg,#701a75,#9d174d);
+      --player-av-border: rgba(236,72,153,.35);
+      --player-av-text:   #fbcfe8;
+      --player-av-shadow: rgba(236,72,153,.2);
+      --player-accent-rgb: 236,72,153;
+      --player-accent-text: #fbcfe8;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-icon">🎲</div> D&amp;D Tools</div>
+    <span class="nav-sep">|</span>
+    <div class="nav-links">
+      <a href="../../initiative-tracker/index.html" class="nav-link"><i class="ti ti-swords"></i> Initiative Tracker</a>
+      <a href="../../weapons/index.html" class="nav-link"><i class="ti ti-bow-arrow"></i> Weapons Arsenal</a>
+      <a href="../index.html" class="nav-link"><i class="ti ti-users"></i> Players</a>
+      <a href="../../map-creator/index.html" class="nav-link"><i class="ti ti-grid-dots"></i> Map Grid</a>
+    </div>
+  </nav>
+
+  <div class="bc">
+    <a href="../index.html">Players</a>
+    <span class="bc-sep">/</span>
+    <span data-player-name></span>
+  </div>
+
+  <div class="char-head">
+    <div class="char-av" data-player-initial></div>
+    <div class="char-info">
+      <div class="char-name" data-player-name></div>
+      <div class="char-sub" id="char-sub">— · —</div>
+      <div class="char-stats" id="char-stats"></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('abilities',this)"><i class="ti ti-sparkles"></i> Abilities</button>
+    <button class="tab" onclick="switchTab('inventory',this)"><i class="ti ti-backpack"></i> Inventory</button>
+    <button class="tab" onclick="switchTab('notes',this)"><i class="ti ti-notes"></i> Notes</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-abilities">
+    <div class="toolbar">
+      <input class="search" id="ab-search" placeholder="Search abilities…" oninput="filterAbilities()">
+      <div class="filter-btns" id="ab-filters"></div>
+      <span class="count" id="ab-count"></span>
+      <button class="add-btn" onclick="openAbilityModal()"><i class="ti ti-plus"></i> Add Ability</button>
+    </div>
+    <div class="card-grid" id="ab-grid"></div>
+  </div>
+
+  <div class="tab-panel" id="tab-inventory">
+    <div id="inv-body"></div>
+  </div>
+
+  <div class="tab-panel" id="tab-notes">
+    <div class="notes-toolbar">
+      <button class="notes-tbtn" onclick="fmt('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button class="notes-tbtn" onclick="fmt('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
+      <button class="notes-tbtn" onclick="fmt('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+      <span class="notes-hint">Ctrl+B · Ctrl+I · Ctrl+U · paste images directly</span>
+    </div>
+    <div class="notes-ed" id="notes-ed" contenteditable="true" data-placeholder="Session notes, lore, reminders… Paste images directly."></div>
+  </div>
+
+</div>
+
+<div class="lb" id="lb" onclick="lbBgClick(event)">
+  <div class="lb-card" id="lb-card">
+    <div class="lb-stripe" id="lb-stripe"></div>
+    <button class="lb-close" onclick="closeLb()"><i class="ti ti-x"></i></button>
+    <div class="lb-body" id="lb-body"></div>
+  </div>
+</div>
+
+<div class="modal-ov" id="ability-modal" onclick="bgClose(event,'ability-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="ability-modal-title">Add Ability</span>
+      <button class="modal-close" onclick="closeAbilityModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf" id="af-name-f"><label>Name *</label><input id="af-name" placeholder="e.g. Shield Slam"></div>
+      <div class="mf"><label>Subtitle</label><input id="af-sub" placeholder="e.g. Homebrew Combat Ability"></div>
+      <div class="mfg2">
+        <div class="mf"><label>Type</label>
+          <select id="af-type">
+            <option value="combat">Combat</option>
+            <option value="magic">Magic</option>
+            <option value="passive">Passive</option>
+            <option value="utility">Utility</option>
+            <option value="reaction">Reaction</option>
+            <option value="legendary">Legendary</option>
+          </select>
+        </div>
+        <div class="mf"><label>Action Cost</label><input id="af-cost" placeholder="Action / Bonus Action…"></div>
+      </div>
+      <div class="mfg2">
+        <div class="mf"><label>Range</label><input id="af-range" placeholder="Melee / 30 ft / Self"></div>
+        <div class="mf"><label>Save DC <span style="text-transform:none;font-weight:400">(optional)</span></label><input id="af-save" placeholder="STR DC 14…"></div>
+      </div>
+      <div class="mfg2">
+        <div class="mf"><label>Max Uses <span style="text-transform:none;font-weight:400">(0 = passive)</span></label><input id="af-uses" type="number" min="0" max="99" value="1"></div>
+        <div class="mf"><label>Recharge</label><input id="af-recharge" placeholder="Short Rest / Long Rest…"></div>
+      </div>
+      <div class="mf" id="af-desc-f"><label>Description *</label><textarea id="af-desc" placeholder="Describe the ability's effect…"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeAbilityModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAbility()"><i class="ti ti-check"></i> <span id="af-save-label">Add Ability</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="arsenal-modal" onclick="bgClose(event,'arsenal-modal')">
+  <div class="modal wide">
+    <div class="modal-head">
+      <span class="modal-title"><i class="ti ti-bow-arrow" style="margin-right:5px"></i> Add from Homebrew Arsenal</span>
+      <button class="modal-close" onclick="closeArsenalModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="arsenal-hint" id="arsenal-player-hint"></p>
+      <div class="arsenal-grid" id="arsenal-grid"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeArsenalModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="item-modal" onclick="bgClose(event,'item-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="item-modal-title">Add Item</span>
+      <button class="modal-close" onclick="closeItemModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf" id="if-name-f"><label>Name *</label><input id="if-name" placeholder="e.g. Health Potion"></div>
+      <div class="mfg2">
+        <div class="mf"><label>Quantity</label><input id="if-qty" type="number" min="1" value="1"></div>
+        <div class="mf"><label>Category</label>
+          <select id="if-type">
+            <option value="armor">Armor</option>
+            <option value="consumable">Consumable</option>
+            <option value="quest">Quest Item</option>
+            <option value="misc" selected>Misc</option>
+          </select>
+        </div>
+      </div>
+      <div class="mf"><label>Notes</label><input id="if-notes" placeholder="Effects, weight, damage…"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeItemModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem()"><i class="ti ti-check"></i> <span id="if-save-label">Add Item</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLAYER_NAME     = 'Gervaise';
+const CHAR            = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
+const STORE_KEY       = 'gervaise-data';
+const INV_VERSION     = 1;
+const PURGE_IDS       = [];
+const DEFAULT_ABILITIES = [
+  { id:1, name:'Wild Magic Cast', sub:'Homebrew Magic', type:'magic', cost:'Action', range:'Varies', save:'', uses:1, usesMax:1, recharge:'Long Rest', desc:'Choose a spell level up to 2. A random spell of that level is cast. The spell, its target, and all effects are determined completely at random.' },
+];
+const DEFAULT_INVENTORY = [];
+</script>
+<script src="../shared.js"></script>
+</body>
+</html>
