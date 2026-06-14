@@ -40,6 +40,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .tp-input{width:64px;background:var(--bg-in);border:1px solid rgba(var(--player-accent-rgb),.5);border-radius:4px;padding:1px 4px;font-size:13px;font-weight:700;color:var(--txt);font-family:inherit;text-align:center;}
 .tp-input:focus{outline:none;}
 
+/* ── Data export/import bar ── */
+.data-io-bar{display:flex;align-items:center;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
+.data-io-label{font-size:11px;color:var(--muted);}
+.data-io-btn{font-size:11px;color:var(--muted);background:var(--bg-s);border:1px solid var(--bdr);border-radius:20px;padding:3px 10px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;transition:all .15s;}
+.data-io-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.13);}
+
 /* ── Tabs ── */
 .tabs{display:flex;gap:3px;border-bottom:1px solid var(--bdr);margin-bottom:16px;}
 .tab{font-size:13px;font-weight:500;padding:7px 15px;cursor:pointer;color:var(--muted);background:none;border:1px solid transparent;border-bottom:none;border-radius:var(--r) var(--r) 0 0;position:relative;bottom:-1px;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}

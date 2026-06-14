@@ -114,6 +114,54 @@ function editTP() {
   });
 }
 
+// ─── Export / Import ─────────────────────────────────────
+function exportPlayerData() {
+  const data = {
+    version: 1, player: PLAYER_NAME, exported: new Date().toISOString(),
+    abilities, inventory, notes, nextAbilityId, nextItemId,
+    deletedDefaultIds, trainingPoints, invVersion: INV_VERSION,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${PLAYER_NAME.toLowerCase()}-data-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`${PLAYER_NAME} data exported`);
+}
+
+function importPlayerData() {
+  document.getElementById('import-file-input').click();
+}
+
+function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.version || !Array.isArray(data.abilities)) throw new Error('Not a valid player data file');
+      if (!confirm(`Import data from "${file.name}" into ${PLAYER_NAME}?\n\nThis will REPLACE all current abilities, inventory, notes, and Training Points.\nThis cannot be undone.`)) {
+        input.value = ''; return;
+      }
+      abilities         = data.abilities || [];
+      inventory         = data.inventory || [];
+      notes             = data.notes || '';
+      nextAbilityId     = data.nextAbilityId || (Math.max(0, ...abilities.map(a=>a.id), 0) + 1);
+      nextItemId        = data.nextItemId || (Math.max(0, ...inventory.map(i=>i.id), 0) + 1);
+      deletedDefaultIds = data.deletedDefaultIds || [];
+      trainingPoints    = data.trainingPoints ?? 200;
+      persist(); buildFilters(); filterAbilities(); renderInventory(); renderTP();
+      document.getElementById('notes-ed').innerHTML = notes;
+      toast(`${PLAYER_NAME} data imported`);
+    } catch(e) { alert(`Import failed: ${e.message}`); }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
 // ─── Boot ────────────────────────────────────────────────
 function boot() {
   loadState();
@@ -131,6 +179,12 @@ function boot() {
     '<div class="cst tp-cst" id="tp-stat" title="Click to edit Training Points"><span class="cst-l"><i class="ti ti-dumbbell" style="font-size:8px;margin-right:2px;vertical-align:middle"></i>Train. Pts</span><span class="cst-v tp-val" id="tp-val"></span></div>');
   document.getElementById('tp-stat').addEventListener('click', editTP);
   renderTP();
+  document.querySelector('.tabs').insertAdjacentHTML('beforebegin',
+    '<div class="data-io-bar">' +
+    '<span class="data-io-label"><i class="ti ti-database" style="font-size:10px;vertical-align:middle;margin-right:2px"></i>Player Data</span>' +
+    '<button class="data-io-btn" onclick="exportPlayerData()" title="Export as JSON for backup or cross-device transfer"><i class="ti ti-download"></i> Export</button>' +
+    '<button class="data-io-btn" onclick="importPlayerData()" title="Import from JSON file"><i class="ti ti-upload"></i> Import</button>' +
+    '<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImportFile(this)"></div>');
   buildFilters();
   filterAbilities();
   renderInventory();

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worlds — D&D Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    :root{--bg:#0d1117;--bg-s:#161b24;--bg-e:#1c2333;--bg-in:#10151e;--bdr:#2a3244;--bdr-d:#1c2333;--txt:#e2e8f0;--muted:#64748b;--dim:#3a4558;--r:8px;--rl:12px;--am:#d97706;--am-bg:rgba(217,119,6,.1);--am-bdr:rgba(217,119,6,.3);--am-txt:#fbbf24;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(217,119,6,.05) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 80% 85%,rgba(120,53,15,.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+    .page{max-width:1200px;margin:0 auto;padding:24px 20px 60px;position:relative;z-index:1;}
+
+    /* Nav */
+    .nav{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+    .nav-brand{font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:7px;}
+    .nav-icon{width:30px;height:30px;background:linear-gradient(135deg,#7f1d1d,#1e1b4b);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .nav-sep{color:var(--bdr);}
+    .nav-links{display:flex;gap:5px;flex-wrap:wrap;}
+    .nav-link{font-size:11px;color:var(--muted);text-decoration:none;padding:4px 10px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+    .nav-link:hover{color:var(--txt);border-color:rgba(255,255,255,.13);}
+    .nav-link.on{color:var(--am-txt);border-color:var(--am-bdr);background:var(--am-bg);}
+
+    /* Page header */
+    .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+    .page-title{font-family:'Cinzel',serif;font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px;}
+
+    /* Buttons */
+    .btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 13px;font-size:13px;font-family:inherit;color:var(--txt);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .12s;white-space:nowrap;text-decoration:none;}
+    .btn:hover{background:#222c3d;border-color:#374560;}
+    .btn-am{background:var(--am-bg);border-color:var(--am-bdr);color:var(--am-txt);}
+    .btn-am:hover{background:rgba(217,119,6,.18);}
+    .btn-danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5;}
+    .btn-danger:hover{background:rgba(239,68,68,.2);}
+    .btn-sm{padding:4px 10px;font-size:11px;}
+
+    /* World cards */
+    .worlds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;}
+    .wcard{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden;transition:transform .15s,border-color .2s,box-shadow .2s;}
+    .wcard:hover{transform:translateY(-3px);border-color:rgba(217,119,6,.35);box-shadow:0 10px 32px rgba(0,0,0,.4);}
+    .wcard-cover{width:100%;height:160px;object-fit:cover;display:block;}
+    .wcard-cover-ph{width:100%;height:160px;background:linear-gradient(135deg,#1a1e2e,#0d1117);display:flex;align-items:center;justify-content:center;}
+    .wcard-cover-ph i{font-size:52px;opacity:.12;}
+    .wcard-body{padding:14px 16px 10px;}
+    .wcard-name{font-family:'Cinzel',serif;font-size:15px;font-weight:700;margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .wcard-desc{font-family:'Crimson Pro',serif;font-size:13px;color:var(--muted);line-height:1.55;min-height:40px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .wcard-foot{display:flex;gap:6px;align-items:center;padding:10px 14px;border-top:1px solid var(--bdr-d);}
+    .wcard-date{font-size:10px;color:var(--dim);margin-right:auto;}
+
+    /* Empty state */
+    .empty{text-align:center;padding:80px 20px;color:var(--muted);}
+    .empty-icon{font-size:56px;opacity:.1;display:block;margin-bottom:16px;}
+    .empty p{font-size:15px;margin-bottom:6px;color:var(--txt);}
+    .empty small{font-size:13px;}
+
+    /* Modal */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:16px;}
+    .modal-ov.open{display:flex;}
+    .modal{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--bg-s);z-index:1;}
+    .modal-title{font-size:14px;font-weight:600;}
+    .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:3px;border-radius:4px;transition:color .12s;display:flex;align-items:center;}
+    .modal-close:hover{color:var(--txt);}
+    .modal-body{padding:16px;}
+    .modal-foot{padding:12px 16px;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg-s);}
+
+    /* Form fields */
+    .mf{margin-bottom:12px;}
+    .mf label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;}
+    .mf input,.mf textarea{width:100%;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 10px;font-size:13px;color:var(--txt);font-family:inherit;transition:border-color .15s;}
+    .mf input:focus,.mf textarea:focus{outline:none;border-color:rgba(217,119,6,.5);}
+    .mf textarea{min-height:80px;resize:vertical;line-height:1.5;}
+    .mf.invalid input{border-color:#ef4444;}
+
+    /* Cover image zone */
+    .cover-zone{border:1.5px dashed var(--bdr);border-radius:var(--r);background:var(--bg-in);cursor:pointer;overflow:hidden;transition:border-color .15s,background .15s;}
+    .cover-zone:hover,.cover-zone.drag-over{border-color:rgba(217,119,6,.5);background:rgba(217,119,6,.04);}
+    .cover-preview{width:100%;height:150px;object-fit:cover;display:none;}
+    .cover-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:150px;gap:7px;color:var(--muted);}
+    .cover-ph i{font-size:28px;opacity:.35;}
+    .cover-ph span{font-size:12px;}
+    .cover-clear{display:block;text-align:center;padding:5px;font-size:11px;color:var(--dim);background:var(--bg-e);cursor:pointer;border:none;width:100%;font-family:inherit;transition:color .12s;}
+    .cover-clear:hover{color:#fca5a5;}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-e);border:1px solid var(--bdr);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--txt);z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:t-in .2s ease,t-out .3s ease 2s forwards;}
+    @keyframes t-in{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+    @keyframes t-out{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:10px;}
+    @media(max-width:600px){.page{padding:14px 12px 50px;}.worlds-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-icon">🎲</div> D&amp;D Tools</div>
+    <span class="nav-sep">|</span>
+    <div class="nav-links">
+      <a href="../initiative-tracker/index.html" class="nav-link"><i class="ti ti-swords"></i> Initiative Tracker</a>
+      <a href="../weapons/index.html" class="nav-link"><i class="ti ti-bow-arrow"></i> Weapons Arsenal</a>
+      <a href="../players/index.html" class="nav-link"><i class="ti ti-users"></i> Players</a>
+      <a href="../map-creator/index.html" class="nav-link"><i class="ti ti-grid-dots"></i> Map Grid</a>
+      <a href="./index.html" class="nav-link on"><i class="ti ti-world"></i> Worlds</a>
+    </div>
+  </nav>
+
+  <div class="page-head">
+    <div class="page-title"><i class="ti ti-world" style="color:var(--am-txt)"></i> Worlds</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm" onclick="triggerImport()"><i class="ti ti-upload"></i> Import</button>
+      <button class="btn btn-am" onclick="openCreateModal()"><i class="ti ti-plus"></i> Create World</button>
+    </div>
+  </div>
+
+  <div class="worlds-grid" id="worlds-grid"></div>
+  <div class="empty" id="empty-state" style="display:none">
+    <i class="ti ti-world empty-icon"></i>
+    <p>No worlds yet</p>
+    <small>Create your first world to get started</small>
+  </div>
+
+</div>
+
+<!-- Create / Edit Modal -->
+<div class="modal-ov" id="world-modal" onclick="bgClose(event,'world-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-title">Create World</span>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf" id="mf-name">
+        <label>World Name *</label>
+        <input id="f-name" placeholder="e.g. The Shattered Isles">
+      </div>
+      <div class="mf">
+        <label>Description</label>
+        <textarea id="f-desc" placeholder="A brief overview of this world…"></textarea>
+      </div>
+      <div class="mf">
+        <label>Cover Image <span style="font-weight:400;text-transform:none">(optional)</span></label>
+        <div class="cover-zone" id="cover-zone"
+             onclick="triggerCoverUpload(event)"
+             ondragover="coverDragOver(event)"
+             ondragleave="coverDragLeave()"
+             ondrop="coverDrop(event)">
+          <img class="cover-preview" id="cover-preview" src="" alt="">
+          <div class="cover-ph" id="cover-ph">
+            <i class="ti ti-photo"></i>
+            <span>Click · drag &amp; drop · Ctrl+V</span>
+          </div>
+        </div>
+        <button class="cover-clear" id="cover-clear" style="display:none" onclick="clearCover(event)"><i class="ti ti-x"></i> Remove image</button>
+        <input type="file" id="cover-file-input" accept="image/*" style="display:none" onchange="handleCoverFile(event)">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-am btn-sm" onclick="saveWorld()"><i class="ti ti-check"></i> <span id="modal-save-label">Create World</span></button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let worlds = [], nextId = 1;
+let editingId = null, pendingCover = null;
+
+function loadState() {
+  try { const d = JSON.parse(localStorage.getItem('dnd-worlds-index')||'null'); if(d){worlds=d.worlds||[];nextId=d.nextId||1;} } catch(e) {}
+}
+function persist() {
+  try { localStorage.setItem('dnd-worlds-index', JSON.stringify({worlds,nextId})); } catch(e) { toast('Storage full'); }
+}
+
+// ── Render ─────────────────────────────────────────────────
+function render() {
+  const grid = document.getElementById('worlds-grid');
+  const empty = document.getElementById('empty-state');
+  if (!worlds.length) { grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = worlds.map(w => `
+    <div class="wcard">
+      ${w.coverImage
+        ? `<img class="wcard-cover" src="${w.coverImage}" alt="${esc(w.name)}">`
+        : `<div class="wcard-cover-ph"><i class="ti ti-map"></i></div>`}
+      <div class="wcard-body">
+        <div class="wcard-name">${esc(w.name)}</div>
+        <div class="wcard-desc">${esc(w.description||'No description.')}</div>
+      </div>
+      <div class="wcard-foot">
+        <span class="wcard-date">${new Date(w.createdAt).toLocaleDateString()}</span>
+        <button class="btn btn-sm" onclick="exportWorld(${w.id})" title="Export JSON"><i class="ti ti-download"></i></button>
+        <button class="btn btn-sm" onclick="openEditModal(${w.id})"><i class="ti ti-pencil"></i> Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteWorld(${w.id})"><i class="ti ti-trash"></i></button>
+        <a href="world.html?wid=${w.id}" class="btn btn-am btn-sm"><i class="ti ti-map"></i> Open</a>
+      </div>
+    </div>`).join('');
+}
+
+// ── CRUD ───────────────────────────────────────────────────
+function openCreateModal() {
+  editingId=null; pendingCover=null;
+  ['f-name','f-desc'].forEach(id=>document.getElementById(id).value='');
+  setCoverPreview(null);
+  document.getElementById('modal-title').textContent='Create World';
+  document.getElementById('modal-save-label').textContent='Create World';
+  document.getElementById('mf-name').classList.remove('invalid');
+  document.getElementById('world-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('f-name').focus(),80);
+}
+
+function openEditModal(id) {
+  const w = worlds.find(x=>x.id===id); if(!w) return;
+  editingId=id; pendingCover=w.coverImage||null;
+  document.getElementById('f-name').value=w.name;
+  document.getElementById('f-desc').value=w.description||'';
+  setCoverPreview(w.coverImage||null);
+  document.getElementById('modal-title').textContent='Edit World';
+  document.getElementById('modal-save-label').textContent='Save Changes';
+  document.getElementById('mf-name').classList.remove('invalid');
+  document.getElementById('world-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('f-name').focus(),80);
+}
+
+function closeModal() { document.getElementById('world-modal').classList.remove('open'); }
+
+function saveWorld() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { document.getElementById('mf-name').classList.add('invalid'); return; }
+  document.getElementById('mf-name').classList.remove('invalid');
+  const desc = document.getElementById('f-desc').value.trim();
+  if (editingId) {
+    const w = worlds.find(x=>x.id===editingId);
+    if (w) { w.name=name; w.description=desc; w.coverImage=pendingCover; }
+    toast(`"${name}" updated`);
+  } else {
+    const id = nextId++;
+    worlds.push({id,name,description:desc,coverImage:pendingCover,createdAt:Date.now()});
+    try { localStorage.setItem(`dnd-world-${id}`,JSON.stringify({mapImage:null,locations:[],nextLocId:1})); } catch(e) {}
+    toast(`"${name}" created`);
+  }
+  persist(); closeModal(); render();
+}
+
+function deleteWorld(id) {
+  const w = worlds.find(x=>x.id===id); if(!w) return;
+  if (!confirm(`Delete "${w.name}"? This cannot be undone.`)) return;
+  worlds = worlds.filter(x=>x.id!==id);
+  try { localStorage.removeItem(`dnd-world-${id}`); } catch(e) {}
+  persist(); render(); toast(`"${w.name}" deleted`);
+}
+
+// ── Export / Import ────────────────────────────────────────
+function exportWorld(id) {
+  const w = worlds.find(x=>x.id===id); if(!w) return;
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(`dnd-world-${id}`)||'null'); } catch(e) {}
+  const blob = new Blob([JSON.stringify({version:1,world:w,data},null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`${w.name.replace(/[^a-z0-9]/gi,'-').toLowerCase()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast(`"${w.name}" exported`);
+}
+
+function triggerImport() { document.getElementById('import-input').click(); }
+
+function handleImport(e) {
+  const file = e.target.files?.[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const raw = JSON.parse(ev.target.result);
+      if (!raw.world?.name) throw 0;
+      const id = nextId++;
+      worlds.push({...raw.world,id,createdAt:Date.now()});
+      if (raw.data) localStorage.setItem(`dnd-world-${id}`,JSON.stringify(raw.data));
+      persist(); render(); toast(`"${raw.world.name}" imported`);
+    } catch { toast('Import failed — invalid file'); }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ── Cover Image ────────────────────────────────────────────
+function setCoverPreview(src) {
+  const preview = document.getElementById('cover-preview');
+  const ph = document.getElementById('cover-ph');
+  const clr = document.getElementById('cover-clear');
+  if (src) { preview.src=src; preview.style.display='block'; ph.style.display='none'; clr.style.display='block'; }
+  else { preview.style.display='none'; ph.style.display='flex'; clr.style.display='none'; }
+}
+function triggerCoverUpload(e) { if(e.target.closest('.cover-clear'))return; document.getElementById('cover-file-input').click(); }
+function handleCoverFile(e) { const f=e.target.files?.[0]; if(f) compressImg(f,600,400,.8,src=>{pendingCover=src;setCoverPreview(src);}); e.target.value=''; }
+function coverDragOver(e) { e.preventDefault(); document.getElementById('cover-zone').classList.add('drag-over'); }
+function coverDragLeave() { document.getElementById('cover-zone').classList.remove('drag-over'); }
+function coverDrop(e) { e.preventDefault(); document.getElementById('cover-zone').classList.remove('drag-over'); const f=e.dataTransfer?.files?.[0]; if(f&&f.type.startsWith('image/')) compressImg(f,600,400,.8,src=>{pendingCover=src;setCoverPreview(src);}); }
+function clearCover(e) { e.stopPropagation(); pendingCover=null; setCoverPreview(null); }
+
+document.addEventListener('paste', e => {
+  if (!document.getElementById('world-modal').classList.contains('open')) return;
+  const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
+  if (img) { e.preventDefault(); compressImg(img.getAsFile(),600,400,.8,src=>{pendingCover=src;setCoverPreview(src);}); }
+});
+
+// ── Compress ───────────────────────────────────────────────
+function compressImg(file, maxW, maxH, q, cb) {
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      const s = Math.min(maxW/img.width, maxH/img.height, 1);
+      c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',q));
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+// ── Utils ──────────────────────────────────────────────────
+function bgClose(e,id) { if(e.target===document.getElementById(id)) closeModal(); }
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg) { const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2400); }
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') closeModal();
+  if (e.key==='Enter' && document.getElementById('world-modal').classList.contains('open') && document.activeElement?.tagName!=='TEXTAREA') { e.preventDefault(); saveWorld(); }
+});
+
+// ── Boot ───────────────────────────────────────────────────
+loadState(); render();
+</script>
+</body>
+</html>

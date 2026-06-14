@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Map — D&D Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    :root{--bg:#0d1117;--bg-s:#161b24;--bg-e:#1c2333;--bg-in:#10151e;--bdr:#2a3244;--bdr-d:#1c2333;--txt:#e2e8f0;--muted:#64748b;--dim:#3a4558;--r:8px;--rl:12px;--am:#d97706;--am-bg:rgba(217,119,6,.1);--am-bdr:rgba(217,119,6,.3);--am-txt:#fbbf24;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;}
+
+    /* ── App shell ── */
+    .app{display:flex;flex-direction:column;height:100vh;}
+
+    /* ── Nav ── */
+    .nav{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--bdr);flex-shrink:0;flex-wrap:wrap;background:var(--bg-s);}
+    .nav-brand{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;}
+    .nav-icon{width:26px;height:26px;background:linear-gradient(135deg,#7f1d1d,#1e1b4b);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+    .nav-sep{color:var(--bdr);}
+    .nav-links{display:flex;gap:5px;flex-wrap:wrap;}
+    .nav-link{font-size:11px;color:var(--muted);text-decoration:none;padding:3px 9px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-e);transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+    .nav-link:hover{color:var(--txt);border-color:rgba(255,255,255,.13);}
+    .nav-link.on{color:var(--am-txt);border-color:var(--am-bdr);background:var(--am-bg);}
+
+    /* ── World header bar ── */
+    .world-bar{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg);}
+    .wb-back{font-size:12px;color:var(--muted);text-decoration:none;padding:3px 9px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-s);display:inline-flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap;}
+    .wb-back:hover{color:var(--txt);}
+    .wb-bc{display:flex;align-items:center;gap:5px;flex:1;min-width:0;font-size:13px;overflow:hidden;}
+    .wb-world{font-family:'Cinzel',serif;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .wb-sep{color:var(--dim);flex-shrink:0;}
+    .wb-loc{color:var(--am-txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .wb-actions{display:flex;gap:6px;flex-shrink:0;}
+
+    /* ── Toolbar ── */
+    .toolbar{display:flex;align-items:center;gap:6px;padding:7px 14px;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg-s);flex-wrap:wrap;}
+    .btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:5px 11px;font-size:12px;font-family:inherit;color:var(--txt);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap;}
+    .btn:hover{background:#222c3d;border-color:#374560;}
+    .btn.active{background:var(--am-bg);border-color:var(--am-bdr);color:var(--am-txt);}
+    .btn-am{background:var(--am-bg);border-color:var(--am-bdr);color:var(--am-txt);}
+    .btn-am:hover{background:rgba(217,119,6,.2);}
+    .btn-danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5;}
+    .btn-danger:hover{background:rgba(239,68,68,.2);}
+    .btn-sm{padding:4px 9px;font-size:11px;}
+    .tb-sep{width:1px;height:22px;background:var(--bdr);flex-shrink:0;}
+    .type-filter-row{display:flex;gap:4px;flex-wrap:wrap;}
+    .tfbtn{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-e);color:var(--muted);cursor:pointer;transition:all .12s;font-family:inherit;white-space:nowrap;}
+    .tfbtn:hover{color:var(--txt);}
+    .tfbtn.hidden-type{opacity:.35;}
+    .pin-search{background:var(--bg-e);border:1px solid var(--bdr);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--txt);font-family:inherit;width:160px;transition:border-color .15s;}
+    .pin-search:focus{outline:none;border-color:rgba(217,119,6,.5);}
+    .pin-search::placeholder{color:var(--dim);}
+    .zoom-btns{display:flex;gap:2px;}
+    .zoom-btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);width:28px;height:28px;font-size:14px;color:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit;}
+    .zoom-btn:hover{background:#222c3d;}
+    .fow-btn.dm{color:var(--am-txt);border-color:var(--am-bdr);background:var(--am-bg);}
+    .fow-btn.player{color:#a78bfa;border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.1);}
+
+    /* ── Map area ── */
+    .map-area{flex:1;position:relative;overflow:hidden;background:#060810;}
+
+    /* Empty state */
+    .map-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+    .map-empty-inner{text-align:center;padding:40px;border:2px dashed var(--bdr);border-radius:var(--rl);background:rgba(22,27,36,.6);max-width:380px;transition:border-color .15s,background .15s;}
+    .map-empty-inner.drag-over{border-color:rgba(217,119,6,.5);background:rgba(217,119,6,.04);}
+    .map-empty-inner i{font-size:52px;opacity:.1;display:block;margin-bottom:14px;}
+    .map-empty-inner p{font-size:15px;color:var(--txt);margin-bottom:6px;}
+    .map-empty-inner small{font-size:12px;color:var(--muted);}
+
+    /* Map viewport */
+    .map-vp{position:absolute;inset:0;cursor:grab;overflow:hidden;}
+    .map-vp.grabbing{cursor:grabbing;}
+    .map-vp.crosshair{cursor:crosshair;}
+    .map-container{position:absolute;transform-origin:0 0;}
+    .map-img{display:block;user-select:none;pointer-events:none;max-width:none;}
+
+    /* Add-pin hint banner */
+    .add-pin-hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(217,119,6,.2);border:1px solid var(--am-bdr);border-radius:20px;padding:7px 16px;font-size:12px;color:var(--am-txt);display:none;align-items:center;gap:10px;z-index:50;backdrop-filter:blur(8px);}
+    .add-pin-hint.show{display:flex;}
+
+    /* ── Pins ── */
+    .pin{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:20;user-select:none;}
+    .pin-marker{width:30px;height:30px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);box-shadow:0 2px 10px rgba(0,0,0,.7),0 0 0 2px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:15px;transition:transform .15s,box-shadow .15s;}
+    .pin:hover .pin-marker{transform:scale(1.3);box-shadow:0 4px 16px rgba(0,0,0,.8),0 0 0 3px rgba(0,0,0,.4);}
+    .pin.selected .pin-marker{transform:scale(1.35);box-shadow:0 0 0 3px #fff,0 4px 16px rgba(0,0,0,.8);}
+    .pin-label{position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#fff;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,1),0 0 8px rgba(0,0,0,.8);pointer-events:none;letter-spacing:.3px;}
+    .pin.fow-hidden{opacity:.4;}
+    .pin.fow-invisible{display:none!important;}
+    .pin .fow-eye{position:absolute;top:-7px;right:-7px;font-size:9px;background:var(--bg-e);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr);}
+
+    /* ── Drawer ── */
+    .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:199;display:none;}
+    .drawer-backdrop.open{display:block;}
+    .drawer{position:fixed;right:0;top:0;height:100vh;width:400px;z-index:200;background:var(--bg-s);border-left:1px solid var(--bdr);box-shadow:-14px 0 40px rgba(0,0,0,.6);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease;}
+    .drawer.open{transform:translateX(0);}
+
+    /* Drawer header */
+    .d-head{padding:10px 12px;border-bottom:1px solid var(--bdr);flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
+    .d-head-row1{display:flex;align-items:center;gap:8px;}
+    .d-name{flex:1;background:transparent;border:none;font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--txt);outline:none;min-width:0;}
+    .d-name::placeholder{color:var(--dim);}
+    .d-name:focus{border-bottom:1px solid rgba(217,119,6,.5);}
+    .d-head-actions{display:flex;gap:4px;flex-shrink:0;}
+    .d-action{background:none;border:1px solid var(--bdr);border-radius:var(--r);color:var(--muted);cursor:pointer;padding:4px 7px;font-size:13px;display:flex;align-items:center;transition:all .12s;}
+    .d-action:hover{color:var(--txt);background:var(--bg-e);}
+    .d-action.fow-hidden-active{color:#a78bfa;border-color:rgba(167,139,250,.35);background:rgba(167,139,250,.1);}
+    .d-action.danger:hover{color:#fca5a5;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.1);}
+
+    /* Type selector */
+    .d-type-row{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--bdr-d);flex-wrap:wrap;flex-shrink:0;}
+    .d-type-btn{font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-e);color:var(--muted);cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;}
+    .d-type-btn.active{font-weight:600;}
+
+    /* Drawer body */
+    .d-body{flex:1;overflow-y:auto;overflow-x:hidden;}
+    .d-body::-webkit-scrollbar{width:3px;}
+    .d-body::-webkit-scrollbar-thumb{background:var(--bdr);}
+    .d-section{border-bottom:1px solid var(--bdr-d);padding:12px;}
+    .d-sec-head{display:flex;align-items:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;}
+    .d-sec-head .d-add-btn{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid var(--bdr);background:var(--bg-e);color:var(--muted);cursor:pointer;font-family:inherit;transition:all .12s;display:inline-flex;align-items:center;gap:3px;}
+    .d-add-btn:hover{color:var(--txt);}
+
+    /* Description editor */
+    .d-fmt-bar{display:flex;gap:3px;margin-bottom:6px;}
+    .d-fmt-btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--txt);cursor:pointer;font-family:inherit;transition:all .12s;}
+    .d-fmt-btn:hover{background:#222c3d;}
+    .d-editor{background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px;min-height:140px;color:var(--txt);font-family:'Crimson Pro',serif;font-size:14px;line-height:1.7;outline:none;transition:border-color .15s;word-break:break-word;}
+    .d-editor:focus{border-color:rgba(217,119,6,.4);}
+    .d-editor img{max-width:100%;border-radius:var(--r);margin:6px 0;display:block;}
+    .d-editor:empty::before{content:attr(data-placeholder);color:var(--dim);pointer-events:none;font-style:italic;}
+
+    /* Lore fields */
+    .lf-row{display:flex;gap:5px;align-items:center;margin-bottom:5px;}
+    .lf-key{flex:0 0 110px;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--muted);font-family:inherit;}
+    .lf-val{flex:1;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:5px 8px;font-size:12px;color:var(--txt);font-family:inherit;}
+    .lf-key:focus,.lf-val:focus{outline:none;border-color:rgba(217,119,6,.4);}
+    .lf-del{background:none;border:none;color:var(--dim);cursor:pointer;padding:3px;font-size:13px;display:flex;align-items:center;flex-shrink:0;transition:color .12s;}
+    .lf-del:hover{color:#fca5a5;}
+
+    /* Events log */
+    .ev-item{background:var(--bg-e);border:1px solid var(--bdr-d);border-radius:var(--r);padding:8px 10px;margin-bottom:6px;position:relative;}
+    .ev-date{font-size:10px;font-weight:600;color:var(--am-txt);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+    .ev-text{font-family:'Crimson Pro',serif;font-size:13px;color:var(--txt);line-height:1.5;}
+    .ev-del{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:11px;padding:2px;border-radius:3px;transition:color .12s;}
+    .ev-del:hover{color:#fca5a5;}
+    .ev-empty{font-size:12px;color:var(--dim);font-style:italic;}
+
+    /* Region map */
+    .submap-zone{border:1.5px dashed var(--bdr);border-radius:var(--r);background:var(--bg-in);cursor:pointer;overflow:hidden;transition:border-color .15s,background .15s;}
+    .submap-zone:hover,.submap-zone.drag-over{border-color:rgba(217,119,6,.5);background:rgba(217,119,6,.04);}
+    .submap-preview{width:100%;height:120px;object-fit:cover;display:none;}
+    .submap-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:90px;gap:6px;color:var(--muted);}
+    .submap-ph i{font-size:24px;opacity:.3;}
+    .submap-ph span{font-size:11px;}
+
+    /* ── Modals ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:16px;}
+    .modal-ov.open{display:flex;}
+    .modal{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--rl);width:100%;max-width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--bg-s);z-index:1;}
+    .modal-title{font-size:14px;font-weight:600;}
+    .modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:3px;border-radius:4px;display:flex;align-items:center;transition:color .12s;}
+    .modal-close:hover{color:var(--txt);}
+    .modal-body{padding:14px 16px;}
+    .modal-foot{padding:10px 16px;border-top:1px solid var(--bdr);display:flex;gap:7px;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg-s);}
+    .mf{margin-bottom:11px;}
+    .mf label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+    .mf input,.mf textarea{width:100%;background:var(--bg-in);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 10px;font-size:13px;color:var(--txt);font-family:inherit;transition:border-color .15s;}
+    .mf input:focus,.mf textarea:focus{outline:none;border-color:rgba(217,119,6,.5);}
+    .mf textarea{min-height:90px;resize:vertical;line-height:1.5;}
+    .mf.invalid input,.mf.invalid textarea{border-color:#ef4444;}
+
+    /* Map upload zone */
+    .map-up-zone{border:1.5px dashed var(--bdr);border-radius:var(--r);background:var(--bg-in);cursor:pointer;overflow:hidden;transition:border-color .15s;}
+    .map-up-zone:hover,.map-up-zone.drag-over{border-color:rgba(217,119,6,.5);background:rgba(217,119,6,.04);}
+    .map-up-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:150px;gap:7px;color:var(--muted);}
+    .map-up-ph i{font-size:36px;opacity:.25;}
+    .map-up-ph p{font-size:13px;}
+    .map-up-ph small{font-size:11px;opacity:.6;}
+    .map-up-preview{width:100%;height:150px;object-fit:cover;display:none;}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-e);border:1px solid var(--bdr);border-radius:20px;padding:7px 18px;font-size:13px;color:var(--txt);z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:t-in .2s ease,t-out .3s ease 2s forwards;}
+    @keyframes t-in{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+    @keyframes t-out{to{opacity:0;transform:translateX(-50%) translateY(8px);}}
+    ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:10px;}
+
+    @media(max-width:700px){
+      .drawer{width:100%;max-width:100vw;}
+      .nav-links{gap:3px;}
+      .toolbar{gap:4px;}
+      .type-filter-row{display:none;}
+      .pin-search{width:110px;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-brand"><div class="nav-icon">🎲</div> D&amp;D Tools</div>
+    <span class="nav-sep">|</span>
+    <div class="nav-links">
+      <a href="../initiative-tracker/index.html" class="nav-link"><i class="ti ti-swords"></i> Initiative Tracker</a>
+      <a href="../weapons/index.html" class="nav-link"><i class="ti ti-bow-arrow"></i> Weapons Arsenal</a>
+      <a href="../players/index.html" class="nav-link"><i class="ti ti-users"></i> Players</a>
+      <a href="../map-creator/index.html" class="nav-link"><i class="ti ti-grid-dots"></i> Map Grid</a>
+      <a href="./index.html" class="nav-link on"><i class="ti ti-world"></i> Worlds</a>
+    </div>
+  </nav>
+
+  <!-- World header bar -->
+  <div class="world-bar">
+    <a href="index.html" class="wb-back"><i class="ti ti-arrow-left"></i> Worlds</a>
+    <div class="wb-bc">
+      <span class="wb-world" id="wb-world-name">Loading…</span>
+      <span class="wb-sep" id="wb-sep" style="display:none">›</span>
+      <span class="wb-loc" id="wb-loc-name"></span>
+    </div>
+    <div class="wb-actions">
+      <button class="btn btn-sm" onclick="exportWorld()"><i class="ti ti-download"></i> Export</button>
+      <button class="btn btn-sm" onclick="triggerImport()"><i class="ti ti-upload"></i> Import</button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn" id="btn-add-pin" onclick="toggleAddPinMode()"><i class="ti ti-map-pin"></i> Add Pin</button>
+    <button class="btn fow-btn dm" id="btn-fow" onclick="toggleFoW()"><i class="ti ti-eye"></i> DM View</button>
+    <div class="tb-sep"></div>
+    <div class="type-filter-row" id="type-filters"></div>
+    <div class="tb-sep"></div>
+    <input class="pin-search" id="pin-search" placeholder="Search locations…" oninput="applyFilters()">
+    <div class="tb-sep"></div>
+    <div class="zoom-btns">
+      <button class="zoom-btn" onclick="doZoom(1.3)" title="Zoom in">+</button>
+      <button class="zoom-btn" onclick="fitMap()" title="Fit map" style="font-size:11px;">⊡</button>
+      <button class="zoom-btn" onclick="doZoom(0.77)" title="Zoom out">−</button>
+    </div>
+    <div class="tb-sep"></div>
+    <button class="btn" onclick="openMapModal()"><i class="ti ti-photo"></i> <span id="map-btn-label">Set Map</span></button>
+  </div>
+
+  <!-- Map area -->
+  <div class="map-area" id="map-area">
+    <!-- Empty state -->
+    <div class="map-empty" id="map-empty">
+      <div class="map-empty-inner" id="map-empty-inner"
+           ondragover="emptyDragOver(event)" ondragleave="emptyDragLeave()" ondrop="emptyDrop(event)">
+        <i class="ti ti-map"></i>
+        <p>No map uploaded</p>
+        <button class="btn btn-am" onclick="openMapModal()" style="margin:14px auto 10px"><i class="ti ti-photo"></i> Upload Map Image</button>
+        <small>or drag &amp; drop an image here</small>
+      </div>
+    </div>
+    <!-- Map viewport -->
+    <div class="map-vp" id="map-vp" style="display:none">
+      <div class="map-container" id="map-container">
+        <img class="map-img" id="map-img" src="" alt="" draggable="false">
+      </div>
+    </div>
+    <!-- Add pin hint -->
+    <div class="add-pin-hint" id="add-pin-hint">
+      <i class="ti ti-map-pin"></i> Click anywhere on the map to place a pin
+      <button class="btn btn-sm" onclick="cancelAddPin()">Cancel</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ══ Location Drawer ══ -->
+<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="d-head">
+    <div class="d-head-row1">
+      <input class="d-name" id="d-name" placeholder="Location name…" oninput="scheduleDrawerSave()">
+      <div class="d-head-actions">
+        <button class="d-action" id="d-fow-btn" onclick="togglePinFoW()" title="Toggle fog of war visibility"><i class="ti ti-eye"></i></button>
+        <button class="d-action danger" onclick="confirmDeletePin()" title="Delete pin"><i class="ti ti-trash"></i></button>
+        <button class="d-action" onclick="closeDrawer()" title="Close"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <div class="d-type-row" id="d-type-row"></div>
+  </div>
+  <div class="d-body" id="d-body">
+
+    <!-- Description -->
+    <div class="d-section">
+      <div class="d-sec-head">Description</div>
+      <div class="d-fmt-bar">
+        <button class="d-fmt-btn" onclick="dfmt('bold')"><b>B</b></button>
+        <button class="d-fmt-btn" onclick="dfmt('italic')"><i>I</i></button>
+        <button class="d-fmt-btn" onclick="dfmt('underline')"><u>U</u></button>
+        <button class="d-fmt-btn" onclick="insertDescImg()" title="Insert image"><i class="ti ti-photo" style="font-size:12px"></i></button>
+      </div>
+      <div class="d-editor" id="d-editor" contenteditable="true"
+           data-placeholder="Write lore, history, descriptions…"
+           oninput="scheduleDrawerSave()"></div>
+    </div>
+
+    <!-- Lore Fields -->
+    <div class="d-section">
+      <div class="d-sec-head">
+        Lore Fields
+        <button class="d-add-btn" onclick="addLoreField()"><i class="ti ti-plus"></i> Add</button>
+      </div>
+      <div id="d-lore-fields"></div>
+    </div>
+
+    <!-- Events Log -->
+    <div class="d-section">
+      <div class="d-sec-head">
+        Events Log
+        <button class="d-add-btn" onclick="openEventModal()"><i class="ti ti-plus"></i> Add Event</button>
+      </div>
+      <div id="d-events"></div>
+    </div>
+
+    <!-- Region Map (hidden in sub-map view) -->
+    <div class="d-section" id="d-region-section">
+      <div class="d-sec-head">Region Map</div>
+      <div id="d-region-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Add Event Modal ══ -->
+<div class="modal-ov" id="event-modal" onclick="bgClose(event,'event-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Add Event</span>
+      <button class="modal-close" onclick="closeEventModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf">
+        <label>Date / Session</label>
+        <input id="ev-date" placeholder="e.g. Session 5, Day 12…">
+      </div>
+      <div class="mf" id="mf-ev-text">
+        <label>What happened *</label>
+        <textarea id="ev-text" placeholder="Describe the event…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" onclick="closeEventModal()">Cancel</button>
+      <button class="btn btn-am btn-sm" onclick="saveEvent()"><i class="ti ti-check"></i> Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Map Upload Modal ══ -->
+<div class="modal-ov" id="map-modal" onclick="bgClose(event,'map-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="map-modal-title">Set Map Image</span>
+      <button class="modal-close" onclick="closeMapModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf">
+        <label>Map Image</label>
+        <div class="map-up-zone" id="map-up-zone"
+             onclick="triggerMapFile()"
+             ondragover="mapUpDragOver(event)" ondragleave="mapUpDragLeave()" ondrop="mapUpDrop(event)">
+          <div class="map-up-ph" id="map-up-ph">
+            <i class="ti ti-map"></i>
+            <p>Click · drag &amp; drop · Ctrl+V</p>
+            <small>Recommended: 1600×1200 or larger</small>
+          </div>
+          <img class="map-up-preview" id="map-up-preview" src="" alt="">
+        </div>
+        <input type="file" id="map-file-input" accept="image/*" style="display:none" onchange="handleMapFile(event)">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" onclick="closeMapModal()">Cancel</button>
+      <button class="btn btn-am btn-sm" id="map-save-btn" onclick="applyMapImage()" disabled><i class="ti ti-check"></i> Set Map</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
+<input type="file" id="desc-img-input" accept="image/*" style="display:none" onchange="handleDescImg(event)">
+
+<script>
+// ── Constants ──────────────────────────────────────────────
+const PIN_TYPES = {
+  city:       { label:'City',       color:'#f59e0b', icon:'🏰' },
+  town:       { label:'Town',       color:'#22c55e', icon:'🏘️' },
+  dungeon:    { label:'Dungeon',    color:'#ef4444', icon:'⚔️' },
+  ruins:      { label:'Ruins',      color:'#a78bfa', icon:'🏚️' },
+  wilderness: { label:'Wilderness', color:'#4ade80', icon:'🌲' },
+  landmark:   { label:'Landmark',   color:'#60a5fa', icon:'⭐' },
+  port:       { label:'Port',       color:'#38bdf8', icon:'⚓' },
+  lair:       { label:'Lair',       color:'#f87171', icon:'🐉' },
+};
+
+// ── URL params ─────────────────────────────────────────────
+const params   = new URLSearchParams(location.search);
+const worldId  = parseInt(params.get('wid')) || 0;
+const locParam = parseInt(params.get('lid')) || 0; // 0 = world map; >0 = sub-map of that location
+const isSubMap = locParam > 0;
+
+// ── State ──────────────────────────────────────────────────
+let worldInfo = null;
+let worldData = { mapImage: null, locations: [], nextLocId: 1 };
+let zoom = 1, panX = 0, panY = 0;
+let isDragging = false, dsx = 0, dsy = 0, dpx = 0, dpy = 0;
+let addPinMode = false;
+let fowMode = 'dm';
+let hiddenTypes = new Set();
+let currentPinId = null;
+let selectedType = 'city';
+let pendingMapImg = null;
+let mapUploadTarget = 'world'; // 'world' or 'submap'
+let saveTimer = null;
+
+// ── Load / persist ─────────────────────────────────────────
+function loadState() {
+  try {
+    const idx = JSON.parse(localStorage.getItem('dnd-worlds-index')||'null');
+    if (idx) worldInfo = idx.worlds?.find(w => w.id === worldId) || null;
+  } catch(e) {}
+  try {
+    const d = JSON.parse(localStorage.getItem(`dnd-world-${worldId}`)||'null');
+    if (d) worldData = d;
+  } catch(e) {}
+}
+
+function persistWorld() {
+  try { localStorage.setItem(`dnd-world-${worldId}`, JSON.stringify(worldData)); }
+  catch(e) { toast('Storage full — could not save'); }
+}
+
+// ── Locations array (world or sub-map) ────────────────────
+function getLocations() {
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (!parent) return [];
+    if (!parent.subLocations) parent.subLocations = [];
+    return parent.subLocations;
+  }
+  return worldData.locations;
+}
+
+function getNextLocId() {
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (!parent) return 1;
+    const id = parent.nextSubLocId || 1;
+    parent.nextSubLocId = id + 1;
+    return id;
+  }
+  const id = worldData.nextLocId || 1;
+  worldData.nextLocId = id + 1;
+  return id;
+}
+
+function getCurrentMapImage() {
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    return parent?.subMapImage || null;
+  }
+  return worldData.mapImage || null;
+}
+
+function setCurrentMapImage(src) {
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (parent) parent.subMapImage = src;
+  } else {
+    worldData.mapImage = src;
+  }
+}
+
+function getCurrentPin() {
+  if (!currentPinId) return null;
+  return getLocations().find(l => l.id === currentPinId) || null;
+}
+
+// ── Boot ───────────────────────────────────────────────────
+function boot() {
+  loadState();
+
+  // Redirect if no world
+  if (!worldId) { location.href = 'index.html'; return; }
+
+  // Page title
+  document.title = (worldInfo?.name || 'World') + ' — D&D Tools';
+  document.getElementById('wb-world-name').textContent = worldInfo?.name || 'Unknown World';
+
+  // Sub-map breadcrumb
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (parent) {
+      document.getElementById('wb-sep').style.display = '';
+      document.getElementById('wb-loc-name').textContent = parent.name || 'Region';
+    }
+    document.getElementById('d-region-section').style.display = 'none';
+  }
+
+  buildTypeFilters();
+  loadMap();
+}
+
+// ── Map ────────────────────────────────────────────────────
+function loadMap() {
+  const src = getCurrentMapImage();
+  if (src) {
+    showMap(src);
+  } else {
+    document.getElementById('map-empty').style.display = 'flex';
+    document.getElementById('map-vp').style.display = 'none';
+    document.getElementById('map-btn-label').textContent = 'Set Map';
+  }
+}
+
+function showMap(src) {
+  const mapImg = document.getElementById('map-img');
+  mapImg.onload = () => {
+    fitMap();
+    renderPins();
+  };
+  mapImg.src = src;
+  document.getElementById('map-empty').style.display = 'none';
+  document.getElementById('map-vp').style.display = 'block';
+  document.getElementById('map-btn-label').textContent = 'Change Map';
+}
+
+// ── Pan & Zoom ─────────────────────────────────────────────
+function applyTransform() {
+  document.getElementById('map-container').style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+}
+
+function fitMap() {
+  const vp = document.getElementById('map-vp');
+  const img = document.getElementById('map-img');
+  if (!img.naturalWidth) return;
+  const vw = vp.offsetWidth, vh = vp.offsetHeight;
+  zoom = Math.min(vw / img.naturalWidth, vh / img.naturalHeight) * 0.92;
+  panX = (vw - img.naturalWidth * zoom) / 2;
+  panY = (vh - img.naturalHeight * zoom) / 2;
+  applyTransform();
+}
+
+function doZoom(factor) {
+  const vp = document.getElementById('map-vp');
+  const cx = vp.offsetWidth / 2, cy = vp.offsetHeight / 2;
+  const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+  panX = cx - (cx - panX) * (newZoom / zoom);
+  panY = cy - (cy - panY) * (newZoom / zoom);
+  zoom = newZoom;
+  applyTransform();
+}
+
+// Wheel zoom
+document.getElementById('map-vp').addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.12 : 0.89;
+  const rect = document.getElementById('map-vp').getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+  panX = mx - (mx - panX) * (newZoom / zoom);
+  panY = my - (my - panY) * (newZoom / zoom);
+  zoom = newZoom;
+  applyTransform();
+}, { passive: false });
+
+// Drag to pan
+const mapVP = document.getElementById('map-vp');
+mapVP.addEventListener('mousedown', e => {
+  if (addPinMode || e.target.closest('.pin')) return;
+  isDragging = true; dsx = e.clientX; dsy = e.clientY; dpx = panX; dpy = panY;
+  mapVP.classList.add('grabbing');
+});
+document.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  panX = dpx + (e.clientX - dsx); panY = dpy + (e.clientY - dsy);
+  applyTransform();
+});
+document.addEventListener('mouseup', () => { isDragging = false; mapVP.classList.remove('grabbing'); });
+
+// Click to add pin
+mapVP.addEventListener('click', e => {
+  if (!addPinMode) return;
+  if (e.target.closest('.pin')) return;
+  const rect = document.getElementById('map-container').getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  cancelAddPin();
+  openDrawerForNewPin(x, y);
+});
+
+// ── Add Pin Mode ───────────────────────────────────────────
+function toggleAddPinMode() {
+  if (!getCurrentMapImage()) { openMapModal(); return; }
+  addPinMode = !addPinMode;
+  mapVP.classList.toggle('crosshair', addPinMode);
+  document.getElementById('btn-add-pin').classList.toggle('active', addPinMode);
+  document.getElementById('add-pin-hint').classList.toggle('show', addPinMode);
+  if (addPinMode && document.getElementById('drawer').classList.contains('open')) closeDrawer();
+}
+
+function cancelAddPin() {
+  addPinMode = false;
+  mapVP.classList.remove('crosshair');
+  document.getElementById('btn-add-pin').classList.remove('active');
+  document.getElementById('add-pin-hint').classList.remove('show');
+}
+
+// ── Fog of War ─────────────────────────────────────────────
+function toggleFoW() {
+  fowMode = fowMode === 'dm' ? 'player' : 'dm';
+  const btn = document.getElementById('btn-fow');
+  if (fowMode === 'dm') {
+    btn.className = 'btn fow-btn dm';
+    btn.innerHTML = '<i class="ti ti-eye"></i> DM View';
+  } else {
+    btn.className = 'btn fow-btn player';
+    btn.innerHTML = '<i class="ti ti-masks-theater"></i> Player View';
+  }
+  renderPins();
+}
+
+// ── Type filters ───────────────────────────────────────────
+function buildTypeFilters() {
+  const container = document.getElementById('type-filters');
+  container.innerHTML = Object.entries(PIN_TYPES).map(([k, v]) =>
+    `<button class="tfbtn" data-type="${k}" onclick="toggleTypeFilter('${k}')" style="color:${v.color}">${v.icon} ${v.label}</button>`
+  ).join('');
+}
+
+function toggleTypeFilter(type) {
+  if (hiddenTypes.has(type)) hiddenTypes.delete(type);
+  else hiddenTypes.add(type);
+  document.querySelector(`.tfbtn[data-type="${type}"]`)?.classList.toggle('hidden-type', hiddenTypes.has(type));
+  renderPins();
+}
+
+function applyFilters() {
+  const q = document.getElementById('pin-search').value.trim().toLowerCase();
+  // Search highlight is handled in renderPins
+  renderPins(q);
+}
+
+// ── Pins ───────────────────────────────────────────────────
+function renderPins(searchQ) {
+  const q = searchQ ?? document.getElementById('pin-search').value.trim().toLowerCase();
+  // Remove existing pins
+  document.querySelectorAll('.pin').forEach(p => p.remove());
+
+  const container = document.getElementById('map-container');
+  getLocations().forEach(loc => {
+    const cfg = PIN_TYPES[loc.type] || { color: '#64748b', icon: '📍' };
+    const matchesSearch = !q || loc.name.toLowerCase().includes(q);
+    const hiddenByType = hiddenTypes.has(loc.type);
+    const hiddenByFoW = loc.hidden && fowMode === 'player';
+
+    const pin = document.createElement('div');
+    pin.className = 'pin' + (loc.id === currentPinId ? ' selected' : '') + (loc.hidden ? ' fow-hidden' : '') + (hiddenByFoW ? ' fow-invisible' : '');
+    pin.style.cssText = `left:${loc.x}%;top:${loc.y}%;${hiddenByType || !matchesSearch ? 'display:none' : ''}`;
+    pin.dataset.id = loc.id;
+    pin.innerHTML = `
+      <div class="pin-marker" style="background:${cfg.color}40;border-color:${cfg.color};box-shadow:0 2px 10px rgba(0,0,0,.7),0 0 0 2px rgba(0,0,0,.4),inset 0 0 0 1px ${cfg.color}60">
+        <span style="font-size:14px;line-height:1">${cfg.icon}</span>
+      </div>
+      ${loc.hidden ? '<span class="fow-eye">🔒</span>' : ''}
+      <div class="pin-label">${esc(loc.name || 'Unnamed')}</div>`;
+    pin.addEventListener('click', e => { e.stopPropagation(); openDrawer(loc.id); });
+    container.appendChild(pin);
+  });
+}
+
+// ── Drawer ─────────────────────────────────────────────────
+function openDrawerForNewPin(x, y) {
+  const id = getNextLocId();
+  const locs = getLocations();
+  locs.push({ id, name: '', type: selectedType, x, y, hidden: false, description: '', loreFields: [], events: [], nextEventId: 1 });
+  persistWorld();
+  renderPins();
+  openDrawer(id);
+  setTimeout(() => document.getElementById('d-name').focus(), 300);
+}
+
+function openDrawer(id) {
+  currentPinId = id;
+  const pin = getCurrentPin(); if (!pin) return;
+  selectedType = pin.type;
+
+  document.getElementById('d-name').value = pin.name || '';
+  document.getElementById('d-editor').innerHTML = pin.description || '';
+
+  // Type row
+  renderDrawerTypeRow();
+
+  // FoW button
+  updateFoWBtn(pin.hidden);
+
+  // Lore fields
+  renderLoreFields(pin.loreFields || []);
+
+  // Events
+  renderEvents(pin.events || []);
+
+  // Region map (only in world view)
+  if (!isSubMap) renderRegionMap(pin);
+
+  // Highlight pin
+  renderPins();
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-backdrop').classList.add('open');
+}
+
+function closeDrawer() {
+  flushDrawerSave();
+  currentPinId = null;
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-backdrop').classList.remove('open');
+  renderPins();
+}
+
+function renderDrawerTypeRow() {
+  const pin = getCurrentPin();
+  document.getElementById('d-type-row').innerHTML = Object.entries(PIN_TYPES).map(([k, v]) =>
+    `<button class="d-type-btn${k === selectedType ? ' active' : ''}" onclick="setDrawerType('${k}')"
+       style="${k === selectedType ? `background:${v.color}22;border-color:${v.color};color:${v.color}` : ''}">${v.icon} ${v.label}</button>`
+  ).join('');
+}
+
+function setDrawerType(type) {
+  selectedType = type;
+  const pin = getCurrentPin(); if (pin) { pin.type = type; persistWorld(); renderPins(); }
+  renderDrawerTypeRow();
+}
+
+function updateFoWBtn(hidden) {
+  const btn = document.getElementById('d-fow-btn');
+  btn.classList.toggle('fow-hidden-active', !!hidden);
+  btn.title = hidden ? 'Hidden from players (click to reveal)' : 'Visible to all (click to hide)';
+  btn.innerHTML = `<i class="ti ti-${hidden ? 'eye-off' : 'eye'}"></i>`;
+}
+
+function togglePinFoW() {
+  const pin = getCurrentPin(); if (!pin) return;
+  pin.hidden = !pin.hidden;
+  updateFoWBtn(pin.hidden);
+  persistWorld(); renderPins();
+  toast(pin.hidden ? 'Pin hidden from players' : 'Pin visible to all');
+}
+
+// ── Drawer auto-save ───────────────────────────────────────
+function scheduleDrawerSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushDrawerSave, 700);
+}
+
+function flushDrawerSave() {
+  clearTimeout(saveTimer);
+  const pin = getCurrentPin(); if (!pin) return;
+  const newName = document.getElementById('d-name').value.trim() || 'Unnamed';
+  pin.name = newName;
+  pin.description = document.getElementById('d-editor').innerHTML;
+  // Lore fields
+  pin.loreFields = [];
+  document.querySelectorAll('.lf-row').forEach(row => {
+    const k = row.querySelector('.lf-key')?.value.trim();
+    const v = row.querySelector('.lf-val')?.value.trim();
+    if (k || v) pin.loreFields.push({ key: k||'', value: v||'' });
+  });
+  persistWorld();
+  document.querySelector(`.pin[data-id="${pin.id}"] .pin-label`)?.textContent === pin.name || renderPins();
+}
+
+// ── Delete pin ─────────────────────────────────────────────
+function confirmDeletePin() {
+  const pin = getCurrentPin(); if (!pin) return;
+  const label = pin.name || 'this location';
+  if (!confirm(`Delete "${label}"?${pin.subLocations?.length ? ' This will also remove its region map and sub-locations.' : ''}`)) return;
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (parent) parent.subLocations = (parent.subLocations || []).filter(l => l.id !== currentPinId);
+  } else {
+    worldData.locations = worldData.locations.filter(l => l.id !== currentPinId);
+  }
+  persistWorld(); closeDrawer();
+}
+
+// ── Lore fields ────────────────────────────────────────────
+function renderLoreFields(fields) {
+  const container = document.getElementById('d-lore-fields');
+  container.innerHTML = fields.length ? '' : '<p style="font-size:12px;color:var(--dim);font-style:italic">No lore fields yet.</p>';
+  fields.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.className = 'lf-row';
+    row.innerHTML = `<input class="lf-key" value="${esc(f.key)}" placeholder="Field name" oninput="scheduleDrawerSave()"><input class="lf-val" value="${esc(f.value)}" placeholder="Value" oninput="scheduleDrawerSave()"><button class="lf-del" onclick="removeLoreField(${i})"><i class="ti ti-x"></i></button>`;
+    container.appendChild(row);
+  });
+}
+
+function addLoreField() {
+  const pin = getCurrentPin(); if (!pin) return;
+  if (!pin.loreFields) pin.loreFields = [];
+  pin.loreFields.push({ key: '', value: '' });
+  renderLoreFields(pin.loreFields);
+  const inputs = document.querySelectorAll('.lf-key');
+  inputs[inputs.length - 1]?.focus();
+}
+
+function removeLoreField(idx) {
+  const pin = getCurrentPin(); if (!pin) return;
+  pin.loreFields.splice(idx, 1);
+  persistWorld(); renderLoreFields(pin.loreFields);
+}
+
+// ── Events log ─────────────────────────────────────────────
+function renderEvents(events) {
+  const container = document.getElementById('d-events');
+  if (!events.length) { container.innerHTML = '<p class="ev-empty">No events recorded.</p>'; return; }
+  // Newest first
+  container.innerHTML = [...events].reverse().map(ev => `
+    <div class="ev-item">
+      ${ev.date ? `<div class="ev-date">${esc(ev.date)}</div>` : ''}
+      <div class="ev-text">${esc(ev.text)}</div>
+      <button class="ev-del" onclick="deleteEvent(${ev.id})" title="Delete event"><i class="ti ti-x"></i></button>
+    </div>`).join('');
+}
+
+function openEventModal() {
+  document.getElementById('ev-date').value = '';
+  document.getElementById('ev-text').value = '';
+  document.getElementById('mf-ev-text').classList.remove('invalid');
+  document.getElementById('event-modal').classList.add('open');
+  setTimeout(() => document.getElementById('ev-date').focus(), 80);
+}
+function closeEventModal() { document.getElementById('event-modal').classList.remove('open'); }
+
+function saveEvent() {
+  const text = document.getElementById('ev-text').value.trim();
+  if (!text) { document.getElementById('mf-ev-text').classList.add('invalid'); return; }
+  document.getElementById('mf-ev-text').classList.remove('invalid');
+  const pin = getCurrentPin(); if (!pin) return;
+  if (!pin.events) pin.events = [];
+  if (!pin.nextEventId) pin.nextEventId = 1;
+  pin.events.push({ id: pin.nextEventId++, date: document.getElementById('ev-date').value.trim(), text });
+  persistWorld(); renderEvents(pin.events); closeEventModal();
+  toast('Event added');
+}
+
+function deleteEvent(evId) {
+  const pin = getCurrentPin(); if (!pin) return;
+  pin.events = (pin.events || []).filter(e => e.id !== evId);
+  persistWorld(); renderEvents(pin.events);
+}
+
+// ── Region map (sub-map upload) ───────────────────────────
+function renderRegionMap(pin) {
+  const container = document.getElementById('d-region-content');
+  if (pin.subMapImage) {
+    const worldUrl = `world.html?wid=${worldId}&lid=${pin.id}`;
+    container.innerHTML = `
+      <div class="submap-zone" onclick="openSubmapUpload()" style="cursor:pointer">
+        <img class="submap-preview" src="${pin.subMapImage}" style="display:block" alt="">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <a href="${worldUrl}" target="_blank" class="btn btn-am btn-sm" style="text-decoration:none;flex:1;justify-content:center">
+          <i class="ti ti-map-2"></i> Open Region Map ↗
+        </a>
+        <button class="btn btn-sm" onclick="clearSubmapImage()" title="Remove region map"><i class="ti ti-trash"></i></button>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div class="submap-zone" id="submap-zone"
+           onclick="openSubmapUpload()"
+           ondragover="submapDragOver(event)" ondragleave="submapDragLeave()" ondrop="submapDrop(event)">
+        <div class="submap-ph">
+          <i class="ti ti-map-pin-plus"></i>
+          <span>Upload a region map</span>
+        </div>
+      </div>`;
+  }
+}
+
+function openSubmapUpload() {
+  mapUploadTarget = 'submap';
+  document.getElementById('map-modal-title').textContent = 'Upload Region Map';
+  setPendingMapPreview(null);
+  document.getElementById('map-modal').classList.add('open');
+}
+
+function submapDragOver(e) { e.preventDefault(); document.getElementById('submap-zone')?.classList.add('drag-over'); }
+function submapDragLeave() { document.getElementById('submap-zone')?.classList.remove('drag-over'); }
+function submapDrop(e) {
+  e.preventDefault();
+  document.getElementById('submap-zone')?.classList.remove('drag-over');
+  const f = e.dataTransfer?.files?.[0];
+  if (f && f.type.startsWith('image/')) {
+    compressImg(f, 1600, 1200, .8, src => { applySubmap(src); });
+  }
+}
+
+function applySubmap(src) {
+  const pin = getCurrentPin(); if (!pin) return;
+  pin.subMapImage = src;
+  if (!pin.subLocations) pin.subLocations = [];
+  if (!pin.nextSubLocId) pin.nextSubLocId = 1;
+  persistWorld(); renderRegionMap(pin);
+  toast('Region map set');
+}
+
+function clearSubmapImage() {
+  if (!confirm('Remove the region map? Sub-location pins will be preserved.')) return;
+  const pin = getCurrentPin(); if (!pin) return;
+  pin.subMapImage = null;
+  persistWorld(); renderRegionMap(pin);
+}
+
+// ── Map upload modal ───────────────────────────────────────
+function openMapModal() {
+  mapUploadTarget = 'world';
+  document.getElementById('map-modal-title').textContent = isSubMap ? 'Change Region Map' : 'Set World Map';
+  setPendingMapPreview(null);
+  document.getElementById('map-modal').classList.add('open');
+}
+function closeMapModal() { document.getElementById('map-modal').classList.remove('open'); pendingMapImg = null; }
+
+function setPendingMapPreview(src) {
+  pendingMapImg = src;
+  const ph = document.getElementById('map-up-ph');
+  const prev = document.getElementById('map-up-preview');
+  const btn = document.getElementById('map-save-btn');
+  if (src) { ph.style.display='none'; prev.src=src; prev.style.display='block'; btn.disabled=false; }
+  else { ph.style.display='flex'; prev.style.display='none'; btn.disabled=true; }
+}
+
+function triggerMapFile() { document.getElementById('map-file-input').click(); }
+function handleMapFile(e) { const f=e.target.files?.[0]; if(f) compressImg(f,1600,1200,.8,src=>setPendingMapPreview(src)); e.target.value=''; }
+function mapUpDragOver(e) { e.preventDefault(); document.getElementById('map-up-zone').classList.add('drag-over'); }
+function mapUpDragLeave() { document.getElementById('map-up-zone').classList.remove('drag-over'); }
+function mapUpDrop(e) { e.preventDefault(); document.getElementById('map-up-zone').classList.remove('drag-over'); const f=e.dataTransfer?.files?.[0]; if(f&&f.type.startsWith('image/')) compressImg(f,1600,1200,.8,src=>setPendingMapPreview(src)); }
+
+function applyMapImage() {
+  if (!pendingMapImg) return;
+  if (mapUploadTarget === 'submap') {
+    applySubmap(pendingMapImg);
+  } else {
+    setCurrentMapImage(pendingMapImg);
+    persistWorld();
+    showMap(pendingMapImg);
+    toast('Map updated');
+  }
+  closeMapModal();
+}
+
+// ── Description images ────────────────────────────────────
+function insertDescImg() { document.getElementById('desc-img-input').click(); }
+function handleDescImg(e) {
+  const f = e.target.files?.[0];
+  if (f) compressImg(f, 800, 600, .8, src => insertImgInEditor(src));
+  e.target.value = '';
+}
+
+function insertImgInEditor(src) {
+  const editor = document.getElementById('d-editor');
+  editor.focus();
+  const img = document.createElement('img');
+  img.src = src;
+  const sel = window.getSelection();
+  if (sel?.rangeCount) {
+    const r = sel.getRangeAt(0); r.deleteContents(); r.insertNode(img);
+    r.setStartAfter(img); r.collapse(true); sel.removeAllRanges(); sel.addRange(r);
+  } else { editor.appendChild(img); }
+  scheduleDrawerSave();
+}
+
+document.getElementById('d-editor').addEventListener('paste', e => {
+  const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
+  if (img) { e.preventDefault(); compressImg(img.getAsFile(),800,600,.8,src=>insertImgInEditor(src)); }
+});
+
+// Paste map image in map modal
+document.addEventListener('paste', e => {
+  if (!document.getElementById('map-modal').classList.contains('open')) return;
+  const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
+  if (img) { e.preventDefault(); compressImg(img.getAsFile(),1600,1200,.8,src=>setPendingMapPreview(src)); }
+});
+
+// Drag to empty map area
+function emptyDragOver(e) { e.preventDefault(); document.getElementById('map-empty-inner').classList.add('drag-over'); }
+function emptyDragLeave() { document.getElementById('map-empty-inner').classList.remove('drag-over'); }
+function emptyDrop(e) {
+  e.preventDefault(); document.getElementById('map-empty-inner').classList.remove('drag-over');
+  const f = e.dataTransfer?.files?.[0];
+  if (f && f.type.startsWith('image/')) compressImg(f,1600,1200,.8,src=>{setCurrentMapImage(src);persistWorld();showMap(src);toast('Map set');});
+}
+
+// ── Rich text formatting ───────────────────────────────────
+function dfmt(cmd) { document.getElementById('d-editor').focus(); document.execCommand(cmd,false,null); }
+
+// ── Export / Import ────────────────────────────────────────
+function exportWorld() {
+  const blob = new Blob([JSON.stringify({version:1,world:worldInfo,data:worldData},null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`${(worldInfo?.name||'world').replace(/[^a-z0-9]/gi,'-').toLowerCase()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('World exported');
+}
+
+function triggerImport() { document.getElementById('import-input').click(); }
+function handleImport(e) {
+  const file = e.target.files?.[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const raw = JSON.parse(ev.target.result);
+      if (!raw.data) throw 0;
+      if (!confirm('This will overwrite the current world data. Continue?')) return;
+      worldData = raw.data;
+      persistWorld(); loadMap(); toast('World data imported');
+    } catch { toast('Import failed — invalid file'); }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ── Compress image ─────────────────────────────────────────
+function compressImg(file, maxW, maxH, q, cb) {
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      const s = Math.min(maxW/img.width, maxH/img.height, 1);
+      c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',q));
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+// ── Utils ──────────────────────────────────────────────────
+function bgClose(e, id) { if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg) { const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2400); }
+
+// ── Keyboard shortcuts ─────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    if (document.querySelector('.modal-ov.open')) { document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open')); return; }
+    if (addPinMode) { cancelAddPin(); return; }
+    if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
+  }
+  if (e.key==='Enter' && document.getElementById('event-modal').classList.contains('open') && document.activeElement?.tagName!=='TEXTAREA') {
+    e.preventDefault(); saveEvent();
+  }
+});
+
+boot();
+</script>
+</body>
+</html>
