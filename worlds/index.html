@@ -114,7 +114,7 @@
   <div class="page-head">
     <div class="page-title"><i class="ti ti-world" style="color:var(--am-txt)"></i> Worlds</div>
     <div style="display:flex;gap:8px;">
-      <button class="btn btn-sm" id="btn-publish" onclick="publishToGitHub()" title="Commit the current worlds/pins straight to GitHub so all visitors see them" disabled=""><i class="ti ti-loader-2"></i> Publishing…</button>
+      <button class="btn btn-sm" id="btn-publish" onclick="publishToGitHub()" title="Commit the current worlds/pins straight to GitHub so all visitors see them"><i class="ti ti-cloud-upload"></i> Publish to GitHub</button>
       <button class="btn btn-sm" onclick="openPublishSettings()" title="GitHub publish settings"><i class="ti ti-settings"></i></button>
       <button class="btn btn-sm" onclick="bakeToFiles()" title="Download updated HTML files to commit manually"><i class="ti ti-file-download"></i> Bake to Files</button>
       <button class="btn btn-sm" onclick="triggerImport()"><i class="ti ti-upload"></i> Import</button>
@@ -400,6 +400,15 @@ async function buildBakedContent() {
     /\/\/ @worlds-index-start[\s\S]*?\/\/ @worlds-index-end/,
     `// @worlds-index-start\nconst BAKED_WORLDS_INDEX = ${JSON.stringify(worlds)};\n// @worlds-index-end`
   );
+
+  // Sanitize transient UI state that may have been mid-interaction at capture time —
+  // e.g. this very button stuck "disabled" mid-publish, or a modal left open —
+  // so a bad snapshot can never get baked into the file for every visitor.
+  indexHtml = indexHtml.replace(
+    /<button[^>]*id="btn-publish"[^>]*>[\s\S]*?<\/button>/,
+    '<button class="btn btn-sm" id="btn-publish" onclick="publishToGitHub()" title="Commit the current worlds/pins straight to GitHub so all visitors see them"><i class="ti ti-cloud-upload"></i> Publish to GitHub</button>'
+  );
+  indexHtml = indexHtml.replace(/class="modal-ov open"/g, 'class="modal-ov"');
 
   // 2. Fetch world.html, merge in current per-world data, bake it too
   let worldHtml;
