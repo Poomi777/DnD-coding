@@ -408,7 +408,7 @@ async function buildBakedContent() {
     /<button[^>]*id="btn-publish"[^>]*>[\s\S]*?<\/button>/,
     '<button class="btn btn-sm" id="btn-publish" onclick="publishToGitHub()" title="Commit the current worlds/pins straight to GitHub so all visitors see them"><i class="ti ti-cloud-upload"></i> Publish to GitHub</button>'
   );
-  indexHtml = indexHtml.replace(/class="modal-ov open"/g, 'class="modal-ov"');
+  indexHtml = indexHtml.replace(/class="modal-ov"/g, 'class="modal-ov"');
 
   // 2. Fetch world.html, merge in current per-world data, bake it too
   let worldHtml;
