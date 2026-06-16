@@ -189,7 +189,72 @@ function boot() {
   filterAbilities();
   renderInventory();
   initNotes();
+  initRulesTab();
 }
+
+// ─── Spellcaster Mechanics rules tab ──────────────────────
+function initRulesTab() {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div class="rules-tab" onclick="openRulesModal()"><i class="ti ti-book-2"></i><span>Spellcasting Rules</span></div>' +
+    '<div class="rules-modal-ov" id="rules-modal-ov" onclick="bgCloseRules(event)">' +
+      '<div class="rules-modal">' +
+        '<div class="rules-modal-head">' +
+          '<span class="rules-modal-title"><i class="ti ti-book-2"></i> Spellcaster Mechanics</span>' +
+          '<button class="rules-modal-close" onclick="closeRulesModal()"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="rules-modal-body">' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">🧙 Wizard</div>' +
+            '<p>Wizards have a shared spellcasting pool for each spell level — so for example, at level 5 they can cast:</p>' +
+            '<ul>' +
+              '<li>4 lvl 1 spells per long rest</li>' +
+              '<li>3 lvl 2 spells per long rest</li>' +
+              '<li>2 lvl 3 spells per long rest</li>' +
+              '<li>etc.</li>' +
+            '</ul>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">🔥 Sorcerer</div>' +
+            '<p>Sorcerers have a specific amount of charges per spell per long rest — so for example:</p>' +
+            '<ul>' +
+              '<li>Fireball has 3 charges per long rest</li>' +
+              '<li>Polymorph has 2 charges per long rest</li>' +
+              '<li>Counterspell has 2 charges per long rest</li>' +
+              '<li>etc.</li>' +
+            '</ul>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">😈 Warlock</div>' +
+            '<p>Warlocks use spell slots as usual — except they recover all slots on a short rest too.</p>' +
+            '<p>They can turn or create a spell into a cantrip. The number of times they can do this is equal to half their level. <em>(e.g. at level 6 you can have up to 3 cantrips that were created or turned into cantrips)</em></p>' +
+            '<p>When Warlocks run out of spell slots, depending on their patron or making a deal with their patron, they can continue to cast spells… but at the cost of something.</p>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">✨ Cleric</div>' +
+            '<p>Clerics use spell slots as usual.</p>' +
+            '<p>Clerics are able to spend time or actions to <strong>Pray</strong>. By praying they can improve one of their spells (add a mechanic, make it cost less, change or enhance some effects, etc.) — but this will cost <strong>Favor</strong> points (usually equal to the level of the spell).</p>' +
+            '<p>Or, by praying, they can spend some of their Favor Points to restore spell slots. The level of the spell slot restored equals how much Favor is spent.</p>' +
+            '<div class="rules-sub">' +
+              '<div class="rules-sub-name">Favor</div>' +
+              '<p>Favor can be gained through praying to whatever the cleric\'s religion/divinity is.</p>' +
+              '<p>Favor can also be gained through certain actions (discuss with the DM when you think you could gain favor — alternatively, praying and reflecting on past actions can also be a way to gain favor).</p>' +
+              '<p>On the flip side, Favor can also be lost due to certain actions that conflict with the religion/divinity\'s beliefs.</p>' +
+            '</div>' +
+          '</div>' +
+
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function openRulesModal() { document.getElementById('rules-modal-ov').classList.add('open'); }
+function closeRulesModal() { document.getElementById('rules-modal-ov').classList.remove('open'); }
+function bgCloseRules(e) { if (e.target.id === 'rules-modal-ov') closeRulesModal(); }
 
 // ─── Abilities ───────────────────────────────────────────
 function buildFilters() {
@@ -482,7 +547,7 @@ function switchTab(name, btn) {
 function bgClose(e, id) { if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
 
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); }
+  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); }
   if (!document.getElementById('lb').classList.contains('open')) return;
   if (e.key==='ArrowLeft')  lbStep(-1);
   if (e.key==='ArrowRight') lbStep(1);

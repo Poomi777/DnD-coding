@@ -93,6 +93,12 @@
     .pin.fow-invisible{display:none!important;}
     .pin .fow-eye{position:absolute;top:-7px;right:-7px;font-size:9px;background:var(--bg-e);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr);}
 
+    /* ── Territories ── */
+    .territory-label{position:absolute;transform:translate(-50%,-50%);pointer-events:none;z-index:15;}
+    .territory-swatch{width:22px;height:22px;border-radius:6px;cursor:pointer;border:1.5px solid rgba(255,255,255,.15);transition:transform .12s,border-color .12s;flex-shrink:0;}
+    .territory-swatch:hover{transform:scale(1.15);border-color:rgba(255,255,255,.55);}
+    input[type=range]{accent-color:var(--am);cursor:pointer;}
+
     /* ── Drawer ── */
     .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:199;display:none;}
     .drawer-backdrop.open{display:block;}
@@ -232,6 +238,8 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <button class="btn" id="btn-add-pin" onclick="toggleAddPinMode()"><i class="ti ti-map-pin"></i> Add Pin</button>
+    <button class="btn" id="btn-add-territory" onclick="toggleAddTerritoryMode()"><i class="ti ti-shape"></i> Draw Territory</button>
+    <button class="btn" id="btn-toggle-territories" onclick="toggleTerritoriesVisibility()"><i class="ti ti-eye"></i> Territories</button>
     <button class="btn fow-btn dm" id="btn-fow" onclick="toggleFoW()"><i class="ti ti-eye"></i> DM View</button>
     <div class="tb-sep"></div>
     <div class="type-filter-row" id="type-filters"></div>
@@ -263,6 +271,9 @@
     <div class="map-vp" id="map-vp" style="display:none">
       <div class="map-container" id="map-container">
         <img class="map-img" id="map-img" src="" alt="" draggable="false">
+        <div id="territory-layer" style="position:absolute;top:0;left:0;">
+          <svg id="territory-svg" style="position:absolute;top:0;left:0;display:block;"></svg>
+        </div>
       </div>
     </div>
     <!-- Add pin hint -->
@@ -386,6 +397,38 @@
   </div>
 </div>
 
+<!-- ══ Territory Modal ══ -->
+<div class="modal-ov" id="territory-modal" onclick="bgClose(event,'territory-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="territory-modal-title">New Territory</span>
+      <button class="modal-close" onclick="closeTerritoryModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mf" id="mf-territory-name">
+        <label>Faction / Group Name *</label>
+        <input id="territory-name" placeholder="e.g. The Crimson Order">
+      </div>
+      <div class="mf">
+        <label>Color</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="color" id="territory-color" value="#ef4444" style="width:40px;height:32px;padding:2px;border:1px solid var(--bdr);border-radius:var(--r);background:var(--bg-in);cursor:pointer;flex-shrink:0">
+          <div id="territory-color-presets" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+        </div>
+      </div>
+      <div class="mf">
+        <label>Fill Opacity <span id="territory-opacity-val" style="text-transform:none;font-weight:400;color:var(--txt)">35%</span></label>
+        <input type="range" id="territory-opacity" min="10" max="80" value="35" oninput="document.getElementById('territory-opacity-val').textContent=this.value+'%'">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" onclick="deleteCurrentTerritory()" id="territory-delete-btn" style="display:none;margin-right:auto;color:#fca5a5;border-color:rgba(239,68,68,.3)"><i class="ti ti-trash"></i> Delete</button>
+      <button class="btn btn-sm" onclick="closeTerritoryModal()">Cancel</button>
+      <button class="btn btn-am btn-sm" onclick="saveTerritory()"><i class="ti ti-check"></i> <span id="territory-save-label">Create Territory</span></button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
 <input type="file" id="desc-img-input" accept="image/*" style="display:none" onchange="handleDescImg(event)">
 
@@ -423,6 +466,17 @@ let pendingMapImg = null;
 let mapUploadTarget = 'world'; // 'world' or 'submap'
 let saveTimer = null;
 
+// Territories (faction/group boundary overlays)
+let addTerritoryMode = false;
+let drawingPoints = [];
+let editingTerritoryId = null, pendingTerritoryPoints = [];
+let territoriesVisible = true;
+const TERRITORY_COLOR_PRESETS = ['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#94a3b8'];
+
+// @worlds-data-start
+const BAKED_WORLDS_DATA = {};
+// @worlds-data-end
+
 // ── Load / persist ─────────────────────────────────────────
 function loadState() {
   try {
@@ -431,8 +485,13 @@ function loadState() {
   } catch(e) {}
   try {
     const d = JSON.parse(localStorage.getItem(`dnd-world-${worldId}`)||'null');
-    if (d) worldData = d;
+    if (d) { worldData = d; return; }
   } catch(e) {}
+  // No local data for this world — fall back to whatever was baked into the file
+  if (BAKED_WORLDS_DATA[worldId]) {
+    worldData = JSON.parse(JSON.stringify(BAKED_WORLDS_DATA[worldId]));
+    persistWorld();
+  }
 }
 
 function persistWorld() {
@@ -486,6 +545,31 @@ function getCurrentPin() {
   return getLocations().find(l => l.id === currentPinId) || null;
 }
 
+// ── Territories array (world or sub-map) ──────────────────
+function getTerritories() {
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (!parent) return [];
+    if (!parent.subTerritories) parent.subTerritories = [];
+    return parent.subTerritories;
+  }
+  if (!worldData.territories) worldData.territories = [];
+  return worldData.territories;
+}
+
+function getNextTerritoryId() {
+  if (isSubMap) {
+    const parent = worldData.locations.find(l => l.id === locParam);
+    if (!parent) return 1;
+    const id = parent.nextSubTerritoryId || 1;
+    parent.nextSubTerritoryId = id + 1;
+    return id;
+  }
+  const id = worldData.nextTerritoryId || 1;
+  worldData.nextTerritoryId = id + 1;
+  return id;
+}
+
 // ── Boot ───────────────────────────────────────────────────
 function boot() {
   loadState();
@@ -528,6 +612,7 @@ function showMap(src) {
   mapImg.onload = () => {
     fitMap();
     renderPins();
+    renderTerritories();
   };
   mapImg.src = src;
   document.getElementById('map-empty').style.display = 'none';
@@ -577,7 +662,7 @@ document.getElementById('map-vp').addEventListener('wheel', e => {
 // Drag to pan
 const mapVP = document.getElementById('map-vp');
 mapVP.addEventListener('mousedown', e => {
-  if (addPinMode || e.target.closest('.pin')) return;
+  if (addPinMode || addTerritoryMode || e.target.closest('.pin')) return;
   isDragging = true; dsx = e.clientX; dsy = e.clientY; dpx = panX; dpy = panY;
   mapVP.classList.add('grabbing');
 });
@@ -588,13 +673,19 @@ document.addEventListener('mousemove', e => {
 });
 document.addEventListener('mouseup', () => { isDragging = false; mapVP.classList.remove('grabbing'); });
 
-// Click to add or move pin
+// Click to add or move pin, or place a territory boundary point
 mapVP.addEventListener('click', e => {
-  if (!addPinMode && !movePinMode) return;
+  if (!addPinMode && !movePinMode && !addTerritoryMode) return;
   if (e.target.closest('.pin')) return;
   const rect = document.getElementById('map-container').getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 100;
   const y = ((e.clientY - rect.top) / rect.height) * 100;
+  if (addTerritoryMode) {
+    drawingPoints.push({ x, y });
+    updateTerritoryHint();
+    renderTerritories();
+    return;
+  }
   if (movePinMode) {
     const id = movingPinId;
     movePinMode = false; movingPinId = null;
@@ -614,6 +705,7 @@ mapVP.addEventListener('click', e => {
 // ── Add Pin Mode ───────────────────────────────────────────
 function toggleAddPinMode() {
   if (!getCurrentMapImage()) { openMapModal(); return; }
+  if (addTerritoryMode) cancelAddTerritory();
   addPinMode = !addPinMode;
   if (addPinMode) {
     document.getElementById('add-pin-hint').innerHTML =
@@ -960,6 +1052,174 @@ function clearSubmapImage() {
   persistWorld(); renderRegionMap(pin);
 }
 
+// ── Territories (faction/group boundary overlays) ─────────
+function toggleAddTerritoryMode() {
+  if (!getCurrentMapImage()) { openMapModal(); return; }
+  if (addTerritoryMode) { cancelAddTerritory(); return; }
+  if (addPinMode) cancelAddPin();
+  if (movePinMode) cancelMovePin();
+  addTerritoryMode = true;
+  drawingPoints = [];
+  mapVP.classList.add('crosshair');
+  document.getElementById('btn-add-territory').classList.add('active');
+  updateTerritoryHint();
+  if (document.getElementById('drawer').classList.contains('open')) closeDrawer();
+}
+
+function cancelAddTerritory() {
+  addTerritoryMode = false;
+  drawingPoints = [];
+  mapVP.classList.remove('crosshair');
+  document.getElementById('btn-add-territory').classList.remove('active');
+  document.getElementById('add-pin-hint').classList.remove('show');
+  renderTerritories();
+}
+
+function updateTerritoryHint() {
+  const hint = document.getElementById('add-pin-hint');
+  const n = drawingPoints.length;
+  const finishBtn = n >= 3
+    ? `<button class="btn btn-am btn-sm" onclick="finishTerritoryDrawing()"><i class="ti ti-check"></i> Finish (${n} pts)</button>`
+    : `<span style="opacity:.75">${n} point${n!==1?'s':''} placed — need 3+</span>`;
+  hint.innerHTML = `<i class="ti ti-shape"></i> Click to place boundary points &nbsp;${finishBtn}&nbsp;<button class="btn btn-sm" onclick="cancelAddTerritory()">Cancel</button>`;
+  hint.classList.add('show');
+}
+
+function finishTerritoryDrawing() {
+  if (drawingPoints.length < 3) { toast('Need at least 3 points to make a territory'); return; }
+  addTerritoryMode = false;
+  mapVP.classList.remove('crosshair');
+  document.getElementById('btn-add-territory').classList.remove('active');
+  document.getElementById('add-pin-hint').classList.remove('show');
+  const pts = [...drawingPoints];
+  drawingPoints = [];
+  openTerritoryModal(null, pts);
+}
+
+function openTerritoryModal(territoryId, points) {
+  editingTerritoryId = territoryId || null;
+  const t = territoryId ? getTerritories().find(x => x.id === territoryId) : null;
+  pendingTerritoryPoints = points || (t?.points ? [...t.points] : []);
+  document.getElementById('territory-modal-title').textContent = t ? 'Edit Territory' : 'New Territory';
+  document.getElementById('territory-save-label').textContent = t ? 'Save Changes' : 'Create Territory';
+  document.getElementById('territory-name').value = t?.name || '';
+  document.getElementById('territory-color').value = t?.color || TERRITORY_COLOR_PRESETS[0];
+  const op = Math.round((t?.opacity ?? 0.35) * 100);
+  document.getElementById('territory-opacity').value = op;
+  document.getElementById('territory-opacity-val').textContent = op + '%';
+  document.getElementById('territory-delete-btn').style.display = t ? '' : 'none';
+  document.getElementById('mf-territory-name').classList.remove('invalid');
+  buildTerritoryColorPresets();
+  document.getElementById('territory-modal').classList.add('open');
+  setTimeout(() => document.getElementById('territory-name').focus(), 80);
+}
+
+function closeTerritoryModal() {
+  document.getElementById('territory-modal').classList.remove('open');
+  editingTerritoryId = null;
+  pendingTerritoryPoints = [];
+  renderTerritories();
+}
+
+function buildTerritoryColorPresets() {
+  document.getElementById('territory-color-presets').innerHTML = TERRITORY_COLOR_PRESETS.map(c =>
+    `<div class="territory-swatch" style="background:${c}" onclick="document.getElementById('territory-color').value='${c}'"></div>`
+  ).join('');
+}
+
+function saveTerritory() {
+  const name = document.getElementById('territory-name').value.trim();
+  if (!name) { document.getElementById('mf-territory-name').classList.add('invalid'); return; }
+  document.getElementById('mf-territory-name').classList.remove('invalid');
+  const color = document.getElementById('territory-color').value;
+  const opacity = parseInt(document.getElementById('territory-opacity').value) / 100;
+  if (editingTerritoryId) {
+    const t = getTerritories().find(x => x.id === editingTerritoryId);
+    if (t) { t.name = name; t.color = color; t.opacity = opacity; if (pendingTerritoryPoints.length) t.points = pendingTerritoryPoints; }
+    toast(`"${name}" updated`);
+  } else {
+    const id = getNextTerritoryId();
+    getTerritories().push({ id, name, color, opacity, points: pendingTerritoryPoints });
+    toast(`"${name}" territory created`);
+  }
+  persistWorld();
+  document.getElementById('territory-modal').classList.remove('open');
+  editingTerritoryId = null; pendingTerritoryPoints = [];
+  renderTerritories();
+}
+
+function deleteCurrentTerritory() {
+  if (!editingTerritoryId) return;
+  const t = getTerritories().find(x => x.id === editingTerritoryId);
+  if (!t) return;
+  if (!confirm(`Delete the "${t.name}" territory?`)) return;
+  const list = getTerritories();
+  const idx = list.findIndex(x => x.id === editingTerritoryId);
+  if (idx >= 0) list.splice(idx, 1);
+  persistWorld();
+  document.getElementById('territory-modal').classList.remove('open');
+  editingTerritoryId = null; pendingTerritoryPoints = [];
+  renderTerritories();
+  toast('Territory deleted');
+}
+
+function renderTerritories() {
+  const svg = document.getElementById('territory-svg');
+  const img = document.getElementById('map-img');
+  if (!img.naturalWidth) { svg.innerHTML = ''; return; }
+  svg.setAttribute('width', img.naturalWidth);
+  svg.setAttribute('height', img.naturalHeight);
+
+  const toPt = p => `${(p.x/100)*img.naturalWidth},${(p.y/100)*img.naturalHeight}`;
+
+  let html = getTerritories().map(t => {
+    const pts = (t.points || []).map(toPt).join(' ');
+    return `<polygon points="${pts}" fill="${t.color}" fill-opacity="${t.opacity}" stroke="${t.color}" stroke-width="3" stroke-opacity=".9" style="pointer-events:auto;cursor:pointer" onclick="onTerritoryClick(event,${t.id})"></polygon>`;
+  }).join('');
+
+  if (addTerritoryMode && drawingPoints.length) {
+    const pts = drawingPoints.map(toPt).join(' ');
+    html += `<polyline points="${pts}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="7,5"></polyline>`;
+    drawingPoints.forEach(p => {
+      const [px, py] = toPt(p).split(',');
+      html += `<circle cx="${px}" cy="${py}" r="6" fill="#fbbf24" stroke="#000" stroke-width="1.5"></circle>`;
+    });
+  }
+  svg.innerHTML = html;
+
+  // Labels (HTML overlay, positioned at each territory's centroid)
+  const layer = document.getElementById('territory-layer');
+  layer.querySelectorAll('.territory-label').forEach(el => el.remove());
+  getTerritories().forEach(t => {
+    if (!t.points || !t.points.length) return;
+    const c = polyCentroid(t.points);
+    const label = document.createElement('div');
+    label.className = 'territory-label';
+    label.style.cssText = `left:${c.x}%;top:${c.y}%;`;
+    label.innerHTML = `<span style="font-family:'Cinzel',serif;font-weight:700;font-size:12px;color:${t.color};text-shadow:0 1px 5px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.75);letter-spacing:.4px;white-space:nowrap;">${esc(t.name)}</span>`;
+    layer.appendChild(label);
+  });
+}
+
+function polyCentroid(points) {
+  const n = points.length;
+  const s = points.reduce((a, p) => ({ x: a.x + p.x, y: a.y + p.y }), { x: 0, y: 0 });
+  return { x: s.x / n, y: s.y / n };
+}
+
+function onTerritoryClick(e, id) {
+  if (addTerritoryMode || addPinMode || movePinMode) return; // let the map click handler take it (e.g. placing a point on top)
+  e.stopPropagation();
+  openTerritoryModal(id, null);
+}
+
+function toggleTerritoriesVisibility() {
+  territoriesVisible = !territoriesVisible;
+  document.getElementById('territory-layer').style.display = territoriesVisible ? '' : 'none';
+  const btn = document.getElementById('btn-toggle-territories');
+  btn.innerHTML = territoriesVisible ? '<i class="ti ti-eye"></i> Territories' : '<i class="ti ti-eye-off"></i> Territories';
+}
+
 // ── Map upload modal ───────────────────────────────────────
 function openMapModal() {
   mapUploadTarget = 'world';
@@ -1095,9 +1355,16 @@ function toast(msg) { const t=document.createElement('div');t.className='toast';
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
     if (document.querySelector('.modal-ov.open')) { document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open')); return; }
+    if (addTerritoryMode) { cancelAddTerritory(); return; }
     if (addPinMode) { cancelAddPin(); return; }
     if (movePinMode) { cancelMovePin(); return; }
     if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
+  }
+  if (e.key==='Enter' && addTerritoryMode && drawingPoints.length>=3) {
+    e.preventDefault(); finishTerritoryDrawing(); return;
+  }
+  if (e.key==='Enter' && document.getElementById('territory-modal').classList.contains('open')) {
+    e.preventDefault(); saveTerritory(); return;
   }
   if (e.key==='Enter' && document.getElementById('event-modal').classList.contains('open') && document.activeElement?.tagName!=='TEXTAREA') {
     e.preventDefault(); saveEvent();

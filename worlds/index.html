@@ -112,6 +112,7 @@
   <div class="page-head">
     <div class="page-title"><i class="ti ti-world" style="color:var(--am-txt)"></i> Worlds</div>
     <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm" onclick="bakeToFiles()" title="Embed all worlds/pins into the HTML files so all visitors see them"><i class="ti ti-file-download"></i> Bake to Files</button>
       <button class="btn btn-sm" onclick="triggerImport()"><i class="ti ti-upload"></i> Import</button>
       <button class="btn btn-am" onclick="openCreateModal()"><i class="ti ti-plus"></i> Create World</button>
     </div>
@@ -169,15 +170,28 @@
 <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <script>
+// @worlds-index-start
+const BAKED_WORLDS_INDEX = [];
+// @worlds-index-end
+
 // ── State ──────────────────────────────────────────────────
-let worlds = [], nextId = 1;
+let worlds = [], nextId = 1, deletedBakedIds = [];
 let editingId = null, pendingCover = null;
 
 function loadState() {
-  try { const d = JSON.parse(localStorage.getItem('dnd-worlds-index')||'null'); if(d){worlds=d.worlds||[];nextId=d.nextId||1;} } catch(e) {}
+  let localWorlds = [], localNextId = 1;
+  try {
+    const d = JSON.parse(localStorage.getItem('dnd-worlds-index')||'null');
+    if (d) { localWorlds = d.worlds||[]; localNextId = d.nextId||1; deletedBakedIds = d.deletedBakedIds||[]; }
+  } catch(e) {}
+  const localIds = new Set(localWorlds.map(w=>w.id));
+  const bakedExtra = BAKED_WORLDS_INDEX.filter(w => !localIds.has(w.id) && !deletedBakedIds.includes(w.id));
+  worlds = [...localWorlds, ...bakedExtra];
+  nextId = Math.max(localNextId, ...worlds.map(w=>w.id+1), 1);
+  persist();
 }
 function persist() {
-  try { localStorage.setItem('dnd-worlds-index', JSON.stringify({worlds,nextId})); } catch(e) { toast('Storage full'); }
+  try { localStorage.setItem('dnd-worlds-index', JSON.stringify({worlds,nextId,deletedBakedIds})); } catch(e) { toast('Storage full'); }
 }
 
 // ── Render ─────────────────────────────────────────────────
@@ -254,6 +268,7 @@ function deleteWorld(id) {
   const w = worlds.find(x=>x.id===id); if(!w) return;
   if (!confirm(`Delete "${w.name}"? This cannot be undone.`)) return;
   worlds = worlds.filter(x=>x.id!==id);
+  if (BAKED_WORLDS_INDEX.some(b=>b.id===id) && !deletedBakedIds.includes(id)) deletedBakedIds.push(id);
   try { localStorage.removeItem(`dnd-world-${id}`); } catch(e) {}
   persist(); render(); toast(`"${w.name}" deleted`);
 }
@@ -326,6 +341,59 @@ function compressImg(file, maxW, maxH, q, cb) {
     img.src=ev.target.result;
   };
   r.readAsDataURL(file);
+}
+
+// ── Bake to Files ──────────────────────────────────────────
+async function bakeToFiles() {
+  if (!worlds.length) { toast('No worlds to bake yet.'); return; }
+
+  // 1. Bake this page's own source (outerHTML always works, even file://)
+  let indexHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  indexHtml = indexHtml.replace(
+    /\/\/ @worlds-index-start[\s\S]*?\/\/ @worlds-index-end/,
+    `// @worlds-index-start\nconst BAKED_WORLDS_INDEX = ${JSON.stringify(worlds)};\n// @worlds-index-end`
+  );
+
+  // 2. Fetch world.html, merge in current per-world data, bake it too
+  let worldHtml;
+  try {
+    const resp = await fetch('world.html');
+    worldHtml = await resp.text();
+  } catch(e) {
+    toast('Could not reach world.html — open this page via your live GitHub Pages URL (not file://) to bake.');
+    return;
+  }
+
+  let existingBaked = {};
+  const m = worldHtml.match(/const BAKED_WORLDS_DATA = (\{[\s\S]*?\});\s*\n\/\/ @worlds-data-end/);
+  if (m) { try { existingBaked = JSON.parse(m[1]); } catch(e) {} }
+
+  const mergedData = { ...existingBaked };
+  worlds.forEach(w => {
+    try {
+      const d = JSON.parse(localStorage.getItem(`dnd-world-${w.id}`) || 'null');
+      if (d) mergedData[w.id] = d;
+    } catch(e) {}
+  });
+  deletedBakedIds.forEach(id => delete mergedData[id]);
+
+  worldHtml = worldHtml.replace(
+    /\/\/ @worlds-data-start[\s\S]*?\/\/ @worlds-data-end/,
+    `// @worlds-data-start\nconst BAKED_WORLDS_DATA = ${JSON.stringify(mergedData)};\n// @worlds-data-end`
+  );
+
+  downloadFile(indexHtml, 'index.html');
+  downloadFile(worldHtml, 'world.html');
+  toast('Downloaded index.html + world.html — commit both to your repo.');
+}
+
+function downloadFile(html, filename) {
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 // ── Utils ──────────────────────────────────────────────────
