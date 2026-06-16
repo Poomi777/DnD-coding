@@ -282,6 +282,7 @@
       <input class="d-name" id="d-name" placeholder="Location name…" oninput="scheduleDrawerSave()">
       <div class="d-head-actions">
         <button class="d-action" id="d-fow-btn" onclick="togglePinFoW()" title="Toggle fog of war visibility"><i class="ti ti-eye"></i></button>
+        <button class="d-action" onclick="startMovePin()" title="Move pin to a new location"><i class="ti ti-arrows-move"></i></button>
         <button class="d-action danger" onclick="confirmDeletePin()" title="Delete pin"><i class="ti ti-trash"></i></button>
         <button class="d-action" onclick="closeDrawer()" title="Close"><i class="ti ti-x"></i></button>
       </div>
@@ -413,6 +414,7 @@ let worldData = { mapImage: null, locations: [], nextLocId: 1 };
 let zoom = 1, panX = 0, panY = 0;
 let isDragging = false, dsx = 0, dsy = 0, dpx = 0, dpy = 0;
 let addPinMode = false;
+let movePinMode = false, movingPinId = null;
 let fowMode = 'dm';
 let hiddenTypes = new Set();
 let currentPinId = null;
@@ -586,13 +588,25 @@ document.addEventListener('mousemove', e => {
 });
 document.addEventListener('mouseup', () => { isDragging = false; mapVP.classList.remove('grabbing'); });
 
-// Click to add pin
+// Click to add or move pin
 mapVP.addEventListener('click', e => {
-  if (!addPinMode) return;
+  if (!addPinMode && !movePinMode) return;
   if (e.target.closest('.pin')) return;
   const rect = document.getElementById('map-container').getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 100;
   const y = ((e.clientY - rect.top) / rect.height) * 100;
+  if (movePinMode) {
+    const id = movingPinId;
+    movePinMode = false; movingPinId = null;
+    mapVP.classList.remove('crosshair');
+    document.getElementById('add-pin-hint').classList.remove('show');
+    const pin = getLocations().find(l => l.id === id);
+    if (pin) { pin.x = x; pin.y = y; persistWorld(); }
+    renderPins();
+    openDrawer(id);
+    toast('Pin moved');
+    return;
+  }
   cancelAddPin();
   openDrawerForNewPin(x, y);
 });
@@ -601,6 +615,10 @@ mapVP.addEventListener('click', e => {
 function toggleAddPinMode() {
   if (!getCurrentMapImage()) { openMapModal(); return; }
   addPinMode = !addPinMode;
+  if (addPinMode) {
+    document.getElementById('add-pin-hint').innerHTML =
+      '<i class="ti ti-map-pin"></i> Click anywhere on the map to place a pin &nbsp;<button class="btn btn-sm" onclick="cancelAddPin()">Cancel</button>';
+  }
   mapVP.classList.toggle('crosshair', addPinMode);
   document.getElementById('btn-add-pin').classList.toggle('active', addPinMode);
   document.getElementById('add-pin-hint').classList.toggle('show', addPinMode);
@@ -612,6 +630,27 @@ function cancelAddPin() {
   mapVP.classList.remove('crosshair');
   document.getElementById('btn-add-pin').classList.remove('active');
   document.getElementById('add-pin-hint').classList.remove('show');
+}
+
+function startMovePin() {
+  const pin = getCurrentPin(); if (!pin) return;
+  movingPinId = pin.id;
+  movePinMode = true;
+  flushDrawerSave();
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-backdrop').classList.remove('open');
+  document.getElementById('add-pin-hint').innerHTML =
+    `<i class="ti ti-arrows-move"></i> Click to move <strong style="margin:0 3px">${esc(pin.name || 'this pin')}</strong> to a new spot &nbsp;<button class="btn btn-sm" onclick="cancelMovePin()">Cancel</button>`;
+  mapVP.classList.add('crosshair');
+  document.getElementById('add-pin-hint').classList.add('show');
+}
+
+function cancelMovePin() {
+  movePinMode = false;
+  mapVP.classList.remove('crosshair');
+  document.getElementById('add-pin-hint').classList.remove('show');
+  const id = movingPinId; movingPinId = null;
+  if (id) openDrawer(id);
 }
 
 // ── Fog of War ─────────────────────────────────────────────
@@ -1057,6 +1096,7 @@ document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
     if (document.querySelector('.modal-ov.open')) { document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open')); return; }
     if (addPinMode) { cancelAddPin(); return; }
+    if (movePinMode) { cancelMovePin(); return; }
     if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
   }
   if (e.key==='Enter' && document.getElementById('event-modal').classList.contains('open') && document.activeElement?.tagName!=='TEXTAREA') {
