@@ -95,6 +95,8 @@
 
     /* ── Territories ── */
     .territory-label{position:absolute;transform:translate(-50%,-50%);pointer-events:none;z-index:15;}
+    .territory-label-text{pointer-events:auto;cursor:pointer;transition:filter .12s;padding:2px 4px;border-radius:4px;}
+    .territory-label-text:hover{filter:brightness(1.5);text-decoration:underline;background:rgba(0,0,0,.3);}
     .territory-swatch{width:22px;height:22px;border-radius:6px;cursor:pointer;border:1.5px solid rgba(255,255,255,.15);transition:transform .12s,border-color .12s;flex-shrink:0;}
     .territory-swatch:hover{transform:scale(1.15);border-color:rgba(255,255,255,.55);}
     input[type=range]{accent-color:var(--am);cursor:pointer;}
@@ -271,8 +273,8 @@
     <div class="map-vp" id="map-vp" style="display:none">
       <div class="map-container" id="map-container">
         <img class="map-img" id="map-img" src="" alt="" draggable="false">
-        <div id="territory-layer" style="position:absolute;top:0;left:0;">
-          <svg id="territory-svg" style="position:absolute;top:0;left:0;display:block;"></svg>
+        <div id="territory-layer" style="position:absolute;top:0;left:0;pointer-events:none;">
+          <svg id="territory-svg" style="position:absolute;top:0;left:0;display:block;pointer-events:none;"></svg>
         </div>
       </div>
     </div>
@@ -420,9 +422,22 @@
         <label>Fill Opacity <span id="territory-opacity-val" style="text-transform:none;font-weight:400;color:var(--txt)">35%</span></label>
         <input type="range" id="territory-opacity" min="10" max="80" value="35" oninput="document.getElementById('territory-opacity-val').textContent=this.value+'%'">
       </div>
+      <div class="mf">
+        <label>Description <span style="font-weight:400;text-transform:none">(optional)</span></label>
+        <div class="d-fmt-bar">
+          <button class="d-fmt-btn" type="button" onclick="tdfmt('bold')"><b>B</b></button>
+          <button class="d-fmt-btn" type="button" onclick="tdfmt('italic')"><i>I</i></button>
+          <button class="d-fmt-btn" type="button" onclick="tdfmt('underline')"><u>U</u></button>
+          <button class="d-fmt-btn" type="button" onclick="insertTerritoryDescImg()" title="Insert image"><i class="ti ti-photo" style="font-size:12px"></i></button>
+        </div>
+        <div class="d-editor" id="territory-desc-editor" contenteditable="true" style="min-height:90px"
+             data-placeholder="Write lore, history, or notes about this territory… paste images directly."></div>
+      </div>
     </div>
+    <input type="file" id="territory-desc-img-input" accept="image/*" style="display:none" onchange="handleTerritoryDescImg(event)">
     <div class="modal-foot">
-      <button class="btn btn-sm" onclick="deleteCurrentTerritory()" id="territory-delete-btn" style="display:none;margin-right:auto;color:#fca5a5;border-color:rgba(239,68,68,.3)"><i class="ti ti-trash"></i> Delete</button>
+      <button class="btn btn-sm" onclick="deleteCurrentTerritory()" id="territory-delete-btn" style="display:none;color:#fca5a5;border-color:rgba(239,68,68,.3)"><i class="ti ti-trash"></i> Delete</button>
+      <button class="btn btn-sm" onclick="startEditTerritoryShape()" id="territory-edit-shape-btn" style="display:none;margin-right:auto"><i class="ti ti-edit"></i> Edit Shape</button>
       <button class="btn btn-sm" onclick="closeTerritoryModal()">Cancel</button>
       <button class="btn btn-am btn-sm" onclick="saveTerritory()"><i class="ti ti-check"></i> <span id="territory-save-label">Create Territory</span></button>
     </div>
@@ -471,6 +486,9 @@ let addTerritoryMode = false;
 let drawingPoints = [];
 let editingTerritoryId = null, pendingTerritoryPoints = [];
 let territoriesVisible = true;
+let shapeEditMode = false;
+let editShapePoints = [];
+let draggingVertexIdx = null;
 const TERRITORY_COLOR_PRESETS = ['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899','#14b8a6','#94a3b8'];
 
 // @worlds-data-start
@@ -676,13 +694,27 @@ document.addEventListener('mousemove', e => {
 });
 document.addEventListener('mouseup', () => { isDragging = false; mapVP.classList.remove('grabbing'); });
 
+// Dragging a territory's boundary vertex (shape-edit mode)
+document.addEventListener('mousemove', e => {
+  if (draggingVertexIdx === null) return;
+  editShapePoints[draggingVertexIdx] = mapPercentFromEvent(e);
+  renderTerritories();
+});
+document.addEventListener('mouseup', () => { draggingVertexIdx = null; });
+
 // Click to add or move pin, or place a territory boundary point
+function mapPercentFromEvent(e) {
+  const rect = document.getElementById('map-container').getBoundingClientRect();
+  return {
+    x: ((e.clientX - rect.left) / rect.width) * 100,
+    y: ((e.clientY - rect.top) / rect.height) * 100,
+  };
+}
+
 mapVP.addEventListener('click', e => {
   if (!addPinMode && !movePinMode && !addTerritoryMode) return;
   if (e.target.closest('.pin')) return;
-  const rect = document.getElementById('map-container').getBoundingClientRect();
-  const x = ((e.clientX - rect.left) / rect.width) * 100;
-  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  const { x, y } = mapPercentFromEvent(e);
   if (addTerritoryMode) {
     drawingPoints.push({ x, y });
     updateTerritoryHint();
@@ -709,6 +741,7 @@ mapVP.addEventListener('click', e => {
 function toggleAddPinMode() {
   if (!getCurrentMapImage()) { openMapModal(); return; }
   if (addTerritoryMode) cancelAddTerritory();
+  if (shapeEditMode) cancelEditTerritoryShape();
   addPinMode = !addPinMode;
   if (addPinMode) {
     document.getElementById('add-pin-hint').innerHTML =
@@ -1062,6 +1095,7 @@ function toggleAddTerritoryMode() {
   if (addTerritoryMode) { cancelAddTerritory(); return; }
   if (addPinMode) cancelAddPin();
   if (movePinMode) cancelMovePin();
+  if (shapeEditMode) cancelEditTerritoryShape();
   addTerritoryMode = true;
   drawingPoints = [];
   mapVP.classList.add('crosshair');
@@ -1111,7 +1145,9 @@ function openTerritoryModal(territoryId, points) {
   const op = Math.round((t?.opacity ?? 0.35) * 100);
   document.getElementById('territory-opacity').value = op;
   document.getElementById('territory-opacity-val').textContent = op + '%';
+  document.getElementById('territory-desc-editor').innerHTML = t?.description || '';
   document.getElementById('territory-delete-btn').style.display = t ? '' : 'none';
+  document.getElementById('territory-edit-shape-btn').style.display = t ? '' : 'none';
   document.getElementById('mf-territory-name').classList.remove('invalid');
   buildTerritoryColorPresets();
   document.getElementById('territory-modal').classList.add('open');
@@ -1137,13 +1173,14 @@ function saveTerritory() {
   document.getElementById('mf-territory-name').classList.remove('invalid');
   const color = document.getElementById('territory-color').value;
   const opacity = parseInt(document.getElementById('territory-opacity').value) / 100;
+  const description = document.getElementById('territory-desc-editor').innerHTML;
   if (editingTerritoryId) {
     const t = getTerritories().find(x => x.id === editingTerritoryId);
-    if (t) { t.name = name; t.color = color; t.opacity = opacity; if (pendingTerritoryPoints.length) t.points = pendingTerritoryPoints; }
+    if (t) { t.name = name; t.color = color; t.opacity = opacity; t.description = description; if (pendingTerritoryPoints.length) t.points = pendingTerritoryPoints; }
     toast(`"${name}" updated`);
   } else {
     const id = getNextTerritoryId();
-    getTerritories().push({ id, name, color, opacity, points: pendingTerritoryPoints });
+    getTerritories().push({ id, name, color, opacity, description, points: pendingTerritoryPoints });
     toast(`"${name}" territory created`);
   }
   persistWorld();
@@ -1169,16 +1206,24 @@ function deleteCurrentTerritory() {
 
 function renderTerritories() {
   const svg = document.getElementById('territory-svg');
+  const layer = document.getElementById('territory-layer');
   const img = document.getElementById('map-img');
   if (!img.naturalWidth) { svg.innerHTML = ''; return; }
   svg.setAttribute('width', img.naturalWidth);
   svg.setAttribute('height', img.naturalHeight);
+  layer.style.width = img.naturalWidth + 'px';
+  layer.style.height = img.naturalHeight + 'px';
 
   const toPt = p => `${(p.x/100)*img.naturalWidth},${(p.y/100)*img.naturalHeight}`;
 
   let html = getTerritories().map(t => {
-    const pts = (t.points || []).map(toPt).join(' ');
-    return `<polygon points="${pts}" fill="${t.color}" fill-opacity="${t.opacity}" stroke="${t.color}" stroke-width="3" stroke-opacity=".9" style="pointer-events:auto;cursor:pointer" onclick="onTerritoryClick(event,${t.id})"></polygon>`;
+    const isEditingThis = shapeEditMode && t.id === editingTerritoryId;
+    const pts = (isEditingThis ? editShapePoints : (t.points || [])).map(toPt).join(' ');
+    const swidth = isEditingThis ? '4' : '3';
+    const sdash = isEditingThis ? 'stroke-dasharray="11,5"' : '';
+    // Fill is not clickable — only the name label opens the edit modal (so clicks inside a
+    // territory still pan the map / place pins normally).
+    return `<polygon points="${pts}" fill="${t.color}" fill-opacity="${t.opacity}" stroke="${t.color}" stroke-width="${swidth}" stroke-opacity=".9" ${sdash}></polygon>`;
   }).join('');
 
   if (addTerritoryMode && drawingPoints.length) {
@@ -1189,18 +1234,34 @@ function renderTerritories() {
       html += `<circle cx="${px}" cy="${py}" r="6" fill="#fbbf24" stroke="#000" stroke-width="1.5"></circle>`;
     });
   }
+
+  // Shape-editing handles for the territory currently being reshaped
+  if (shapeEditMode && editShapePoints.length) {
+    editShapePoints.forEach((p, i) => {
+      const next = editShapePoints[(i + 1) % editShapePoints.length];
+      const [x1, y1] = toPt(p).split(',');
+      const [x2, y2] = toPt(next).split(',');
+      html += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="18" style="pointer-events:auto;cursor:copy" onmousedown="event.stopPropagation()" onclick="insertVertexOnEdge(event,${i})"></line>`;
+    });
+    editShapePoints.forEach((p, i) => {
+      const [cx, cy] = toPt(p).split(',');
+      html += `<circle cx="${cx}" cy="${cy}" r="9" fill="#fbbf24" stroke="#000" stroke-width="2" style="pointer-events:auto;cursor:grab" onmousedown="startVertexDrag(event,${i})" oncontextmenu="removeVertex(event,${i})"></circle>`;
+    });
+  }
+
   svg.innerHTML = html;
 
   // Labels (HTML overlay, positioned at each territory's centroid)
-  const layer = document.getElementById('territory-layer');
   layer.querySelectorAll('.territory-label').forEach(el => el.remove());
   getTerritories().forEach(t => {
-    if (!t.points || !t.points.length) return;
-    const c = polyCentroid(t.points);
+    const isEditingThis = shapeEditMode && t.id === editingTerritoryId;
+    const srcPoints = isEditingThis ? editShapePoints : t.points;
+    if (!srcPoints || !srcPoints.length) return;
+    const c = polyCentroid(srcPoints);
     const label = document.createElement('div');
     label.className = 'territory-label';
     label.style.cssText = `left:${c.x}%;top:${c.y}%;`;
-    label.innerHTML = `<span style="font-family:'Cinzel',serif;font-weight:700;font-size:12px;color:${t.color};text-shadow:0 1px 5px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.75);letter-spacing:.4px;white-space:nowrap;">${esc(t.name)}</span>`;
+    label.innerHTML = `<span class="territory-label-text" style="font-family:'Cinzel',serif;font-weight:700;font-size:12px;color:${t.color};text-shadow:0 1px 5px rgba(0,0,0,.9),0 0 10px rgba(0,0,0,.75);letter-spacing:.4px;white-space:nowrap;" onclick="onTerritoryClick(event,${t.id})" title="Click to edit ${esc(t.name)}">${esc(t.name)}</span>`;
     layer.appendChild(label);
   });
 }
@@ -1212,9 +1273,73 @@ function polyCentroid(points) {
 }
 
 function onTerritoryClick(e, id) {
-  if (addTerritoryMode || addPinMode || movePinMode) return; // let the map click handler take it (e.g. placing a point on top)
+  if (addTerritoryMode || addPinMode || movePinMode || shapeEditMode) return; // let the map click handler take it (e.g. placing a point on top)
   e.stopPropagation();
   openTerritoryModal(id, null);
+}
+
+// ── Edit an existing territory's boundary (drag/add/remove points) ──
+function startEditTerritoryShape() {
+  if (!editingTerritoryId) return;
+  const t = getTerritories().find(x => x.id === editingTerritoryId);
+  if (!t) return;
+  document.getElementById('territory-modal').classList.remove('open'); // keep editingTerritoryId set, unlike closeTerritoryModal()
+  editShapePoints = (t.points || []).map(p => ({ ...p }));
+  shapeEditMode = true;
+  if (addPinMode) cancelAddPin();
+  if (addTerritoryMode) cancelAddTerritory();
+  if (movePinMode) cancelMovePin();
+  mapVP.classList.add('crosshair');
+  showShapeEditHint();
+  renderTerritories();
+}
+
+function showShapeEditHint() {
+  const hint = document.getElementById('add-pin-hint');
+  hint.innerHTML = `<i class="ti ti-edit"></i> Drag a point to move it · click an edge to add a point · right-click a point to remove it &nbsp;<button class="btn btn-am btn-sm" onclick="finishEditTerritoryShape()"><i class="ti ti-check"></i> Done</button>&nbsp;<button class="btn btn-sm" onclick="cancelEditTerritoryShape()">Cancel</button>`;
+  hint.classList.add('show');
+}
+
+function finishEditTerritoryShape() {
+  if (editShapePoints.length < 3) { toast('A territory needs at least 3 points'); return; }
+  const t = getTerritories().find(x => x.id === editingTerritoryId);
+  if (t) { t.points = editShapePoints.map(p => ({ ...p })); persistWorld(); toast('Territory shape updated'); }
+  shapeEditMode = false;
+  editingTerritoryId = null;
+  editShapePoints = [];
+  mapVP.classList.remove('crosshair');
+  document.getElementById('add-pin-hint').classList.remove('show');
+  renderTerritories();
+}
+
+function cancelEditTerritoryShape() {
+  shapeEditMode = false;
+  editingTerritoryId = null;
+  editShapePoints = [];
+  mapVP.classList.remove('crosshair');
+  document.getElementById('add-pin-hint').classList.remove('show');
+  renderTerritories();
+}
+
+function startVertexDrag(e, idx) {
+  e.stopPropagation();
+  e.preventDefault();
+  draggingVertexIdx = idx;
+}
+
+function insertVertexOnEdge(e, edgeIdx) {
+  e.stopPropagation();
+  const pt = mapPercentFromEvent(e);
+  editShapePoints.splice(edgeIdx + 1, 0, pt);
+  renderTerritories();
+}
+
+function removeVertex(e, idx) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (editShapePoints.length <= 3) { toast('A territory needs at least 3 points'); return; }
+  editShapePoints.splice(idx, 1);
+  renderTerritories();
 }
 
 function toggleTerritoriesVisibility() {
@@ -1285,6 +1410,34 @@ function insertImgInEditor(src) {
 document.getElementById('d-editor').addEventListener('paste', e => {
   const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
   if (img) { e.preventDefault(); compressImg(img.getAsFile(),800,600,.8,src=>insertImgInEditor(src)); }
+});
+
+// ── Territory description editor ──────────────────────────
+function tdfmt(cmd) { document.getElementById('territory-desc-editor').focus(); document.execCommand(cmd, false, null); }
+
+function insertTerritoryDescImg() { document.getElementById('territory-desc-img-input').click(); }
+
+function handleTerritoryDescImg(e) {
+  const f = e.target.files?.[0];
+  if (f) compressImg(f, 800, 600, .8, src => insertImgInTerritoryEditor(src));
+  e.target.value = '';
+}
+
+function insertImgInTerritoryEditor(src) {
+  const editor = document.getElementById('territory-desc-editor');
+  editor.focus();
+  const img = document.createElement('img');
+  img.src = src;
+  const sel = window.getSelection();
+  if (sel?.rangeCount) {
+    const r = sel.getRangeAt(0); r.deleteContents(); r.insertNode(img);
+    r.setStartAfter(img); r.collapse(true); sel.removeAllRanges(); sel.addRange(r);
+  } else { editor.appendChild(img); }
+}
+
+document.getElementById('territory-desc-editor').addEventListener('paste', e => {
+  const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
+  if (img) { e.preventDefault(); compressImg(img.getAsFile(),800,600,.8,src=>insertImgInTerritoryEditor(src)); }
 });
 
 // Paste map image in map modal
@@ -1359,6 +1512,7 @@ function toast(msg) { const t=document.createElement('div');t.className='toast';
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
     if (document.querySelector('.modal-ov.open')) { document.querySelectorAll('.modal-ov.open').forEach(m=>m.classList.remove('open')); return; }
+    if (shapeEditMode) { cancelEditTerritoryShape(); return; }
     if (addTerritoryMode) { cancelAddTerritory(); return; }
     if (addPinMode) { cancelAddPin(); return; }
     if (movePinMode) { cancelMovePin(); return; }

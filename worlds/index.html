@@ -404,10 +404,10 @@ async function buildBakedContent() {
   // 2. Fetch world.html, merge in current per-world data, bake it too
   let worldHtml;
   try {
-    const resp = await fetch('world.html');
+    const resp = await fetchWithTimeout('world.html', {}, 15000);
     worldHtml = await resp.text();
   } catch(e) {
-    throw new Error('Could not reach world.html — open this page via your live GitHub Pages URL (not file://).');
+    throw new Error('Could not reach world.html — open this page via your live GitHub Pages URL (not file://). ' + e.message);
   }
 
   let existingBaked = {};
@@ -450,6 +450,21 @@ function downloadFile(html, filename) {
 }
 
 // ── GitHub Publish ─────────────────────────────────────────
+// Wraps fetch with a hard timeout so a stalled network request can never leave
+// the Publish button stuck forever — it always eventually errors out.
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs || 30000);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch(e) {
+    if (e.name === 'AbortError') throw new Error(`Request timed out (${Math.round((timeoutMs||30000)/1000)}s): ${url}`);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function detectRepoDefaults() {
   // e.g. https://username.github.io/DnD-coding/worlds/index.html
   const owner = location.hostname.split('.')[0];
@@ -500,14 +515,14 @@ function utf8ToBase64(str) {
 }
 
 async function ghApiRequest(url, token, options) {
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github+json',
       ...(options?.headers || {}),
     },
-  });
+  }, 30000);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `${res.status} ${res.statusText}`);
@@ -542,22 +557,28 @@ async function publishToGitHub() {
   if (!cfg.token || !cfg.owner || !cfg.repo) { openPublishSettings(); toast('Set up GitHub publishing first'); return; }
 
   const btn = document.getElementById('btn-publish');
+  if (!btn) return;
   const original = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader-2"></i> Publishing…';
 
   try {
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> Building…';
     const built = await buildBakedContent();
+
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> Connecting…';
     const repoInfo = await ghApiRequest(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, cfg.token);
     const branch = repoInfo.default_branch || 'main';
     const dir = cfg.dir || '';
 
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> Uploading index.html…';
     await commitFile(`${dir}index.html`, built.indexHtml, cfg, branch);
+
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> Uploading world.html…';
     await commitFile(`${dir}world.html`, built.worldHtml, cfg, branch);
 
     toast('Published! GitHub Pages will update in about a minute.');
   } catch(e) {
-    console.error(e);
+    console.error('Publish failed:', e);
     toast('Publish failed: ' + e.message);
   } finally {
     btn.disabled = false;
