@@ -570,6 +570,9 @@ function getNextTerritoryId() {
   return id;
 }
 
+// Flush any pending debounced edit before the page is closed/navigated away from
+window.addEventListener('beforeunload', () => { flushDrawerSave(); });
+
 // ── Boot ───────────────────────────────────────────────────
 function boot() {
   loadState();
@@ -820,6 +823,7 @@ function openDrawerForNewPin(x, y) {
 }
 
 function openDrawer(id) {
+  if (currentPinId !== null && currentPinId !== id) flushDrawerSave(); // flush any pending edit on the pin we're leaving
   currentPinId = id;
   const pin = getCurrentPin(); if (!pin) return;
   selectedType = pin.type;

@@ -31,6 +31,9 @@
     /* Buttons */
     .btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:var(--r);padding:7px 13px;font-size:13px;font-family:inherit;color:var(--txt);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .12s;white-space:nowrap;text-decoration:none;}
     .btn:hover{background:#222c3d;border-color:#374560;}
+    .btn:disabled{opacity:.55;cursor:default;}
+    .btn .ti-loader-2{animation:spin .9s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
     .btn-am{background:var(--am-bg);border-color:var(--am-bdr);color:var(--am-txt);}
     .btn-am:hover{background:rgba(217,119,6,.18);}
     .btn-danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5;}
@@ -111,7 +114,9 @@
   <div class="page-head">
     <div class="page-title"><i class="ti ti-world" style="color:var(--am-txt)"></i> Worlds</div>
     <div style="display:flex;gap:8px;">
-      <button class="btn btn-sm" onclick="bakeToFiles()" title="Embed all worlds/pins into the HTML files so all visitors see them"><i class="ti ti-file-download"></i> Bake to Files</button>
+      <button class="btn btn-sm" id="btn-publish" onclick="publishToGitHub()" title="Commit the current worlds/pins straight to GitHub so all visitors see them"><i class="ti ti-cloud-upload"></i> Publish to GitHub</button>
+      <button class="btn btn-sm" onclick="openPublishSettings()" title="GitHub publish settings"><i class="ti ti-settings"></i></button>
+      <button class="btn btn-sm" onclick="bakeToFiles()" title="Download updated HTML files to commit manually"><i class="ti ti-file-download"></i> Bake to Files</button>
       <button class="btn btn-sm" onclick="triggerImport()"><i class="ti ti-upload"></i> Import</button>
       <button class="btn btn-am" onclick="openCreateModal()"><i class="ti ti-plus"></i> Create World</button>
     </div>
@@ -172,6 +177,37 @@
     <div class="modal-foot">
       <button class="btn btn-sm" onclick="closeModal()">Cancel</button>
       <button class="btn btn-am btn-sm" onclick="saveWorld()"><i class="ti ti-check"></i> <span id="modal-save-label">Create World</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Publish Settings Modal -->
+<div class="modal-ov" id="publish-modal" onclick="bgClosePublish(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title"><i class="ti ti-cloud-upload" style="margin-right:6px"></i>GitHub Publish Settings</span>
+      <button class="modal-close" onclick="closePublishSettings()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px;">
+        Create a <strong>fine-grained personal access token</strong> at
+        GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens.
+        Scope it to <strong>only this repository</strong> with <strong>Contents: Read and write</strong> permission.
+        The token is stored only in this browser's local storage — it is never written into any file or commit.
+      </p>
+      <div class="mf">
+        <label>Personal Access Token</label>
+        <input type="password" id="gh-token" placeholder="github_pat_…">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="mf"><label>Repo Owner</label><input id="gh-owner" placeholder="your-username"></div>
+        <div class="mf"><label>Repo Name</label><input id="gh-repo" placeholder="DnD-coding"></div>
+      </div>
+      <div class="mf"><label>Folder Path <span style="font-weight:400;text-transform:none">(within repo)</span></label><input id="gh-dir" placeholder="worlds/"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm" onclick="closePublishSettings()">Cancel</button>
+      <button class="btn btn-am btn-sm" onclick="savePublishSettings()"><i class="ti ti-check"></i> Save</button>
     </div>
   </div>
 </div>
@@ -353,8 +389,10 @@ function compressImg(file, maxW, maxH, q, cb) {
 }
 
 // ── Bake to Files ──────────────────────────────────────────
-async function bakeToFiles() {
-  if (!worlds.length) { toast('No worlds to bake yet.'); return; }
+// Builds the updated HTML source for both files with current world data baked in.
+// Shared by the manual "Bake to Files" download and the one-click "Publish to GitHub".
+async function buildBakedContent() {
+  if (!worlds.length) throw new Error('No worlds to bake yet.');
 
   // 1. Bake this page's own source (outerHTML always works, even file://)
   let indexHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
@@ -369,8 +407,7 @@ async function bakeToFiles() {
     const resp = await fetch('world.html');
     worldHtml = await resp.text();
   } catch(e) {
-    toast('Could not reach world.html — open this page via your live GitHub Pages URL (not file://) to bake.');
-    return;
+    throw new Error('Could not reach world.html — open this page via your live GitHub Pages URL (not file://).');
   }
 
   let existingBaked = {};
@@ -391,8 +428,15 @@ async function bakeToFiles() {
     `// @worlds-data-start\nconst BAKED_WORLDS_DATA = ${JSON.stringify(mergedData)};\n// @worlds-data-end`
   );
 
-  downloadFile(indexHtml, 'index.html');
-  downloadFile(worldHtml, 'world.html');
+  return { indexHtml, worldHtml };
+}
+
+async function bakeToFiles() {
+  let built;
+  try { built = await buildBakedContent(); }
+  catch(e) { toast(e.message); return; }
+  downloadFile(built.indexHtml, 'index.html');
+  downloadFile(built.worldHtml, 'world.html');
   toast('Downloaded index.html + world.html — commit both to your repo.');
 }
 
@@ -405,14 +449,131 @@ function downloadFile(html, filename) {
   URL.revokeObjectURL(a.href);
 }
 
+// ── GitHub Publish ─────────────────────────────────────────
+function detectRepoDefaults() {
+  // e.g. https://username.github.io/DnD-coding/worlds/index.html
+  const owner = location.hostname.split('.')[0];
+  const parts = location.pathname.split('/').filter(Boolean); // ['DnD-coding','worlds','index.html']
+  const repo = parts[0] || '';
+  const dirParts = parts.slice(1, -1); // ['worlds']
+  const dir = dirParts.length ? dirParts.join('/') + '/' : '';
+  return { owner, repo, dir };
+}
+
+function getPublishConfig() {
+  try { return JSON.parse(localStorage.getItem('dnd-gh-publish') || 'null') || {}; }
+  catch(e) { return {}; }
+}
+
+function openPublishSettings() {
+  const cfg = getPublishConfig();
+  const def = detectRepoDefaults();
+  document.getElementById('gh-token').value = cfg.token || '';
+  document.getElementById('gh-owner').value = cfg.owner || def.owner;
+  document.getElementById('gh-repo').value  = cfg.repo  || def.repo;
+  document.getElementById('gh-dir').value   = cfg.dir   ?? def.dir;
+  document.getElementById('publish-modal').classList.add('open');
+}
+
+function closePublishSettings() { document.getElementById('publish-modal').classList.remove('open'); }
+function bgClosePublish(e) { if (e.target === document.getElementById('publish-modal')) closePublishSettings(); }
+
+function savePublishSettings() {
+  const token = document.getElementById('gh-token').value.trim();
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo  = document.getElementById('gh-repo').value.trim();
+  const dir   = document.getElementById('gh-dir').value.trim();
+  if (!token || !owner || !repo) { toast('Token, owner, and repo are required'); return; }
+  localStorage.setItem('dnd-gh-publish', JSON.stringify({ token, owner, repo, dir }));
+  closePublishSettings();
+  toast('Publish settings saved');
+}
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+async function ghApiRequest(url, token, options) {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      ...(options?.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}
+
+async function commitFile(path, content, cfg, branch) {
+  let sha;
+  try {
+    const cur = await ghApiRequest(
+      `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${branch}`,
+      cfg.token
+    );
+    sha = cur.sha;
+  } catch(e) { /* file may not exist yet — create without sha */ }
+
+  await ghApiRequest(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}`, cfg.token, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: `Update ${path} — published from Worlds page`,
+      content: utf8ToBase64(content),
+      sha,
+      branch,
+    }),
+  });
+}
+
+async function publishToGitHub() {
+  const cfg = getPublishConfig();
+  if (!cfg.token || !cfg.owner || !cfg.repo) { openPublishSettings(); toast('Set up GitHub publishing first'); return; }
+
+  const btn = document.getElementById('btn-publish');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> Publishing…';
+
+  try {
+    const built = await buildBakedContent();
+    const repoInfo = await ghApiRequest(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, cfg.token);
+    const branch = repoInfo.default_branch || 'main';
+    const dir = cfg.dir || '';
+
+    await commitFile(`${dir}index.html`, built.indexHtml, cfg, branch);
+    await commitFile(`${dir}world.html`, built.worldHtml, cfg, branch);
+
+    toast('Published! GitHub Pages will update in about a minute.');
+  } catch(e) {
+    console.error(e);
+    toast('Publish failed: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
+}
+
 // ── Utils ──────────────────────────────────────────────────
 function bgClose(e,id) { if(e.target===document.getElementById(id)) closeModal(); }
 function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function toast(msg) { const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2400); }
 
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') closeModal();
+  if (e.key==='Escape') { closeModal(); closePublishSettings(); }
   if (e.key==='Enter' && document.getElementById('world-modal').classList.contains('open') && document.activeElement?.tagName!=='TEXTAREA') { e.preventDefault(); saveWorld(); }
+  if (e.key==='Enter' && document.getElementById('publish-modal').classList.contains('open')) { e.preventDefault(); savePublishSettings(); }
 });
 
 // ── Boot ───────────────────────────────────────────────────
