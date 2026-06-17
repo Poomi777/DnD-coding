@@ -1474,6 +1474,9 @@ document.getElementById('d-editor').addEventListener('paste', e => {
   const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
   if (img) { e.preventDefault(); compressImg(img.getAsFile(),800,600,.8,src=>insertImgInEditor(src)); }
 });
+document.getElementById('d-editor').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); document.execCommand('insertLineBreak'); }
+});
 
 // ── Territory description editor ──────────────────────────
 function tdfmt(cmd) { document.getElementById('territory-desc-editor').focus(); document.execCommand(cmd, false, null); }
@@ -1501,6 +1504,9 @@ function insertImgInTerritoryEditor(src) {
 document.getElementById('territory-desc-editor').addEventListener('paste', e => {
   const img = [...(e.clipboardData?.items||[])].find(it=>it.type.startsWith('image/'));
   if (img) { e.preventDefault(); compressImg(img.getAsFile(),800,600,.8,src=>insertImgInTerritoryEditor(src)); }
+});
+document.getElementById('territory-desc-editor').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); document.execCommand('insertLineBreak'); }
 });
 
 // Paste map image in map modal
