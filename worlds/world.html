@@ -420,7 +420,7 @@
 </div>
 
 <!-- ══ Territory Modal ══ -->
-<div class="modal-ov" id="territory-modal" onclick="bgClose(event,'territory-modal')">
+<div class="modal-ov" id="territory-modal" onclick="if(event.target===this)closeTerritoryModal()">
   <div class="modal">
     <div class="modal-head">
       <span class="modal-title" id="territory-modal-title">New Territory</span>
@@ -458,7 +458,7 @@
     <div class="modal-foot">
       <button class="btn btn-sm" onclick="deleteCurrentTerritory()" id="territory-delete-btn" style="display:none;color:#fca5a5;border-color:rgba(239,68,68,.3)"><i class="ti ti-trash"></i> Delete</button>
       <button class="btn btn-sm" onclick="startEditTerritoryShape()" id="territory-edit-shape-btn" style="display:none;margin-right:auto"><i class="ti ti-edit"></i> Edit Shape</button>
-      <button class="btn btn-sm" onclick="closeTerritoryModal()">Cancel</button>
+      <button class="btn btn-sm" onclick="closeTerritoryModal()">Close</button>
       <button class="btn btn-am btn-sm" onclick="saveTerritory()"><i class="ti ti-check"></i> <span id="territory-save-label">Create Territory</span></button>
     </div>
   </div>
@@ -1218,6 +1218,8 @@ function openTerritoryModal(territoryId, points) {
 }
 
 function closeTerritoryModal() {
+  const name = document.getElementById('territory-name').value.trim();
+  if (name) { saveTerritory(); return; }
   document.getElementById('territory-modal').classList.remove('open');
   editingTerritoryId = null;
   pendingTerritoryPoints = [];
@@ -1506,7 +1508,7 @@ document.getElementById('territory-desc-editor').addEventListener('paste', e => 
   if (img) { e.preventDefault(); compressImg(img.getAsFile(),800,600,.8,src=>insertImgInTerritoryEditor(src)); }
 });
 document.getElementById('territory-desc-editor').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); document.execCommand('insertLineBreak'); }
+  if (e.key === 'Enter') { e.preventDefault(); document.execCommand('insertLineBreak'); }
 });
 
 // Paste map image in map modal
@@ -1589,9 +1591,6 @@ document.addEventListener('keydown', e => {
   }
   if (e.key==='Enter' && addTerritoryMode && drawingPoints.length>=3) {
     e.preventDefault(); finishTerritoryDrawing(); return;
-  }
-  if (e.key==='Enter' && document.getElementById('territory-modal').classList.contains('open')) {
-    e.preventDefault(); saveTerritory(); return;
   }
   if (e.key==='Enter' && document.getElementById('event-modal').classList.contains('open') && document.activeElement?.tagName!=='TEXTAREA') {
     e.preventDefault(); saveEvent();
