@@ -67,15 +67,20 @@ function loadState() {
       }
       notes          = s.notes || '';
       trainingPoints = s.trainingPoints ?? 200;
-      training       = s.training || [];
+      training = s.training || [];
+      DEFAULT_TRAINING.forEach(dt => {
+        if (!training.find(t => t.id === dt.id)) training.push({...dt});
+      });
       nextTrainingId = s.nextTrainingId || (Math.max(0, ...training.map(t=>t.id), 0) + 1);
       persist(); return;
     }
   } catch(e) {}
-  abilities     = DEFAULT_ABILITIES.map(a=>({...a}));
-  inventory     = DEFAULT_INVENTORY.map(i=>({...i}));
-  nextAbilityId = DEFAULT_ABILITIES.length + 1;
-  nextItemId    = DEFAULT_INVENTORY.length + 1;
+  abilities      = DEFAULT_ABILITIES.map(a=>({...a}));
+  inventory      = DEFAULT_INVENTORY.map(i=>({...i}));
+  training       = DEFAULT_TRAINING.map(t=>({...t}));
+  nextAbilityId  = DEFAULT_ABILITIES.length + 1;
+  nextItemId     = DEFAULT_INVENTORY.length + 1;
+  nextTrainingId = DEFAULT_TRAINING.length + 1;
   persist();
 }
 

@@ -180,12 +180,14 @@ const PLAYER_NAME     = 'Alistair';
 const CHAR            = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
 const STORE_KEY       = 'alistair-data';
 const INV_VERSION     = 2;
-const PURGE_IDS       = [1,2,3,4,5,6,7,8];
+const PURGE_IDS       = [1,2,3,4,5,6,7,8,10];
 const DEFAULT_ABILITIES = [
-  { id:9,  name:'Agile Dodge',          sub:'Homebrew Reaction',  type:'reaction', cost:'Reaction',    range:'Self', save:'', uses:1, usesMax:1, recharge:'Per Battle', desc:"+3 AC until the start of your next turn." },
-  { id:10, name:'Observation Training', sub:'In Progress — 7/10', type:'passive',  cost:'',            range:'',     save:'', uses:0, usesMax:0, recharge:'',           desc:"Ongoing training to sharpen perceptive awareness. Current progress: 7/10." },
+  { id:9, name:'Agile Dodge', sub:'Homebrew Reaction', type:'reaction', cost:'Reaction', range:'Self', save:'', uses:1, usesMax:1, recharge:'Per Battle', desc:"+3 AC until the start of your next turn." },
 ];
 const DEFAULT_INVENTORY = [];
+const DEFAULT_TRAINING  = [
+  { id:1, name:'Observation Training', category:'ability', progress:7, progressMax:10, notes:'' },
+];
 </script>
 <script src="../shared.js"></script>
 </body>
