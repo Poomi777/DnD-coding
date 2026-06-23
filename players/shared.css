@@ -234,6 +234,29 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .notes-ed img{max-width:100%;border-radius:var(--r);margin:6px 0;display:block;}
 .notes-ed:empty::before{content:attr(data-placeholder);color:var(--dim);pointer-events:none;font-style:italic;}
 
+/* ── Training tab ── */
+.tr-card{background:var(--bg-s);border:1px solid var(--bdr);border-radius:var(--r);padding:11px 14px;margin-bottom:8px;transition:border-color .15s;}
+.tr-card:hover{border-color:rgba(255,255,255,.1);}
+.tr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px;}
+.tr-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;min-width:0;}
+.tr-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--txt);}
+.tr-cat-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tcat,var(--muted));border:1px solid var(--tcat,var(--bdr));padding:1px 7px;border-radius:20px;white-space:nowrap;opacity:.85;flex-shrink:0;}
+.tr-card-actions{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity .15s;}
+.tr-card:hover .tr-card-actions{opacity:1;}
+.tr-act-btn{background:none;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:3px 4px;border-radius:4px;transition:color .12s,background .12s;}
+.tr-act-btn:hover{color:#a78bfa;background:rgba(139,92,246,.12);}
+.tr-del-btn:hover{color:#fca5a5;background:rgba(239,68,68,.12) !important;}
+.tr-progress-row{display:flex;align-items:center;gap:7px;}
+.tr-bar{flex:1;height:6px;background:var(--bg-e);border-radius:3px;overflow:hidden;border:1px solid var(--bdr-d);}
+.tr-fill{height:100%;border-radius:3px;transition:width .25s;}
+.tr-frac{font-size:11px;font-weight:700;min-width:38px;text-align:right;white-space:nowrap;}
+.tr-step-btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:4px;color:var(--muted);cursor:pointer;font-size:15px;font-weight:700;width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:all .12s;font-family:inherit;flex-shrink:0;}
+.tr-step-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.15);}
+.tr-notes{font-family:'Crimson Pro',serif;font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;padding-top:7px;border-top:1px solid var(--bdr-d);font-style:italic;}
+.tr-prog-inputs{display:flex;align-items:center;gap:5px;}
+.tr-prog-inputs input{width:52px !important;text-align:center;}
+.tr-prog-sep{color:var(--dim);font-size:14px;font-weight:600;}
+
 /* ── Mobile ── */
 @media(max-width:640px){
   .page{padding:14px 12px 50px;}

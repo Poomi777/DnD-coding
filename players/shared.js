@@ -30,6 +30,14 @@ const INV_CATS = [
   { key:'misc',       label:'Miscellaneous',    icon:'ti-box'    },
 ];
 
+const TRAINING_CATS = [
+  { key:'ability',     label:'Ability',     color:'#ef4444' },
+  { key:'spell',       label:'Spell',       color:'#a855f7' },
+  { key:'trait',       label:'Trait',       color:'#3b82f6' },
+  { key:'proficiency', label:'Proficiency', color:'#f59e0b' },
+  { key:'other',       label:'Other',       color:'#64748b' },
+];
+
 // ─── State ───────────────────────────────────────────────
 let abilities = [], inventory = [], notes = '', nextAbilityId = 1, nextItemId = 1;
 let deletedDefaultIds = [];
@@ -37,6 +45,7 @@ let editingAbilityId = null, editingItemId = null;
 let activeType = 'all', lbIndex = 0, filteredIds = [];
 let itemModalCat = 'misc';
 let trainingPoints = 200;
+let training = [], nextTrainingId = 1, editingTrainingId = null;
 
 function loadState() {
   try {
@@ -56,8 +65,10 @@ function loadState() {
         inventory  = DEFAULT_INVENTORY.map(i=>({...i}));
         nextItemId = DEFAULT_INVENTORY.length + 1;
       }
-      notes = s.notes || '';
+      notes          = s.notes || '';
       trainingPoints = s.trainingPoints ?? 200;
+      training       = s.training || [];
+      nextTrainingId = s.nextTrainingId || (Math.max(0, ...training.map(t=>t.id), 0) + 1);
       persist(); return;
     }
   } catch(e) {}
@@ -72,6 +83,7 @@ function persist() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
       abilities, inventory, notes, nextAbilityId, nextItemId, invVersion: INV_VERSION, deletedDefaultIds, trainingPoints,
+      training, nextTrainingId,
     }));
   } catch(e) { toast('Storage full — some notes may not have saved'); }
 }
@@ -120,6 +132,7 @@ function exportPlayerData() {
     version: 1, player: PLAYER_NAME, exported: new Date().toISOString(),
     abilities, inventory, notes, nextAbilityId, nextItemId,
     deletedDefaultIds, trainingPoints, invVersion: INV_VERSION,
+    training, nextTrainingId,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -153,13 +166,170 @@ function handleImportFile(input) {
       nextItemId        = data.nextItemId || (Math.max(0, ...inventory.map(i=>i.id), 0) + 1);
       deletedDefaultIds = data.deletedDefaultIds || [];
       trainingPoints    = data.trainingPoints ?? 200;
-      persist(); buildFilters(); filterAbilities(); renderInventory(); renderTP();
+      training          = data.training || [];
+      nextTrainingId    = data.nextTrainingId || (Math.max(0, ...training.map(t=>t.id), 0) + 1);
+      persist(); buildFilters(); filterAbilities(); renderInventory(); renderTP(); renderTrainingList();
       document.getElementById('notes-ed').innerHTML = notes;
       toast(`${PLAYER_NAME} data imported`);
     } catch(e) { alert(`Import failed: ${e.message}`); }
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+// ─── Training Tab ────────────────────────────────────────
+function initTrainingTab() {
+  const tabsEl = document.querySelector('.tabs');
+  const btn = document.createElement('button');
+  btn.className = 'tab';
+  btn.innerHTML = '<i class="ti ti-dumbbell"></i> Training';
+  btn.onclick = () => switchTab('training', btn);
+  tabsEl.appendChild(btn);
+
+  const page = document.querySelector('.page');
+  const panel = document.createElement('div');
+  panel.className = 'tab-panel';
+  panel.id = 'tab-training';
+  panel.innerHTML =
+    '<div class="toolbar">' +
+      '<span class="count" id="tr-count"></span>' +
+      '<button class="add-btn" onclick="openTrainingModal()"><i class="ti ti-plus"></i> Add</button>' +
+    '</div>' +
+    '<div id="tr-list"></div>';
+  page.appendChild(panel);
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-ov';
+  modal.id = 'training-modal';
+  modal.onclick = e => { if (e.target === modal) closeTrainingModal(); };
+  modal.innerHTML =
+    '<div class="modal">' +
+      '<div class="modal-head">' +
+        '<span class="modal-title" id="tr-modal-title">Add Training</span>' +
+        '<button class="modal-close" onclick="closeTrainingModal()"><i class="ti ti-x"></i></button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="mf" id="tr-name-f"><label>Name *</label><input id="tr-name" placeholder="e.g. Observation Training"></div>' +
+        '<div class="mfg2">' +
+          '<div class="mf"><label>Category</label>' +
+            '<select id="tr-cat">' +
+              '<option value="ability">Ability</option>' +
+              '<option value="spell">Spell</option>' +
+              '<option value="trait">Trait</option>' +
+              '<option value="proficiency">Proficiency</option>' +
+              '<option value="other">Other</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="mf"><label>Progress</label>' +
+            '<div class="tr-prog-inputs">' +
+              '<input id="tr-progress" type="number" min="0" max="999" value="0">' +
+              '<span class="tr-prog-sep">/</span>' +
+              '<input id="tr-max" type="number" min="1" max="999" value="10">' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mf"><label>Notes <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>' +
+          '<textarea id="tr-notes" placeholder="What are you working on?" style="min-height:60px"></textarea>' +
+        '</div>' +
+      '</div>' +
+      '<div class="modal-foot">' +
+        '<button class="btn" onclick="closeTrainingModal()">Cancel</button>' +
+        '<button class="btn btn-primary" onclick="saveTraining()"><i class="ti ti-check"></i> <span id="tr-save-label">Add</span></button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+
+  renderTrainingList();
+}
+
+function renderTrainingList() {
+  const list = document.getElementById('tr-list');
+  const countEl = document.getElementById('tr-count');
+  if (!list) return;
+  countEl.textContent = `${training.length} item${training.length !== 1 ? 's' : ''}`;
+  if (!training.length) {
+    list.innerHTML = '<div class="empty"><i class="ti ti-dumbbell"></i><p>No training tracked yet.<br>Add spells, abilities, or traits you\'re working on.</p></div>';
+    return;
+  }
+  list.innerHTML = training.map(t => {
+    const cat = TRAINING_CATS.find(c => c.key === t.category) || TRAINING_CATS[4];
+    const pct = t.progressMax > 0 ? Math.min(100, Math.round(t.progress / t.progressMax * 100)) : 0;
+    return `<div class="tr-card">
+      <div class="tr-head">
+        <div class="tr-title-row">
+          <span class="tr-name">${esc(t.name)}</span>
+          <span class="tr-cat-badge" style="--tcat:${cat.color}">${cat.label}</span>
+        </div>
+        <div class="tr-card-actions">
+          <button class="tr-act-btn" onclick="openTrainingModal(${t.id})" title="Edit"><i class="ti ti-pencil"></i></button>
+          <button class="tr-act-btn tr-del-btn" onclick="deleteTraining(${t.id})" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="tr-progress-row">
+        <button class="tr-step-btn" onclick="adjustProgress(${t.id},-1)">−</button>
+        <div class="tr-bar"><div class="tr-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+        <button class="tr-step-btn" onclick="adjustProgress(${t.id},1)">+</button>
+        <span class="tr-frac" style="color:${cat.color}">${t.progress} / ${t.progressMax}</span>
+      </div>
+      ${t.notes ? `<div class="tr-notes">${esc(t.notes)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function openTrainingModal(id) {
+  editingTrainingId = id || null;
+  const t = id ? training.find(x => x.id === id) : null;
+  document.getElementById('tr-modal-title').textContent = t ? 'Edit Training' : 'Add Training';
+  document.getElementById('tr-save-label').textContent  = t ? 'Save' : 'Add';
+  document.getElementById('tr-name').value     = t?.name || '';
+  document.getElementById('tr-cat').value      = t?.category || 'ability';
+  document.getElementById('tr-progress').value = t?.progress ?? 0;
+  document.getElementById('tr-max').value      = t?.progressMax ?? 10;
+  document.getElementById('tr-notes').value    = t?.notes || '';
+  document.getElementById('tr-name-f').classList.remove('invalid');
+  document.getElementById('training-modal').classList.add('open');
+  setTimeout(() => document.getElementById('tr-name').focus(), 80);
+}
+
+function closeTrainingModal() {
+  const modal = document.getElementById('training-modal');
+  if (modal) modal.classList.remove('open');
+  editingTrainingId = null;
+}
+
+function saveTraining() {
+  const name = document.getElementById('tr-name').value.trim();
+  if (!name) { document.getElementById('tr-name-f').classList.add('invalid'); return; }
+  const progress    = Math.max(0, parseInt(document.getElementById('tr-progress').value) || 0);
+  const progressMax = Math.max(1, parseInt(document.getElementById('tr-max').value) || 10);
+  const item = {
+    id:          editingTrainingId || nextTrainingId++,
+    name,
+    category:    document.getElementById('tr-cat').value,
+    progress:    Math.min(progress, progressMax),
+    progressMax,
+    notes:       document.getElementById('tr-notes').value.trim(),
+  };
+  if (editingTrainingId) {
+    const idx = training.findIndex(t => t.id === editingTrainingId);
+    if (idx >= 0) training[idx] = item;
+  } else {
+    training.push(item);
+  }
+  persist(); renderTrainingList(); closeTrainingModal();
+}
+
+function deleteTraining(id) {
+  if (!confirm('Delete this training entry?')) return;
+  training = training.filter(t => t.id !== id);
+  persist(); renderTrainingList();
+}
+
+function adjustProgress(id, delta) {
+  const t = training.find(x => x.id === id);
+  if (!t) return;
+  t.progress = Math.max(0, Math.min(t.progressMax, t.progress + delta));
+  persist(); renderTrainingList();
 }
 
 // ─── Boot ────────────────────────────────────────────────
@@ -190,6 +360,7 @@ function boot() {
   renderInventory();
   initNotes();
   initRulesTab();
+  initTrainingTab();
 }
 
 // ─── Spellcaster Mechanics rules tab ──────────────────────
@@ -547,7 +718,7 @@ function switchTab(name, btn) {
 function bgClose(e, id) { if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
 
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); }
+  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); closeTrainingModal(); }
   if (!document.getElementById('lb').classList.contains('open')) return;
   if (e.key==='ArrowLeft')  lbStep(-1);
   if (e.key==='ArrowRight') lbStep(1);
@@ -555,8 +726,9 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('keydown', e => {
   if (e.key!=='Enter' || e.target.tagName==='TEXTAREA' || e.target.tagName==='BUTTON' || e.target.isContentEditable) return;
-  if (document.getElementById('ability-modal').classList.contains('open')) { saveAbility(); e.preventDefault(); }
-  else if (document.getElementById('item-modal').classList.contains('open'))   { saveItem();    e.preventDefault(); }
+  if (document.getElementById('ability-modal').classList.contains('open'))  { saveAbility();  e.preventDefault(); }
+  else if (document.getElementById('item-modal').classList.contains('open')) { saveItem();     e.preventDefault(); }
+  else if (document.getElementById('training-modal')?.classList.contains('open')) { saveTraining(); e.preventDefault(); }
 });
 
 function toast(msg) {
