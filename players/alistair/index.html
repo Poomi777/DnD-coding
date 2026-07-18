@@ -188,6 +188,31 @@ const DEFAULT_INVENTORY = [];
 const DEFAULT_TRAINING  = [
   { id:1, name:'Observation Training', category:'ability', progress:7, progressMax:10, notes:'' },
 ];
+const DEFAULT_COMPANIONS = [
+  {
+    id: 1,
+    name: 'Fruitstalker',
+    type: 'animal',
+    species: 'Feral Beast',
+    level: 1,
+    speed: '40 ft.',
+    ac: '11',
+    hpMax: 2,
+    hp: 2,
+    str: -1, dex: 3, con: 1, int: -3, wis: 0, cha: -1,
+    saves: { dex: 5 },
+    resistances: 'Acid',
+    vulnerabilities: 'Fire',
+    immunities: '',
+    image: '',
+    compAbilities: [
+      { id:1, name:'Shadow Step',  cost:'Bonus Action', desc:'The Fruitstalker bursts into a low shadow-trail sprint, moving up to 40 ft without provoking opportunity attacks. Until the start of its next turn it has advantage on Stealth checks.' },
+      { id:2, name:'Acid Glob',    cost:'Action · 30 ft · 3/battle', desc:'Spits a ball of corrosive acid at a target within 30 ft. To hit: 1d20 + DEX mod + prof. On hit: 1d6 acid damage. The target also takes 1d4 acid damage at the start of their next turn as the acid lingers.' },
+      { id:3, name:'Chomper',      cost:'Action · Melee', desc:'Lunges forward and bites with its oversized jaws. To hit: 1d20 + DEX mod + prof. On hit: 1d6 + DEX mod piercing damage. If the Fruitstalker moved this turn, add +2 to the attack roll.' },
+    ],
+    notes: '',
+  },
+];
 </script>
 <script src="../shared.js"></script>
 </body>

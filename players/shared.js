@@ -83,6 +83,9 @@ function loadState() {
       });
       nextTrainingId  = s.nextTrainingId  || (Math.max(0, ...training.map(t=>t.id),  0) + 1);
       companions      = s.companions || [];
+      if (typeof DEFAULT_COMPANIONS !== 'undefined') {
+        DEFAULT_COMPANIONS.forEach(dc => { if (!companions.find(c => c.id === dc.id)) companions.push({...dc}); });
+      }
       nextCompanionId = s.nextCompanionId || (Math.max(0, ...companions.map(c=>c.id), 0) + 1);
       persist(); return;
     }
@@ -90,9 +93,11 @@ function loadState() {
   abilities      = DEFAULT_ABILITIES.map(a=>({...a}));
   inventory      = DEFAULT_INVENTORY.map(i=>({...i}));
   training       = DEFAULT_TRAINING.map(t=>({...t}));
+  companions     = typeof DEFAULT_COMPANIONS !== 'undefined' ? DEFAULT_COMPANIONS.map(c=>({...c})) : [];
   nextAbilityId  = DEFAULT_ABILITIES.length + 1;
   nextItemId     = DEFAULT_INVENTORY.length + 1;
   nextTrainingId = DEFAULT_TRAINING.length + 1;
+  nextCompanionId = companions.length + 1;
   persist();
 }
 
@@ -353,6 +358,7 @@ function adjustProgress(id, delta) {
 
 // ─── Companions Tab ──────────────────────────────────────
 let pendingCmpAbilities = [], nextPendingCmpAbId = 1;
+let pendingCmpImage = '';
 
 function resolveThresholds(level) {
   const l = Math.max(0, parseInt(level) || 0);
@@ -400,6 +406,34 @@ function updatePendingCmpAb(id, field, val) {
   if (ab) ab[field] = val;
 }
 
+function handleCmpImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingCmpImage = ev.target.result;
+    const prev = document.getElementById('cmp-img-preview');
+    const ph   = document.getElementById('cmp-img-placeholder');
+    const rmv  = document.getElementById('cmp-img-remove');
+    prev.src = pendingCmpImage; prev.style.display = 'block';
+    ph.style.display = 'none';
+    rmv.style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeCmpImage() {
+  pendingCmpImage = '';
+  const prev = document.getElementById('cmp-img-preview');
+  const ph   = document.getElementById('cmp-img-placeholder');
+  const rmv  = document.getElementById('cmp-img-remove');
+  const inp  = document.getElementById('cmp-img-input');
+  prev.src = ''; prev.style.display = 'none';
+  ph.style.display = '';
+  rmv.style.display = 'none';
+  if (inp) inp.value = '';
+}
+
 function initCompanionsTab() {
   const tabsEl = document.querySelector('.tabs');
   const btn = document.createElement('button');
@@ -437,6 +471,15 @@ function initCompanionsTab() {
       '</div>' +
       // ── Overview panel ──
       '<div class="modal-body cmp-mtab-panel active" data-tab="overview">' +
+        '<div class="mf">' +
+          '<label>Portrait <span style="text-transform:none;font-weight:400">(optional)</span></label>' +
+          '<div class="cmp-portrait-upload" id="cmp-portrait-wrap" onclick="document.getElementById(\'cmp-img-input\').click()">' +
+            '<img id="cmp-img-preview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:5px">' +
+            '<div id="cmp-img-placeholder"><i class="ti ti-photo" style="font-size:22px;margin-bottom:5px"></i><span>Click to upload image</span></div>' +
+            '<input type="file" id="cmp-img-input" accept="image/*" style="display:none" onchange="handleCmpImageUpload(event)">' +
+          '</div>' +
+          '<button id="cmp-img-remove" class="btn" style="display:none;margin-top:6px;font-size:11px;padding:4px 10px" onclick="event.stopPropagation();removeCmpImage()"><i class="ti ti-x"></i> Remove image</button>' +
+        '</div>' +
         '<div class="mfg2">' +
           '<div class="mf" id="cmp-name-f"><label>Name *</label><input id="cmp-name" placeholder="e.g. Luna"></div>' +
           '<div class="mf"><label>Type</label>' +
@@ -474,6 +517,15 @@ function initCompanionsTab() {
           '<div class="cmp-attr-cell"><label>INT</label><input id="cmp-int" type="number" value="0"></div>' +
           '<div class="cmp-attr-cell"><label>WIS</label><input id="cmp-wis" type="number" value="0"></div>' +
           '<div class="cmp-attr-cell"><label>CHA</label><input id="cmp-cha" type="number" value="0"></div>' +
+        '</div>' +
+        '<p style="font-size:11px;color:var(--muted);margin:14px 0 6px">Saving throws — leave blank to match attribute modifier.</p>' +
+        '<div class="cmp-attr-grid">' +
+          '<div class="cmp-attr-cell"><label>STR</label><input id="cmp-sav-str" type="number" placeholder="auto"></div>' +
+          '<div class="cmp-attr-cell"><label>DEX</label><input id="cmp-sav-dex" type="number" placeholder="auto"></div>' +
+          '<div class="cmp-attr-cell"><label>CON</label><input id="cmp-sav-con" type="number" placeholder="auto"></div>' +
+          '<div class="cmp-attr-cell"><label>INT</label><input id="cmp-sav-int" type="number" placeholder="auto"></div>' +
+          '<div class="cmp-attr-cell"><label>WIS</label><input id="cmp-sav-wis" type="number" placeholder="auto"></div>' +
+          '<div class="cmp-attr-cell"><label>CHA</label><input id="cmp-sav-cha" type="number" placeholder="auto"></div>' +
         '</div>' +
         '<div class="mf" style="margin-top:14px"><label>Resistances</label><input id="cmp-resistances" placeholder="e.g. Fire, Poison, Bludgeoning (non-magical)"></div>' +
         '<div class="mf"><label>Vulnerabilities</label><input id="cmp-vulnerabilities" placeholder="e.g. Thunder, Radiant"></div>' +
@@ -523,6 +575,7 @@ function renderCompanions() {
       <div class="ac-stripe"></div>
       <button class="ac-edit" onclick="event.stopPropagation();openCompanionModal(${c.id})" title="Edit"><i class="ti ti-pencil"></i></button>
       <button class="ac-del"  onclick="event.stopPropagation();deleteCompanion(${c.id})"    title="Delete"><i class="ti ti-trash"></i></button>
+      ${c.image ? `<div class="cmp-card-portrait"><img src="${c.image}" alt="${esc(c.name)}"></div>` : ''}
       <div class="ac-body">
         <div class="ac-row1">
           <span class="ac-badge">${type.label}</span>
@@ -566,9 +619,22 @@ function openCompanionModal(id) {
   document.getElementById('cmp-int').value          = c?.int          ?? 0;
   document.getElementById('cmp-wis').value          = c?.wis          ?? 0;
   document.getElementById('cmp-cha').value          = c?.cha          ?? 0;
-  document.getElementById('cmp-resistances').value  = c?.resistances  || '';
+  document.getElementById('cmp-resistances').value    = c?.resistances    || '';
   document.getElementById('cmp-vulnerabilities').value = c?.vulnerabilities || '';
-  document.getElementById('cmp-immunities').value   = c?.immunities   || '';
+  document.getElementById('cmp-immunities').value     = c?.immunities     || '';
+  // Saving throws (blank = auto from attr mod)
+  const savFields = ['str','dex','con','int','wis','cha'];
+  savFields.forEach(k => {
+    const el = document.getElementById(`cmp-sav-${k}`);
+    if (el) el.value = (c?.saves && c.saves[k] != null) ? c.saves[k] : '';
+  });
+  // Image
+  pendingCmpImage = c?.image || '';
+  const prev = document.getElementById('cmp-img-preview');
+  const ph   = document.getElementById('cmp-img-placeholder');
+  const rmv  = document.getElementById('cmp-img-remove');
+  if (pendingCmpImage) { prev.src = pendingCmpImage; prev.style.display = 'block'; ph.style.display = 'none'; rmv.style.display = ''; }
+  else                 { prev.src = ''; prev.style.display = 'none'; ph.style.display = ''; rmv.style.display = 'none'; }
   // Abilities
   pendingCmpAbilities = (c?.compAbilities || []).map((a, i) => ({ ...a, id: i + 1 }));
   nextPendingCmpAbId = pendingCmpAbilities.length + 1;
@@ -612,6 +678,8 @@ function saveCompanion() {
     resistances:    document.getElementById('cmp-resistances').value.trim(),
     vulnerabilities:document.getElementById('cmp-vulnerabilities').value.trim(),
     immunities:     document.getElementById('cmp-immunities').value.trim(),
+    saves: (()=>{ const s={}; ['str','dex','con','int','wis','cha'].forEach(k=>{ const v=document.getElementById(`cmp-sav-${k}`).value; if(v!=='') s[k]=parseInt(v)||0; }); return s; })(),
+    image:          pendingCmpImage,
     compAbilities:  pendingCmpAbilities.filter(a => a.name.trim()).map((a, i) => ({ id: i + 1, name: a.name.trim(), cost: a.cost.trim(), desc: a.desc.trim() })),
     notes:          document.getElementById('cmp-notes').value.trim(),
   };
@@ -673,8 +741,10 @@ function boot() {
 // ─── Spellcaster Mechanics rules tab ──────────────────────
 function initRulesTab() {
   document.body.insertAdjacentHTML('beforeend',
-    '<div class="rules-tab" style="top:calc(50% - 58px)" onclick="openRulesModal()"><i class="ti ti-book-2"></i><span>Spellcasting Rules</span></div>' +
-    '<div class="rules-tab" style="top:calc(50% + 58px)" onclick="openResolveModal()"><i class="ti ti-shield-half"></i><span>Companion Resolve</span></div>' +
+    '<div class="rules-tabs-group">' +
+      '<div class="rules-tab" onclick="openRulesModal()"><i class="ti ti-book-2"></i><span>Spellcasting Rules</span></div>' +
+      '<div class="rules-tab" onclick="openResolveModal()"><i class="ti ti-shield-half"></i><span>Companion Resolve</span></div>' +
+    '</div>' +
     '<div class="rules-modal-ov" id="rules-modal-ov" onclick="bgCloseRules(event)">' +
       '<div class="rules-modal">' +
         '<div class="rules-modal-head">' +
@@ -1036,19 +1106,28 @@ function renderCompanionLb() {
   const hp     = Math.max(0, Math.min(hpMax, c.hp ?? hpMax));
   const hpFrac = hp / hpMax;
   const hpColor = hpFrac > 0.5 ? '#22c55e' : hpFrac > 0.25 ? '#f59e0b' : '#ef4444';
-  const subLine = [c.species, c.speed].filter(Boolean).join(' · ');
+  const subLine  = [c.species, c.speed].filter(Boolean).join(' · ');
+  const hasSaves = c.saves && Object.keys(c.saves).length > 0;
   // Resolve pips (cap at 12 displayed)
   const pipCount = Math.min(hpMax, 12);
   const pips = Array.from({length: pipCount}, (_, i) =>
     `<div style="width:13px;height:13px;border-radius:50%;flex-shrink:0;background:${i<hp?hpColor:'var(--bg-e)'};border:1.5px solid ${i<hp?hpColor:'var(--bdr)'}"></div>`
   ).join('') + (hpMax > 12 ? `<span style="font-size:10px;color:var(--muted)">+${hpMax-12}</span>` : '');
-  // Attribute row
+  // Attribute + saves rows
   const attrs = ['str','dex','con','int','wis','cha'];
-  const attrRow = `<div style="display:flex;background:var(--bg-e);border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin-bottom:12px">
-    ${attrs.map(a => `<div style="flex:1;text-align:center;padding:7px 2px;border-right:1px solid var(--bdr-d);last-child{border:0}">
-      <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px">${a.toUpperCase()}</div>
-      <div style="font-size:13px;font-weight:700;color:${a==='con'?'var(--la)':'var(--txt)'}">${fmtMod(c[a]??0)}</div>
-    </div>`).join('')}
+  const attrRow = `<div style="border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin-bottom:12px">
+    <div style="display:flex;background:var(--bg-e);">
+      ${attrs.map(a => `<div style="flex:1;text-align:center;padding:7px 2px;border-right:1px solid var(--bdr-d)">
+        <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px">${a.toUpperCase()}</div>
+        <div style="font-size:13px;font-weight:700;color:${a==='con'?'var(--la)':'var(--txt)'}">${fmtMod(c[a]??0)}</div>
+      </div>`).join('')}
+    </div>
+    ${hasSaves ? `<div style="display:flex;border-top:1px solid var(--bdr-d);">
+      ${attrs.map(a => { const sv = (c.saves&&c.saves[a]!=null) ? c.saves[a] : (c[a]??0); const prof = c.saves&&c.saves[a]!=null; return `<div style="flex:1;text-align:center;padding:5px 2px;border-right:1px solid var(--bdr-d)">
+        <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:1px">save</div>
+        <div style="font-size:11px;font-weight:700;color:${prof?'var(--la)':'var(--muted)'}">${fmtMod(sv)}</div>
+      </div>`; }).join('')}
+    </div>` : ''}
   </div>`;
   // Resolve system box
   const resolveBox = `<div class="cmp-resolve-box">
@@ -1065,6 +1144,7 @@ function renderCompanionLb() {
   document.getElementById('lb-stripe').style.background = type.color;
   document.getElementById('lb-card').style.setProperty('--la', type.color);
   document.getElementById('lb-body').innerHTML = `
+    ${c.image ? `<div class="cmp-lb-portrait"><img src="${c.image}" alt="${esc(c.name)}"></div>` : ''}
     <div class="lb-hd">
       <span class="lb-badge">${type.label}</span>
       ${level ? `<span class="lb-rech">Lv. ${level}</span>` : ''}

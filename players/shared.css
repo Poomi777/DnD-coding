@@ -47,7 +47,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .data-io-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.13);}
 
 /* ── Rules side tab ── */
-.rules-tab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:300;background:var(--bg-s);border:1px solid var(--bdr);border-right:none;border-radius:var(--r) 0 0 var(--r);padding:16px 9px;cursor:pointer;writing-mode:vertical-rl;text-orientation:mixed;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .15s;box-shadow:-6px 0 20px rgba(0,0,0,.35);display:flex;align-items:center;gap:8px;}
+.rules-tabs-group{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:300;display:flex;flex-direction:column;gap:6px;}
+.rules-tab{background:var(--bg-s);border:1px solid var(--bdr);border-right:none;border-radius:var(--r) 0 0 var(--r);padding:16px 9px;cursor:pointer;writing-mode:vertical-rl;text-orientation:mixed;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .15s;box-shadow:-6px 0 20px rgba(0,0,0,.35);display:flex;align-items:center;gap:8px;}
 .rules-tab:hover{color:var(--player-accent-text);border-color:rgba(var(--player-accent-rgb),.4);background:var(--bg-e);padding-right:13px;}
 .rules-tab i{font-size:14px;writing-mode:horizontal-tb;}
 
@@ -78,6 +79,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .rules-resolve-row.header span{font-family:inherit;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg-e);}
 
 @media(max-width:640px){
+  .rules-tabs-group{gap:4px;}
   .rules-tab{padding:13px 7px;font-size:10px;}
   .rules-modal-body{padding:14px 16px 20px;}
 }
@@ -312,6 +314,20 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cmp-ability-name{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--txt);}
 .cmp-ability-cost{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--la,var(--muted));border:1px solid var(--la,var(--bdr));border-radius:20px;padding:1px 7px;opacity:.85;}
 .cmp-ability-desc{font-family:'Crimson Pro',serif;font-size:13px;color:var(--muted);line-height:1.55;}
+
+/* ── Companion portrait — card thumbnail ─────────────────── */
+.cmp-card-portrait{width:100%;height:120px;overflow:hidden;border-bottom:1px solid var(--bdr-d);}
+.cmp-card-portrait img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transition:transform .3s;}
+.ac:hover .cmp-card-portrait img{transform:scale(1.04);}
+
+/* ── Companion portrait — lightbox ──────────────────────── */
+.cmp-lb-portrait{margin:-16px -18px 14px;overflow:hidden;border-radius:var(--rl) var(--rl) 0 0;max-height:220px;}
+.cmp-lb-portrait img{width:100%;display:block;object-fit:cover;object-position:center top;max-height:220px;}
+
+/* ── Portrait upload widget (in modal) ──────────────────── */
+.cmp-portrait-upload{border:2px dashed var(--bdr);border-radius:7px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s,background .15s;overflow:hidden;}
+.cmp-portrait-upload:hover{border-color:rgba(var(--player-accent-rgb),.5);background:var(--bg-e);}
+#cmp-img-placeholder{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:11px;padding:18px;}
 .inv-name-btn{background:none;border:none;padding:0;cursor:pointer;color:var(--txt);font-family:inherit;font-size:inherit;text-align:left;font-weight:600;transition:color .12s;}
 .inv-name-btn:hover{color:rgba(var(--player-accent-rgb),1);text-decoration:underline;text-underline-offset:2px;}
 .tr-prog-sep{color:var(--dim);font-size:14px;font-weight:600;}
