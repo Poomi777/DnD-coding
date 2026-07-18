@@ -352,6 +352,54 @@ function adjustProgress(id, delta) {
 }
 
 // ─── Companions Tab ──────────────────────────────────────
+let pendingCmpAbilities = [], nextPendingCmpAbId = 1;
+
+function resolveThresholds(level) {
+  const l = Math.max(0, parseInt(level) || 0);
+  return { t1: 8 + l, t2: 16 + l };
+}
+function fmtMod(n) { const v = parseInt(n) || 0; return (v >= 0 ? '+' : '') + v; }
+
+function switchCmpTab(tab) {
+  document.querySelectorAll('#companion-modal .cmp-mtab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('#companion-modal .cmp-mtab-panel').forEach(p => p.classList.toggle('active', p.dataset.tab === tab));
+}
+
+function renderPendingCmpAbilities() {
+  const list = document.getElementById('cmp-ab-list');
+  if (!list) return;
+  if (!pendingCmpAbilities.length) {
+    list.innerHTML = '<p style="font-size:12px;color:var(--muted);font-style:italic;margin:6px 2px 0">No abilities yet.</p>';
+    return;
+  }
+  list.innerHTML = pendingCmpAbilities.map(ab => `
+    <div class="cmp-ab-row">
+      <div class="cmp-ab-head">
+        <input class="cmp-ab-name" placeholder="Ability name *" value="${esc(ab.name)}" oninput="updatePendingCmpAb(${ab.id},'name',this.value)">
+        <input class="cmp-ab-cost" placeholder="Cost (Passive, Action…)" value="${esc(ab.cost)}" oninput="updatePendingCmpAb(${ab.id},'cost',this.value)">
+        <button class="cmp-ab-del" onclick="removePendingCmpAbility(${ab.id})" title="Remove"><i class="ti ti-x"></i></button>
+      </div>
+      <textarea class="cmp-ab-desc" placeholder="Description of the ability…" oninput="updatePendingCmpAb(${ab.id},'desc',this.value)">${esc(ab.desc)}</textarea>
+    </div>`).join('');
+}
+
+function addPendingCmpAbility() {
+  pendingCmpAbilities.push({ id: nextPendingCmpAbId++, name: '', cost: '', desc: '' });
+  renderPendingCmpAbilities();
+  const rows = document.querySelectorAll('.cmp-ab-row');
+  if (rows.length) rows[rows.length - 1].querySelector('.cmp-ab-name').focus();
+}
+
+function removePendingCmpAbility(id) {
+  pendingCmpAbilities = pendingCmpAbilities.filter(a => a.id !== id);
+  renderPendingCmpAbilities();
+}
+
+function updatePendingCmpAb(id, field, val) {
+  const ab = pendingCmpAbilities.find(a => a.id === id);
+  if (ab) ab[field] = val;
+}
+
 function initCompanionsTab() {
   const tabsEl = document.querySelector('.tabs');
   const btn = document.createElement('button');
@@ -377,12 +425,18 @@ function initCompanionsTab() {
   modal.id = 'companion-modal';
   modal.onclick = e => { if (e.target === modal) closeCompanionModal(); };
   modal.innerHTML =
-    '<div class="modal" style="max-width:500px">' +
+    '<div class="modal" style="max-width:540px">' +
       '<div class="modal-head">' +
         '<span class="modal-title" id="cmp-modal-title">Add Companion</span>' +
         '<button class="modal-close" onclick="closeCompanionModal()"><i class="ti ti-x"></i></button>' +
       '</div>' +
-      '<div class="modal-body">' +
+      '<div class="cmp-mtabs">' +
+        '<button class="cmp-mtab active" data-tab="overview" onclick="switchCmpTab(\'overview\')">Overview</button>' +
+        '<button class="cmp-mtab" data-tab="stats"    onclick="switchCmpTab(\'stats\')">Stats</button>' +
+        '<button class="cmp-mtab" data-tab="abilities" onclick="switchCmpTab(\'abilities\')">Abilities</button>' +
+      '</div>' +
+      // ── Overview panel ──
+      '<div class="modal-body cmp-mtab-panel active" data-tab="overview">' +
         '<div class="mfg2">' +
           '<div class="mf" id="cmp-name-f"><label>Name *</label><input id="cmp-name" placeholder="e.g. Luna"></div>' +
           '<div class="mf"><label>Type</label>' +
@@ -397,15 +451,41 @@ function initCompanionsTab() {
         '</div>' +
         '<div class="mfg2">' +
           '<div class="mf"><label>Species / Race</label><input id="cmp-species" placeholder="e.g. Owl, Pseudodragon…"></div>' +
-          '<div class="mf"><label>Speed</label><input id="cmp-speed" placeholder="e.g. 30 ft., fly 60 ft."></div>' +
+          '<div class="mf"><label>Level</label><input id="cmp-level" type="number" min="0" value="1" placeholder="1"></div>' +
         '</div>' +
         '<div class="mfg2">' +
-          '<div class="mf"><label>Max HP</label><input id="cmp-hpmax" type="number" min="1" value="10"></div>' +
+          '<div class="mf"><label>Speed</label><input id="cmp-speed" placeholder="e.g. 30 ft., fly 60 ft."></div>' +
           '<div class="mf"><label>Armor Class</label><input id="cmp-ac" placeholder="e.g. 13"></div>' +
         '</div>' +
-        '<div class="mf"><label>Abilities &amp; Notes</label>' +
-          '<textarea id="cmp-notes" placeholder="Abilities, traits, attacks, background notes…" style="min-height:110px"></textarea>' +
+        '<div class="mf"><label>Resolve Points <span style="text-transform:none;font-weight:400">(max hits before going down)</span></label>' +
+          '<input id="cmp-hpmax" type="number" min="1" value="5">' +
         '</div>' +
+        '<div class="mf"><label>Notes</label>' +
+          '<textarea id="cmp-notes" placeholder="Background, personality, bonds…" style="min-height:70px"></textarea>' +
+        '</div>' +
+      '</div>' +
+      // ── Stats panel ──
+      '<div class="modal-body cmp-mtab-panel" data-tab="stats">' +
+        '<p style="font-size:11px;color:var(--muted);margin-bottom:12px">Enter attribute <b>modifiers</b> (e.g. +3 → 3, -1 → -1). CON is used for Resolve saves.</p>' +
+        '<div class="cmp-attr-grid">' +
+          '<div class="cmp-attr-cell"><label>STR</label><input id="cmp-str" type="number" value="0"></div>' +
+          '<div class="cmp-attr-cell"><label>DEX</label><input id="cmp-dex" type="number" value="0"></div>' +
+          '<div class="cmp-attr-cell"><label>CON</label><input id="cmp-con" type="number" value="0"></div>' +
+          '<div class="cmp-attr-cell"><label>INT</label><input id="cmp-int" type="number" value="0"></div>' +
+          '<div class="cmp-attr-cell"><label>WIS</label><input id="cmp-wis" type="number" value="0"></div>' +
+          '<div class="cmp-attr-cell"><label>CHA</label><input id="cmp-cha" type="number" value="0"></div>' +
+        '</div>' +
+        '<div class="mf" style="margin-top:14px"><label>Resistances</label><input id="cmp-resistances" placeholder="e.g. Fire, Poison, Bludgeoning (non-magical)"></div>' +
+        '<div class="mf"><label>Vulnerabilities</label><input id="cmp-vulnerabilities" placeholder="e.g. Thunder, Radiant"></div>' +
+        '<div class="mf"><label>Immunities</label><input id="cmp-immunities" placeholder="e.g. Poison, Charmed, Frightened"></div>' +
+      '</div>' +
+      // ── Abilities panel ──
+      '<div class="modal-body cmp-mtab-panel" data-tab="abilities">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+          '<span style="font-size:12px;color:var(--muted)">Traits, attacks, special actions.</span>' +
+          '<button class="add-btn" onclick="addPendingCmpAbility()"><i class="ti ti-plus"></i> Add</button>' +
+        '</div>' +
+        '<div id="cmp-ab-list"></div>' +
       '</div>' +
       '<div class="modal-foot">' +
         '<button class="btn" id="cmp-delete-btn" style="display:none;color:#fca5a5;border-color:rgba(239,68,68,.3)" onclick="deleteCompanion(editingCompanionId)"><i class="ti ti-trash"></i> Delete</button>' +
@@ -429,30 +509,36 @@ function renderCompanions() {
     return;
   }
   grid.innerHTML = companions.map(c => {
-    const type = COMPANION_TYPES[c.type] || COMPANION_TYPES.other;
-    const hpPct = c.hpMax > 0 ? Math.max(0, Math.min(100, Math.round(c.hp / c.hpMax * 100))) : 0;
-    const hpColor = hpPct > 50 ? '#22c55e' : hpPct > 25 ? '#f59e0b' : '#ef4444';
+    const type   = COMPANION_TYPES[c.type] || COMPANION_TYPES.other;
+    const hpMax  = Math.max(1, c.hpMax || 5);
+    const hp     = Math.max(0, Math.min(hpMax, c.hp ?? hpMax));
+    const hpFrac = hp / hpMax;
+    const hpColor = hpFrac > 0.5 ? '#22c55e' : hpFrac > 0.25 ? '#f59e0b' : '#ef4444';
     const subLine = [c.species, c.speed].filter(Boolean).join(' · ');
+    const pips = Array.from({length: Math.min(hpMax, 10)}, (_, i) =>
+      `<div class="cmp-pip ${i < hp ? 'on' : 'off'}" style="${i < hp ? `background:${hpColor};border-color:${hpColor}` : ''}"></div>`
+    ).join('') + (hpMax > 10 ? `<span style="font-size:9px;color:var(--muted);margin-left:2px">+${hpMax-10}</span>` : '');
+    const lvlBadge = c.level ? `<span class="ac-cost">Lv.${c.level}</span>` : '';
     return `<div class="ac" style="--accent:${type.color}" onclick="openCompanionLb(${c.id})">
       <div class="ac-stripe"></div>
       <button class="ac-edit" onclick="event.stopPropagation();openCompanionModal(${c.id})" title="Edit"><i class="ti ti-pencil"></i></button>
-      <button class="ac-del"  onclick="event.stopPropagation();deleteCompanion(${c.id})"   title="Delete"><i class="ti ti-trash"></i></button>
+      <button class="ac-del"  onclick="event.stopPropagation();deleteCompanion(${c.id})"    title="Delete"><i class="ti ti-trash"></i></button>
       <div class="ac-body">
         <div class="ac-row1">
           <span class="ac-badge">${type.label}</span>
           ${c.ac ? `<span class="ac-cost">AC ${esc(String(c.ac))}</span>` : ''}
+          ${lvlBadge}
         </div>
         <div class="ac-name">${esc(c.name)}</div>
         ${subLine ? `<div class="ac-sub">${esc(subLine)}</div>` : ''}
-        ${c.notes ? `<div class="ac-desc">${esc(c.notes)}</div>` : ''}
       </div>
       <div class="cmp-hp-row">
-        <div class="cmp-hp-bar-wrap"><div class="cmp-hp-bar" style="width:${hpPct}%;background:${hpColor}"></div></div>
         <div class="cmp-hp-ctrl">
           <button class="cmp-hp-btn" onclick="event.stopPropagation();adjustCompanionHp(${c.id},-1)">−</button>
-          <span class="cmp-hp-val" style="color:${hpColor}">${c.hp}<span class="cmp-hp-max"> / ${c.hpMax}</span></span>
+          <div style="display:flex;gap:3px;align-items:center;flex:1;justify-content:center;flex-wrap:wrap">${pips}</div>
           <button class="cmp-hp-btn" onclick="event.stopPropagation();adjustCompanionHp(${c.id},1)">+</button>
         </div>
+        <div style="text-align:center;font-size:10px;font-weight:700;color:${hpColor};margin-top:3px">${hp} / ${hpMax} resolve</div>
       </div>
     </div>`;
   }).join('');
@@ -461,19 +547,35 @@ function renderCompanions() {
 function openCompanionModal(id) {
   editingCompanionId = id || null;
   const c = id ? companions.find(x => x.id === id) : null;
-  document.getElementById('cmp-modal-title').textContent        = c ? 'Edit Companion' : 'Add Companion';
-  document.getElementById('cmp-save-label').textContent         = c ? 'Save' : 'Add';
-  document.getElementById('cmp-delete-btn').style.display       = c ? '' : 'none';
+  document.getElementById('cmp-modal-title').textContent  = c ? 'Edit Companion' : 'Add Companion';
+  document.getElementById('cmp-save-label').textContent   = c ? 'Save' : 'Add';
+  document.getElementById('cmp-delete-btn').style.display = c ? '' : 'none';
+  // Overview
   document.getElementById('cmp-name').value    = c?.name    || '';
   document.getElementById('cmp-type').value    = c?.type    || 'familiar';
   document.getElementById('cmp-species').value = c?.species || '';
+  document.getElementById('cmp-level').value   = c?.level   ?? 1;
   document.getElementById('cmp-speed').value   = c?.speed   || '';
-  document.getElementById('cmp-hpmax').value   = c?.hpMax   ?? 10;
   document.getElementById('cmp-ac').value      = c?.ac      || '';
+  document.getElementById('cmp-hpmax').value   = c?.hpMax   ?? 5;
   document.getElementById('cmp-notes').value   = c?.notes   || '';
+  // Stats
+  document.getElementById('cmp-str').value          = c?.str          ?? 0;
+  document.getElementById('cmp-dex').value          = c?.dex          ?? 0;
+  document.getElementById('cmp-con').value          = c?.con          ?? 0;
+  document.getElementById('cmp-int').value          = c?.int          ?? 0;
+  document.getElementById('cmp-wis').value          = c?.wis          ?? 0;
+  document.getElementById('cmp-cha').value          = c?.cha          ?? 0;
+  document.getElementById('cmp-resistances').value  = c?.resistances  || '';
+  document.getElementById('cmp-vulnerabilities').value = c?.vulnerabilities || '';
+  document.getElementById('cmp-immunities').value   = c?.immunities   || '';
+  // Abilities
+  pendingCmpAbilities = (c?.compAbilities || []).map((a, i) => ({ ...a, id: i + 1 }));
+  nextPendingCmpAbId = pendingCmpAbilities.length + 1;
   document.getElementById('cmp-name-f').classList.remove('invalid');
+  switchCmpTab('overview');
   document.getElementById('companion-modal').classList.add('open');
-  setTimeout(() => document.getElementById('cmp-name').focus(), 80);
+  setTimeout(() => { renderPendingCmpAbilities(); document.getElementById('cmp-name').focus(); }, 80);
 }
 
 function closeCompanionModal() {
@@ -484,19 +586,34 @@ function closeCompanionModal() {
 
 function saveCompanion() {
   const name = document.getElementById('cmp-name').value.trim();
-  if (!name) { document.getElementById('cmp-name-f').classList.add('invalid'); return; }
-  const hpMax = Math.max(1, parseInt(document.getElementById('cmp-hpmax').value) || 10);
+  if (!name) {
+    switchCmpTab('overview');
+    document.getElementById('cmp-name-f').classList.add('invalid');
+    return;
+  }
+  const hpMax    = Math.max(1, parseInt(document.getElementById('cmp-hpmax').value) || 5);
   const existing = editingCompanionId ? companions.find(c => c.id === editingCompanionId) : null;
   const item = {
-    id:      editingCompanionId || nextCompanionId++,
+    id:             editingCompanionId || nextCompanionId++,
     name,
-    type:    document.getElementById('cmp-type').value,
-    species: document.getElementById('cmp-species').value.trim(),
-    speed:   document.getElementById('cmp-speed').value.trim(),
+    type:           document.getElementById('cmp-type').value,
+    species:        document.getElementById('cmp-species').value.trim(),
+    level:          parseInt(document.getElementById('cmp-level').value) || 0,
+    speed:          document.getElementById('cmp-speed').value.trim(),
+    ac:             document.getElementById('cmp-ac').value.trim(),
     hpMax,
-    hp:      existing ? Math.min(existing.hp, hpMax) : hpMax,
-    ac:      document.getElementById('cmp-ac').value.trim(),
-    notes:   document.getElementById('cmp-notes').value.trim(),
+    hp:             existing ? Math.min(existing.hp, hpMax) : hpMax,
+    str:            parseInt(document.getElementById('cmp-str').value) || 0,
+    dex:            parseInt(document.getElementById('cmp-dex').value) || 0,
+    con:            parseInt(document.getElementById('cmp-con').value) || 0,
+    int:            parseInt(document.getElementById('cmp-int').value) || 0,
+    wis:            parseInt(document.getElementById('cmp-wis').value) || 0,
+    cha:            parseInt(document.getElementById('cmp-cha').value) || 0,
+    resistances:    document.getElementById('cmp-resistances').value.trim(),
+    vulnerabilities:document.getElementById('cmp-vulnerabilities').value.trim(),
+    immunities:     document.getElementById('cmp-immunities').value.trim(),
+    compAbilities:  pendingCmpAbilities.filter(a => a.name.trim()).map((a, i) => ({ id: i + 1, name: a.name.trim(), cost: a.cost.trim(), desc: a.desc.trim() })),
+    notes:          document.getElementById('cmp-notes').value.trim(),
   };
   if (editingCompanionId) {
     const idx = companions.findIndex(c => c.id === editingCompanionId);
@@ -516,7 +633,7 @@ function deleteCompanion(id) {
 function adjustCompanionHp(id, delta) {
   const c = companions.find(x => x.id === id);
   if (!c) return;
-  c.hp = Math.max(0, Math.min(c.hpMax, c.hp + delta));
+  c.hp = Math.max(0, Math.min(c.hpMax, (c.hp ?? c.hpMax) + delta));
   persist(); renderCompanions();
 }
 
@@ -750,6 +867,7 @@ function closeLb() { document.getElementById('lb').classList.remove('open'); lbM
 function lbBgClick(e) { if(e.target===document.getElementById('lb')) closeLb(); }
 
 function lbStep(dir) {
+  if (lbMode !== 'ability') return;
   const pos = filteredIds.indexOf(abilities[lbIndex].id);
   const np  = Math.max(0, Math.min(filteredIds.length-1, pos+dir));
   lbIndex   = abilities.findIndex(a=>a.id===filteredIds[np]);
@@ -822,30 +940,80 @@ function renderItemLb() {
 function renderCompanionLb() {
   const c = companions.find(x => x.id === lbCompanionId);
   if (!c) { closeLb(); return; }
-  const type = COMPANION_TYPES[c.type] || COMPANION_TYPES.other;
-  const hpPct   = c.hpMax > 0 ? Math.max(0, Math.min(100, Math.round(c.hp / c.hpMax * 100))) : 0;
-  const hpColor = hpPct > 50 ? '#22c55e' : hpPct > 25 ? '#f59e0b' : '#ef4444';
+  const type   = COMPANION_TYPES[c.type] || COMPANION_TYPES.other;
+  const level  = Math.max(0, parseInt(c.level) || 0);
+  const { t1, t2 } = resolveThresholds(level);
+  const hpMax  = Math.max(1, c.hpMax || 5);
+  const hp     = Math.max(0, Math.min(hpMax, c.hp ?? hpMax));
+  const hpFrac = hp / hpMax;
+  const hpColor = hpFrac > 0.5 ? '#22c55e' : hpFrac > 0.25 ? '#f59e0b' : '#ef4444';
   const subLine = [c.species, c.speed].filter(Boolean).join(' · ');
+  // Resolve pips (cap at 12 displayed)
+  const pipCount = Math.min(hpMax, 12);
+  const pips = Array.from({length: pipCount}, (_, i) =>
+    `<div style="width:13px;height:13px;border-radius:50%;flex-shrink:0;background:${i<hp?hpColor:'var(--bg-e)'};border:1.5px solid ${i<hp?hpColor:'var(--bdr)'}"></div>`
+  ).join('') + (hpMax > 12 ? `<span style="font-size:10px;color:var(--muted)">+${hpMax-12}</span>` : '');
+  // Attribute row
+  const attrs = ['str','dex','con','int','wis','cha'];
+  const attrRow = `<div style="display:flex;background:var(--bg-e);border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin-bottom:12px">
+    ${attrs.map(a => `<div style="flex:1;text-align:center;padding:7px 2px;border-right:1px solid var(--bdr-d);last-child{border:0}">
+      <div style="font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px">${a.toUpperCase()}</div>
+      <div style="font-size:13px;font-weight:700;color:${a==='con'?'var(--la)':'var(--txt)'}">${fmtMod(c[a]??0)}</div>
+    </div>`).join('')}
+  </div>`;
+  // Resolve system box
+  const resolveBox = `<div class="cmp-resolve-box">
+    <div class="cmp-resolve-title"><i class="ti ti-shield-half"></i> Resolve System${level?` — Level ${level}`:''}</div>
+    <div class="cmp-resolve-tiers">
+      <div class="cmp-resolve-tier"><span class="cmp-resolve-dc">DC 10</span><span class="cmp-resolve-range">1–${t1} dmg</span></div>
+      <div class="cmp-resolve-tier"><span class="cmp-resolve-dc">DC 15</span><span class="cmp-resolve-range">${t1+1}–${t2} dmg</span></div>
+      <div class="cmp-resolve-tier"><span class="cmp-resolve-dc">DC 20</span><span class="cmp-resolve-range">${t2+1}+ dmg</span></div>
+    </div>
+    <div class="cmp-resolve-note">CON save each time hit · Fail = −1 resolve · CON mod: <b>${fmtMod(c.con??0)}</b></div>
+  </div>`;
+  const hasTraits = c.resistances || c.vulnerabilities || c.immunities;
+  const hasAbilities = c.compAbilities && c.compAbilities.length;
   document.getElementById('lb-stripe').style.background = type.color;
   document.getElementById('lb-card').style.setProperty('--la', type.color);
-  const statRows = [];
-  if (c.ac) statRows.push({l:'AC', v:c.ac});
-  statRows.push({l:'HP', v:`${c.hp} / ${c.hpMax}`});
   document.getElementById('lb-body').innerHTML = `
-    <div class="lb-hd"><span class="lb-badge">${type.label}</span></div>
+    <div class="lb-hd">
+      <span class="lb-badge">${type.label}</span>
+      ${level ? `<span class="lb-rech">Lv. ${level}</span>` : ''}
+    </div>
     <div class="lb-name">${esc(c.name)}</div>
     ${subLine ? `<div class="lb-sub">${esc(subLine)}</div>` : ''}
     <div class="lb-div"></div>
-    <div class="lb-stats">${statRows.map(s=>`<div class="lb-stat"><span class="lb-stat-l">${s.l}</span><span class="lb-stat-v">${esc(String(s.v))}</span></div>`).join('')}</div>
-    <div style="margin:6px 0 12px">
-      <div style="height:7px;background:var(--bg-e);border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${hpPct}%;background:${hpColor};border-radius:4px;transition:width .25s"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px">
+      <div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px;font-weight:700">Resolve</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;max-width:200px">${pips}</div>
+        <div style="font-size:11px;font-weight:700;color:${hpColor};margin-top:5px">${hp} / ${hpMax} points</div>
       </div>
+      ${c.ac ? `<div style="text-align:center;background:var(--bg-e);border:1px solid var(--bdr);border-radius:8px;padding:8px 16px;flex-shrink:0">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:2px">AC</div>
+        <div style="font-size:20px;font-weight:700;color:var(--txt);font-family:'Cinzel',serif">${esc(String(c.ac))}</div>
+      </div>` : ''}
     </div>
-    ${c.notes ? `<div class="lb-desc">${esc(c.notes)}</div><div class="lb-div"></div>` : ''}
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="lb-nbtn" onclick="adjustCompanionHp(${c.id},-1);renderCompanionLb()">− HP</button>
-      <button class="lb-nbtn" onclick="adjustCompanionHp(${c.id},1);renderCompanionLb()">+ HP</button>
+    ${attrRow}
+    ${resolveBox}
+    ${hasTraits ? `<div class="lb-div"></div>
+      ${c.resistances    ? `<div class="cmp-trait-row"><span class="cmp-trait-label">Resist</span><span class="cmp-trait-val">${esc(c.resistances)}</span></div>` : ''}
+      ${c.vulnerabilities? `<div class="cmp-trait-row"><span class="cmp-trait-label">Vulnerable</span><span class="cmp-trait-val">${esc(c.vulnerabilities)}</span></div>` : ''}
+      ${c.immunities     ? `<div class="cmp-trait-row"><span class="cmp-trait-label">Immune</span><span class="cmp-trait-val">${esc(c.immunities)}</span></div>` : ''}` : ''}
+    ${hasAbilities ? `<div class="lb-div"></div>
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;font-weight:700">Abilities</div>
+      ${c.compAbilities.map(ab => `<div class="cmp-ability-block">
+        <div class="cmp-ability-head">
+          <span class="cmp-ability-name">${esc(ab.name)}</span>
+          ${ab.cost ? `<span class="cmp-ability-cost">${esc(ab.cost)}</span>` : ''}
+        </div>
+        ${ab.desc ? `<div class="cmp-ability-desc">${esc(ab.desc)}</div>` : ''}
+      </div>`).join('')}` : ''}
+    ${c.notes ? `<div class="lb-div"></div><div class="lb-desc">${esc(c.notes)}</div>` : ''}
+    <div class="lb-div"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="lb-nbtn" onclick="adjustCompanionHp(${c.id},-1);renderCompanionLb()">− Resolve</button>
+      <button class="lb-nbtn" onclick="adjustCompanionHp(${c.id},1);renderCompanionLb()">+ Resolve</button>
       <button class="lb-nbtn" style="margin-left:auto" onclick="closeLb();openCompanionModal(${c.id})"><i class="ti ti-pencil" style="font-size:11px"></i> Edit</button>
     </div>`;
 }
@@ -977,8 +1145,8 @@ function bgClose(e, id) { if(e.target===document.getElementById(id)) document.ge
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); closeTrainingModal(); closeCompanionModal(); }
   if (!document.getElementById('lb').classList.contains('open')) return;
-  if (e.key==='ArrowLeft')  lbStep(-1);
-  if (e.key==='ArrowRight') lbStep(1);
+  if (lbMode === 'ability' && e.key==='ArrowLeft')  lbStep(-1);
+  if (lbMode === 'ability' && e.key==='ArrowRight') lbStep(1);
 });
 
 document.addEventListener('keydown', e => {

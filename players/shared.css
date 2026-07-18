@@ -256,15 +256,56 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .tr-prog-inputs{display:flex;align-items:center;gap:5px;}
 .tr-prog-inputs input{width:52px !important;text-align:center;}
 
-/* ── Companion HP tracker ──────────────────────────────── */
-.cmp-hp-row{display:flex;flex-direction:column;gap:4px;padding:8px 14px 10px;border-top:1px solid var(--bdr-d);}
-.cmp-hp-bar-wrap{height:5px;background:var(--bg-e);border-radius:3px;overflow:hidden;}
-.cmp-hp-bar{height:100%;border-radius:3px;transition:width .25s;}
-.cmp-hp-ctrl{display:flex;align-items:center;justify-content:center;gap:6px;}
+/* ── Companion resolve tracker (card footer) ───────────── */
+.cmp-hp-row{display:flex;flex-direction:column;gap:3px;padding:8px 12px 9px;border-top:1px solid var(--bdr-d);}
+.cmp-hp-ctrl{display:flex;align-items:center;gap:6px;}
 .cmp-hp-btn{background:var(--bg-e);border:1px solid var(--bdr);border-radius:4px;color:var(--muted);cursor:pointer;font-size:16px;font-weight:700;width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;transition:all .12s;font-family:inherit;flex-shrink:0;}
 .cmp-hp-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.15);}
-.cmp-hp-val{font-family:'Cinzel',serif;font-size:13px;font-weight:700;min-width:48px;text-align:center;}
-.cmp-hp-max{font-size:11px;font-weight:400;color:var(--muted);}
+.cmp-pip{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--bg-e);flex-shrink:0;transition:background .2s,border-color .2s;}
+
+/* ── Companion modal internal tabs ──────────────────────── */
+.cmp-mtabs{display:flex;border-bottom:1px solid var(--bdr);padding:0 18px;gap:2px;}
+.cmp-mtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;padding:9px 12px 8px;transition:color .12s,border-color .12s;margin-bottom:-1px;}
+.cmp-mtab.active{color:rgba(var(--player-accent-rgb),1);border-bottom-color:rgba(var(--player-accent-rgb),1);}
+.cmp-mtab:hover:not(.active){color:var(--txt);}
+.cmp-mtab-panel{display:none;}
+.cmp-mtab-panel.active{display:block;}
+
+/* ── Companion attr grid (in modal) ─────────────────────── */
+.cmp-attr-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.cmp-attr-cell{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.cmp-attr-cell label{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin-bottom:0;}
+.cmp-attr-cell input{width:100%!important;text-align:center;font-weight:700;font-size:13px;padding:5px 2px!important;}
+
+/* ── Companion ability rows (in modal abilities tab) ─────── */
+.cmp-ab-row{background:var(--bg-e);border:1px solid var(--bdr);border-radius:6px;padding:10px 11px;margin-bottom:7px;}
+.cmp-ab-head{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.cmp-ab-name{flex:2;font-weight:600;}
+.cmp-ab-cost{flex:1;font-size:11px;}
+.cmp-ab-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:3px;flex-shrink:0;line-height:1;transition:color .12s;}
+.cmp-ab-del:hover{color:#fca5a5;}
+.cmp-ab-desc{width:100%;min-height:55px;resize:vertical;font-size:12px;}
+
+/* ── Resolve system box (in lightbox) ───────────────────── */
+.cmp-resolve-box{background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:7px;padding:10px 12px;margin-bottom:12px;}
+.cmp-resolve-title{font-size:10px;text-transform:uppercase;letter-spacing:.7px;font-weight:700;color:var(--la,var(--muted));margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.cmp-resolve-tiers{display:flex;gap:4px;margin-bottom:7px;}
+.cmp-resolve-tier{flex:1;background:var(--bg-e);border:1px solid var(--bdr);border-radius:5px;padding:5px 6px;text-align:center;}
+.cmp-resolve-dc{display:block;font-size:12px;font-weight:700;color:var(--txt);}
+.cmp-resolve-range{display:block;font-size:10px;color:var(--muted);margin-top:2px;}
+.cmp-resolve-note{font-size:11px;color:var(--muted);font-style:italic;}
+
+/* ── Traits row (in lightbox) ───────────────────────────── */
+.cmp-trait-row{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;font-size:12px;}
+.cmp-trait-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);min-width:62px;flex-shrink:0;}
+.cmp-trait-val{color:var(--txt);}
+
+/* ── Companion ability blocks (in lightbox) ─────────────── */
+.cmp-ability-block{background:var(--bg-e);border:1px solid var(--bdr);border-radius:6px;padding:9px 11px;margin-bottom:7px;}
+.cmp-ability-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.cmp-ability-name{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--txt);}
+.cmp-ability-cost{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--la,var(--muted));border:1px solid var(--la,var(--bdr));border-radius:20px;padding:1px 7px;opacity:.85;}
+.cmp-ability-desc{font-family:'Crimson Pro',serif;font-size:13px;color:var(--muted);line-height:1.55;}
 .inv-name-btn{background:none;border:none;padding:0;cursor:pointer;color:var(--txt);font-family:inherit;font-size:inherit;text-align:left;font-weight:600;transition:color .12s;}
 .inv-name-btn:hover{color:rgba(var(--player-accent-rgb),1);text-decoration:underline;text-underline-offset:2px;}
 .tr-prog-sep{color:var(--dim);font-size:14px;font-weight:600;}
