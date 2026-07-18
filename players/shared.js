@@ -38,6 +38,14 @@ const TRAINING_CATS = [
   { key:'other',       label:'Other',       color:'#64748b' },
 ];
 
+const COMPANION_TYPES = {
+  familiar: { label:'Familiar',         color:'#a855f7' },
+  animal:   { label:'Animal Companion', color:'#22c55e' },
+  summon:   { label:'Summon',           color:'#3b82f6' },
+  npc:      { label:'NPC',              color:'#f59e0b' },
+  other:    { label:'Other',            color:'#64748b' },
+};
+
 // ─── State ───────────────────────────────────────────────
 let abilities = [], inventory = [], notes = '', nextAbilityId = 1, nextItemId = 1;
 let deletedDefaultIds = [];
@@ -46,6 +54,7 @@ let activeType = 'all', lbIndex = 0, filteredIds = [];
 let itemModalCat = 'misc';
 let trainingPoints = 200;
 let training = [], nextTrainingId = 1, editingTrainingId = null;
+let companions = [], nextCompanionId = 1, editingCompanionId = null;
 
 function loadState() {
   try {
@@ -71,7 +80,9 @@ function loadState() {
       DEFAULT_TRAINING.forEach(dt => {
         if (!training.find(t => t.id === dt.id)) training.push({...dt});
       });
-      nextTrainingId = s.nextTrainingId || (Math.max(0, ...training.map(t=>t.id), 0) + 1);
+      nextTrainingId  = s.nextTrainingId  || (Math.max(0, ...training.map(t=>t.id),  0) + 1);
+      companions      = s.companions || [];
+      nextCompanionId = s.nextCompanionId || (Math.max(0, ...companions.map(c=>c.id), 0) + 1);
       persist(); return;
     }
   } catch(e) {}
@@ -88,7 +99,7 @@ function persist() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
       abilities, inventory, notes, nextAbilityId, nextItemId, invVersion: INV_VERSION, deletedDefaultIds, trainingPoints,
-      training, nextTrainingId,
+      training, nextTrainingId, companions, nextCompanionId,
     }));
   } catch(e) { toast('Storage full — some notes may not have saved'); }
 }
@@ -137,7 +148,7 @@ function exportPlayerData() {
     version: 1, player: PLAYER_NAME, exported: new Date().toISOString(),
     abilities, inventory, notes, nextAbilityId, nextItemId,
     deletedDefaultIds, trainingPoints, invVersion: INV_VERSION,
-    training, nextTrainingId,
+    training, nextTrainingId, companions, nextCompanionId,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -172,8 +183,10 @@ function handleImportFile(input) {
       deletedDefaultIds = data.deletedDefaultIds || [];
       trainingPoints    = data.trainingPoints ?? 200;
       training          = data.training || [];
-      nextTrainingId    = data.nextTrainingId || (Math.max(0, ...training.map(t=>t.id), 0) + 1);
-      persist(); buildFilters(); filterAbilities(); renderInventory(); renderTP(); renderTrainingList();
+      nextTrainingId    = data.nextTrainingId    || (Math.max(0, ...training.map(t=>t.id),    0) + 1);
+      companions        = data.companions || [];
+      nextCompanionId   = data.nextCompanionId   || (Math.max(0, ...companions.map(c=>c.id),  0) + 1);
+      persist(); buildFilters(); filterAbilities(); renderInventory(); renderTP(); renderTrainingList(); renderCompanions();
       document.getElementById('notes-ed').innerHTML = notes;
       toast(`${PLAYER_NAME} data imported`);
     } catch(e) { alert(`Import failed: ${e.message}`); }
@@ -337,6 +350,175 @@ function adjustProgress(id, delta) {
   persist(); renderTrainingList();
 }
 
+// ─── Companions Tab ──────────────────────────────────────
+function initCompanionsTab() {
+  const tabsEl = document.querySelector('.tabs');
+  const btn = document.createElement('button');
+  btn.className = 'tab';
+  btn.innerHTML = '<i class="ti ti-paw"></i> Companions';
+  btn.onclick = () => switchTab('companions', btn);
+  tabsEl.appendChild(btn);
+
+  const page = document.querySelector('.page');
+  const panel = document.createElement('div');
+  panel.className = 'tab-panel';
+  panel.id = 'tab-companions';
+  panel.innerHTML =
+    '<div class="toolbar">' +
+      '<span class="count" id="cmp-count"></span>' +
+      '<button class="add-btn" onclick="openCompanionModal()"><i class="ti ti-plus"></i> Add Companion</button>' +
+    '</div>' +
+    '<div class="card-grid" id="cmp-grid"></div>';
+  page.appendChild(panel);
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-ov';
+  modal.id = 'companion-modal';
+  modal.onclick = e => { if (e.target === modal) closeCompanionModal(); };
+  modal.innerHTML =
+    '<div class="modal" style="max-width:500px">' +
+      '<div class="modal-head">' +
+        '<span class="modal-title" id="cmp-modal-title">Add Companion</span>' +
+        '<button class="modal-close" onclick="closeCompanionModal()"><i class="ti ti-x"></i></button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="mfg2">' +
+          '<div class="mf" id="cmp-name-f"><label>Name *</label><input id="cmp-name" placeholder="e.g. Luna"></div>' +
+          '<div class="mf"><label>Type</label>' +
+            '<select id="cmp-type">' +
+              '<option value="familiar">Familiar</option>' +
+              '<option value="animal">Animal Companion</option>' +
+              '<option value="summon">Summon</option>' +
+              '<option value="npc">NPC</option>' +
+              '<option value="other">Other</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mfg2">' +
+          '<div class="mf"><label>Species / Race</label><input id="cmp-species" placeholder="e.g. Owl, Pseudodragon…"></div>' +
+          '<div class="mf"><label>Speed</label><input id="cmp-speed" placeholder="e.g. 30 ft., fly 60 ft."></div>' +
+        '</div>' +
+        '<div class="mfg2">' +
+          '<div class="mf"><label>Max HP</label><input id="cmp-hpmax" type="number" min="1" value="10"></div>' +
+          '<div class="mf"><label>Armor Class</label><input id="cmp-ac" placeholder="e.g. 13"></div>' +
+        '</div>' +
+        '<div class="mf"><label>Abilities &amp; Notes</label>' +
+          '<textarea id="cmp-notes" placeholder="Abilities, traits, attacks, background notes…" style="min-height:110px"></textarea>' +
+        '</div>' +
+      '</div>' +
+      '<div class="modal-foot">' +
+        '<button class="btn" id="cmp-delete-btn" style="display:none;color:#fca5a5;border-color:rgba(239,68,68,.3)" onclick="deleteCompanion(editingCompanionId)"><i class="ti ti-trash"></i> Delete</button>' +
+        '<div style="flex:1"></div>' +
+        '<button class="btn" onclick="closeCompanionModal()">Cancel</button>' +
+        '<button class="btn btn-primary" onclick="saveCompanion()"><i class="ti ti-check"></i> <span id="cmp-save-label">Add</span></button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+
+  renderCompanions();
+}
+
+function renderCompanions() {
+  const grid = document.getElementById('cmp-grid');
+  const countEl = document.getElementById('cmp-count');
+  if (!grid) return;
+  countEl.textContent = `${companions.length} companion${companions.length !== 1 ? 's' : ''}`;
+  if (!companions.length) {
+    grid.innerHTML = '<div class="empty"><i class="ti ti-paw"></i><p>No companions yet — add a familiar, animal companion, or NPC ally.</p></div>';
+    return;
+  }
+  grid.innerHTML = companions.map(c => {
+    const type = COMPANION_TYPES[c.type] || COMPANION_TYPES.other;
+    const hpPct = c.hpMax > 0 ? Math.max(0, Math.min(100, Math.round(c.hp / c.hpMax * 100))) : 0;
+    const hpColor = hpPct > 50 ? '#22c55e' : hpPct > 25 ? '#f59e0b' : '#ef4444';
+    const subLine = [c.species, c.speed].filter(Boolean).join(' · ');
+    return `<div class="ac" style="--accent:${type.color}" onclick="openCompanionModal(${c.id})">
+      <div class="ac-stripe"></div>
+      <button class="ac-edit" onclick="event.stopPropagation();openCompanionModal(${c.id})" title="Edit"><i class="ti ti-pencil"></i></button>
+      <button class="ac-del"  onclick="event.stopPropagation();deleteCompanion(${c.id})"   title="Delete"><i class="ti ti-trash"></i></button>
+      <div class="ac-body">
+        <div class="ac-row1">
+          <span class="ac-badge">${type.label}</span>
+          ${c.ac ? `<span class="ac-cost">AC ${esc(String(c.ac))}</span>` : ''}
+        </div>
+        <div class="ac-name">${esc(c.name)}</div>
+        ${subLine ? `<div class="ac-sub">${esc(subLine)}</div>` : ''}
+        ${c.notes ? `<div class="ac-desc">${esc(c.notes)}</div>` : ''}
+      </div>
+      <div class="cmp-hp-row">
+        <div class="cmp-hp-bar-wrap"><div class="cmp-hp-bar" style="width:${hpPct}%;background:${hpColor}"></div></div>
+        <div class="cmp-hp-ctrl">
+          <button class="cmp-hp-btn" onclick="event.stopPropagation();adjustCompanionHp(${c.id},-1)">−</button>
+          <span class="cmp-hp-val" style="color:${hpColor}">${c.hp}<span class="cmp-hp-max"> / ${c.hpMax}</span></span>
+          <button class="cmp-hp-btn" onclick="event.stopPropagation();adjustCompanionHp(${c.id},1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCompanionModal(id) {
+  editingCompanionId = id || null;
+  const c = id ? companions.find(x => x.id === id) : null;
+  document.getElementById('cmp-modal-title').textContent        = c ? 'Edit Companion' : 'Add Companion';
+  document.getElementById('cmp-save-label').textContent         = c ? 'Save' : 'Add';
+  document.getElementById('cmp-delete-btn').style.display       = c ? '' : 'none';
+  document.getElementById('cmp-name').value    = c?.name    || '';
+  document.getElementById('cmp-type').value    = c?.type    || 'familiar';
+  document.getElementById('cmp-species').value = c?.species || '';
+  document.getElementById('cmp-speed').value   = c?.speed   || '';
+  document.getElementById('cmp-hpmax').value   = c?.hpMax   ?? 10;
+  document.getElementById('cmp-ac').value      = c?.ac      || '';
+  document.getElementById('cmp-notes').value   = c?.notes   || '';
+  document.getElementById('cmp-name-f').classList.remove('invalid');
+  document.getElementById('companion-modal').classList.add('open');
+  setTimeout(() => document.getElementById('cmp-name').focus(), 80);
+}
+
+function closeCompanionModal() {
+  const m = document.getElementById('companion-modal');
+  if (m) m.classList.remove('open');
+  editingCompanionId = null;
+}
+
+function saveCompanion() {
+  const name = document.getElementById('cmp-name').value.trim();
+  if (!name) { document.getElementById('cmp-name-f').classList.add('invalid'); return; }
+  const hpMax = Math.max(1, parseInt(document.getElementById('cmp-hpmax').value) || 10);
+  const existing = editingCompanionId ? companions.find(c => c.id === editingCompanionId) : null;
+  const item = {
+    id:      editingCompanionId || nextCompanionId++,
+    name,
+    type:    document.getElementById('cmp-type').value,
+    species: document.getElementById('cmp-species').value.trim(),
+    speed:   document.getElementById('cmp-speed').value.trim(),
+    hpMax,
+    hp:      existing ? Math.min(existing.hp, hpMax) : hpMax,
+    ac:      document.getElementById('cmp-ac').value.trim(),
+    notes:   document.getElementById('cmp-notes').value.trim(),
+  };
+  if (editingCompanionId) {
+    const idx = companions.findIndex(c => c.id === editingCompanionId);
+    if (idx >= 0) companions[idx] = item;
+  } else {
+    companions.push(item);
+  }
+  persist(); renderCompanions(); closeCompanionModal();
+}
+
+function deleteCompanion(id) {
+  if (!confirm('Remove this companion?')) return;
+  companions = companions.filter(c => c.id !== id);
+  persist(); renderCompanions(); closeCompanionModal();
+}
+
+function adjustCompanionHp(id, delta) {
+  const c = companions.find(x => x.id === id);
+  if (!c) return;
+  c.hp = Math.max(0, Math.min(c.hpMax, c.hp + delta));
+  persist(); renderCompanions();
+}
+
 // ─── Boot ────────────────────────────────────────────────
 function boot() {
   loadState();
@@ -366,6 +548,7 @@ function boot() {
   initNotes();
   initRulesTab();
   initTrainingTab();
+  initCompanionsTab();
 }
 
 // ─── Spellcaster Mechanics rules tab ──────────────────────
@@ -723,7 +906,7 @@ function switchTab(name, btn) {
 function bgClose(e, id) { if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
 
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); closeTrainingModal(); }
+  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); closeTrainingModal(); closeCompanionModal(); }
   if (!document.getElementById('lb').classList.contains('open')) return;
   if (e.key==='ArrowLeft')  lbStep(-1);
   if (e.key==='ArrowRight') lbStep(1);

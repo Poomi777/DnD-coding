@@ -244,6 +244,23 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:#2a3244;border-radius:10px;}
 
+/* ── Arsenal sections ── */
+.arsenal-section{margin-top:40px;}
+.arsenal-section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bdr);}
+.arsenal-section-title{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.arsenal-section-sub{font-size:11px;color:var(--muted);}
+.arsenal-section-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;}
+.misc-card{background:var(--bg-s);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;transition:border-color .15s,transform .12s;}
+.misc-card:hover{transform:translateY(-2px);}
+.misc-band{height:4px;}
+.misc-body{padding:13px 14px 12px;}
+.misc-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--txt);margin-bottom:3px;line-height:1.3;}
+.misc-type{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;}
+.misc-note{font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;}
+.misc-holder{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);border:1px solid var(--bdr);border-radius:20px;padding:2px 8px;margin-top:9px;opacity:.65;}
+.arsenal-empty-note{font-size:12px;color:var(--dim);font-style:italic;padding:6px 2px;}
+.weapons-section-label{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--bdr);}
+
 /* ── Site nav ── */
 .snav{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
 .snav-brand{font-family:'Cinzel',serif;font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:7px;}
@@ -275,6 +292,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="hline"></div>
   </header>
 
+  <div class="weapons-section-label"><i class="ti ti-sword"></i> Weapons</div>
   <div class="controls">
     <div class="sw">
       <i class="ti ti-search"></i>
@@ -421,6 +439,69 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <p>No weapons found</p>
     <small>Try a different search or filter</small>
   </div>
+
+  <!-- ── Armor & Equipment ── -->
+  <div class="arsenal-section">
+    <div class="arsenal-section-head">
+      <div class="arsenal-section-title"><i class="ti ti-shield"></i> Armor &amp; Equipment</div>
+      <div class="arsenal-section-sub">Wondrous items, armor, and magical equipment</div>
+    </div>
+    <div class="arsenal-section-grid">
+      <div class="arsenal-empty-note">No armor or equipment added yet.</div>
+    </div>
+  </div>
+
+  <!-- ── Miscellaneous ── -->
+  <div class="arsenal-section">
+    <div class="arsenal-section-head">
+      <div class="arsenal-section-title"><i class="ti ti-sparkles"></i> Miscellaneous</div>
+      <div class="arsenal-section-sub">Special items — holder unknown</div>
+    </div>
+    <div class="arsenal-section-grid">
+
+      <div class="misc-card" style="border-color:#d9770622">
+        <div class="misc-band" style="background:#d97706"></div>
+        <div class="misc-body">
+          <div class="misc-name">Emergency Scroll</div>
+          <div class="misc-type">Consumable · Scroll</div>
+          <div class="misc-note">A tightly wound scroll sealed with red wax. Contents unknown until opened.</div>
+          <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
+        </div>
+      </div>
+
+      <div class="misc-card" style="border-color:#06b6d422">
+        <div class="misc-band" style="background:#06b6d4"></div>
+        <div class="misc-body">
+          <div class="misc-name">Bottle of Captured Starlight</div>
+          <div class="misc-type">Wondrous Item</div>
+          <div class="misc-note">A glass vial containing swirling luminescent light. Warm to the touch, even in darkness.</div>
+          <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
+        </div>
+      </div>
+
+      <div class="misc-card" style="border-color:#ea580c22">
+        <div class="misc-band" style="background:#ea580c"></div>
+        <div class="misc-body">
+          <div class="misc-name">Phoenix Pepper</div>
+          <div class="misc-type">Consumable · Ingredient</div>
+          <div class="misc-note">A vivid crimson pepper that smolders faintly. Extremely potent — handle with care.</div>
+          <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
+        </div>
+      </div>
+
+      <div class="misc-card" style="border-color:#7c3aed22">
+        <div class="misc-band" style="background:#7c3aed"></div>
+        <div class="misc-body">
+          <div class="misc-name">Dragon's Ink</div>
+          <div class="misc-type">Wondrous Item · Crafting</div>
+          <div class="misc-note">Deep violet ink harvested from a dragon's gland. Used in scroll scribing and arcane inscription.</div>
+          <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <!-- Lightbox -->

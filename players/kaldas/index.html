@@ -179,13 +179,34 @@
 const PLAYER_NAME     = 'Kaldas';
 const CHAR            = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
 const STORE_KEY       = 'kaldas-data';
-const INV_VERSION     = 1;
+const INV_VERSION     = 3;
 const PURGE_IDS       = [];
 const DEFAULT_ABILITIES = [
   { id:1, name:'Analyze',            sub:'Homebrew Utility', type:'utility', cost:'Bonus Action', range:'Self',   save:'', uses:1, usesMax:1, recharge:'Long Rest', desc:"Analyze a person's or monster's attack, ability, or other action and store its pattern. You may use the stored technique as your own once per long rest." },
   { id:2, name:'Open Comms Message', sub:'Cantrip — Enhanced',  type:'magic',   cost:'Action',       range:'120 ft', save:'', uses:1, usesMax:1, recharge:'Long Rest', desc:"An enhanced casting of the Message cantrip. Opens a silent communication channel between up to 4 willing creatures simultaneously within range. All linked creatures can hear and whisper back to each other. The channel remains open for up to 3 minutes." },
 ];
-const DEFAULT_INVENTORY = [];
+const DEFAULT_INVENTORY = [
+  { id:1,  name:'Frostball',                       qty:1, type:'consumable', notes:'Spell Scroll L4 · 9d6 cold · 20ft radius · DEX save' },
+  { id:2,  name:'Magic Missile',                   qty:2, type:'consumable', notes:'Spell Scroll L1 · 3 darts, 1d4+1 force each · auto-hit' },
+  { id:3,  name:'Chromatic Orb',                   qty:1, type:'consumable', notes:'Spell Scroll L1 · 3d8 damage, choose element · spell atk' },
+  { id:4,  name:'Thunderwave',                     qty:1, type:'consumable', notes:'Spell Scroll L1 · 2d8 thunder, 10ft cube · CON save · push 10ft' },
+  { id:5,  name:'Burning Hands',                   qty:1, type:'consumable', notes:'Spell Scroll L1 · 3d6 fire, 15ft cone · DEX save' },
+  { id:6,  name:'Ice Knife',                       qty:1, type:'consumable', notes:'Spell Scroll L1 · 1d10 pierce + 2d6 cold, 60ft · DEX save (cold)' },
+  { id:7,  name:'Feather Fall',                    qty:1, type:'consumable', notes:'Spell Scroll L1 · Reaction · Slow fall, up to 5 creatures' },
+  { id:8,  name:'Detect Magic',                    qty:1, type:'consumable', notes:'Spell Scroll L1 · Ritual · Sense magic 30ft · Conc. 10 min' },
+  { id:9,  name:'Comprehend Languages',            qty:1, type:'consumable', notes:'Spell Scroll L1 · Ritual · Understand any language · 1 hour' },
+  { id:10, name:'Identify',                        qty:1, type:'consumable', notes:'Spell Scroll L1 · Ritual · Learn magic item or spell properties' },
+  { id:11, name:'Unseen Servant',                  qty:1, type:'consumable', notes:'Spell Scroll L1 · Ritual · Invisible servant performs tasks · 1 hour' },
+  { id:12, name:'Shield',                          qty:2, type:'consumable', notes:'Spell Scroll L1 · Reaction · +5 AC until next turn · blocks Magic Missile' },
+  { id:13, name:'Mage Armor',                      qty:1, type:'consumable', notes:'Spell Scroll L1 · AC = 13 + DEX · 8 hours · requires no armor' },
+  { id:14, name:'Protection from Evil and Good',   qty:1, type:'consumable', notes:'Spell Scroll L1 · Conc. 10 min · protection vs aberrations, fiends, undead' },
+  { id:15, name:'Healing Word',                    qty:1, type:'consumable', notes:'Spell Scroll L1 · Bonus Action · 1d4 + spellcasting mod HP' },
+  { id:16, name:'Cure Wounds',                     qty:1, type:'consumable', notes:'Spell Scroll L1 · Action · 1d8 + spellcasting mod HP' },
+  { id:17, name:'Bless',                           qty:1, type:'consumable', notes:'Spell Scroll L1 · Conc. 1 min · up to 3 creatures +1d4 to attacks & saves' },
+  { id:18, name:'Silent Image',                    qty:1, type:'consumable', notes:'Spell Scroll L1 · Conc. 10 min · 15ft visual illusion' },
+  { id:19, name:"Tasha's Hideous Laughter",        qty:1, type:'consumable', notes:'Spell Scroll L1 · Conc. 1 min · prone & incapacitated · WIS save' },
+  { id:20, name:'Bracelet of Shielding',           qty:1, type:'armor',      notes:'Wondrous Item · 3 charges · Reaction: expend 1 charge to cast Shield (+5 AC until start of next turn, blocks Magic Missile) · Charges reset at dawn' },
+];
 const DEFAULT_TRAINING  = [];
 </script>
 <script src="../shared.js"></script>
