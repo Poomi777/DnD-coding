@@ -180,9 +180,10 @@ const PLAYER_NAME     = 'Gervaise';
 const CHAR            = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
 const STORE_KEY       = 'gervaise-data';
 const INV_VERSION     = 1;
-const PURGE_IDS       = [];
+const PURGE_IDS       = [2];
 const DEFAULT_ABILITIES = [
-  { id:1, name:'Wild Magic Cast', sub:'Homebrew Magic', type:'magic', cost:'Action', range:'Varies', save:'', uses:1, usesMax:1, recharge:'Long Rest', desc:'Choose a spell level up to 2. A random spell of that level is cast. The spell, its target, and all effects are determined completely at random.' },
+  { id:1, name:'Wild Magic Cast', sub:'Homebrew Magic',           type:'magic',   cost:'Action',       range:'Varies',    save:'',               uses:1, usesMax:1, recharge:'Long Rest',   desc:'Choose a spell level up to 2. A random spell of that level is cast. The spell, its target, and all effects are determined completely at random.' },
+  { id:2, name:'Grapple',         sub:'Homebrew Combat Ability',  type:'combat',  cost:'Bonus Action', range:'Melee (5 ft)', save:'STR or DEX contest', uses:0, usesMax:0, recharge:'Always Active', desc:"Attempt to seize a creature within 5 feet. Make a Strength (Athletics) check contested by the target's Athletics or Acrobatics. On a success, the target is Grappled — its speed becomes 0 and it cannot willingly move away. Gervaise can initiate a grapple as a Bonus Action, leaving his Action free for a weapon attack or another ability." },
 ];
 const DEFAULT_INVENTORY = [];
 const DEFAULT_TRAINING  = [];

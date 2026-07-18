@@ -459,42 +459,42 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     </div>
     <div class="arsenal-section-grid">
 
-      <div class="misc-card" style="border-color:#d9770622">
+      <div class="misc-card" style="border-color:#d9770622;cursor:pointer" onclick="showMiscDetail(0)">
         <div class="misc-band" style="background:#d97706"></div>
         <div class="misc-body">
-          <div class="misc-name">Emergency Scroll</div>
-          <div class="misc-type">Consumable · Scroll</div>
-          <div class="misc-note">A tightly wound scroll sealed with red wax. Contents unknown until opened.</div>
+          <div class="misc-name">Professor's Emergency Scroll</div>
+          <div class="misc-type">Scroll · Rare · 1,500 gp</div>
+          <div class="misc-note">Contains one random 3rd-level spell that rewrites itself every dawn.</div>
           <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
         </div>
       </div>
 
-      <div class="misc-card" style="border-color:#06b6d422">
+      <div class="misc-card" style="border-color:#06b6d422;cursor:pointer" onclick="showMiscDetail(1)">
         <div class="misc-band" style="background:#06b6d4"></div>
         <div class="misc-body">
           <div class="misc-name">Bottle of Captured Starlight</div>
-          <div class="misc-type">Wondrous Item</div>
-          <div class="misc-note">A glass vial containing swirling luminescent light. Warm to the touch, even in darkness.</div>
+          <div class="misc-type">Wondrous Item · Very Rare · 2,000 gp</div>
+          <div class="misc-note">Can illuminate a battlefield like daylight or be consumed to regain a 3rd-level spell slot.</div>
           <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
         </div>
       </div>
 
-      <div class="misc-card" style="border-color:#ea580c22">
+      <div class="misc-card" style="border-color:#ea580c22;cursor:pointer" onclick="showMiscDetail(2)">
         <div class="misc-band" style="background:#ea580c"></div>
         <div class="misc-body">
           <div class="misc-name">Phoenix Pepper</div>
-          <div class="misc-type">Consumable · Ingredient</div>
-          <div class="misc-note">A vivid crimson pepper that smolders faintly. Extremely potent — handle with care.</div>
+          <div class="misc-type">Homebrew Ingredient · 800 gp</div>
+          <div class="misc-note">Extremely spicy. Eating it grants resistance to fire for 1 hour but forces a DC 15 Constitution save or you're incapacitated by coughing for one round.</div>
           <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
         </div>
       </div>
 
-      <div class="misc-card" style="border-color:#7c3aed22">
+      <div class="misc-card" style="border-color:#7c3aed22;cursor:pointer" onclick="showMiscDetail(3)">
         <div class="misc-band" style="background:#7c3aed"></div>
         <div class="misc-body">
           <div class="misc-name">Dragon's Ink</div>
-          <div class="misc-type">Wondrous Item · Crafting</div>
-          <div class="misc-note">Deep violet ink harvested from a dragon's gland. Used in scroll scribing and arcane inscription.</div>
+          <div class="misc-type">Wondrous Item · Rare · 700 gp</div>
+          <div class="misc-note">Anything written with it cannot be magically altered or erased.</div>
           <div class="misc-holder"><i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown</div>
         </div>
       </div>
@@ -1268,7 +1268,101 @@ function triggerDownload(html) {
 }
 
 boot();
+
+// ─── Misc Item Detail ────────────────────────────────────
+const MISC_ITEMS = [
+  {
+    name: "Professor's Emergency Scroll",
+    color: '#d97706',
+    badge: 'Scroll · Rare',
+    gp: '1,500 gp',
+    stats: [
+      { l:'Type',   v:'Consumable Scroll' },
+      { l:'Rarity', v:'Rare'              },
+      { l:'Value',  v:'1,500 gp'          },
+    ],
+    desc: "Contains one random 3rd-level spell that rewrites itself every dawn. The spell sealed within changes each morning — crack the wax to reveal its current contents.",
+  },
+  {
+    name: "Bottle of Captured Starlight",
+    color: '#06b6d4',
+    badge: 'Wondrous Item · Very Rare',
+    gp: '2,000 gp',
+    stats: [
+      { l:'Type',   v:'Wondrous Item'     },
+      { l:'Rarity', v:'Very Rare'         },
+      { l:'Value',  v:'2,000 gp'          },
+    ],
+    desc: "A glass vial containing swirling luminescent light, warm to the touch even in darkness. Can illuminate a battlefield like daylight, or be consumed to regain a 3rd-level spell slot.",
+  },
+  {
+    name: "Phoenix Pepper",
+    color: '#ea580c',
+    badge: 'Homebrew Ingredient',
+    gp: '800 gp',
+    stats: [
+      { l:'Type',   v:'Consumable'        },
+      { l:'Rarity', v:'Homebrew'          },
+      { l:'Value',  v:'800 gp'            },
+      { l:'Save',   v:'DC 15 CON'         },
+    ],
+    desc: "Extremely spicy. Eating it grants resistance to fire damage for 1 hour, but forces a DC 15 Constitution saving throw or you're incapacitated by coughing for one round.",
+  },
+  {
+    name: "Dragon's Ink",
+    color: '#7c3aed',
+    badge: 'Wondrous Item · Rare',
+    gp: '700 gp',
+    stats: [
+      { l:'Type',   v:'Wondrous Item'     },
+      { l:'Rarity', v:'Rare'              },
+      { l:'Value',  v:'700 gp'            },
+    ],
+    desc: "Deep violet ink rendered from a dragon's gland. Anything written with it cannot be magically altered or erased — by any means.",
+  },
+];
+
+function showMiscDetail(idx) {
+  const item = MISC_ITEMS[idx];
+  const ov   = document.getElementById('misc-detail-ov');
+  const card = document.getElementById('misc-detail-card');
+  card.style.setProperty('--mdc', item.color);
+  document.getElementById('misc-detail-stripe').style.background = item.color;
+  document.getElementById('misc-detail-body').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${item.color};padding:3px 9px;border-radius:20px;border:1px solid ${item.color};opacity:.9">${escMisc(item.badge)}</span>
+      <span style="font-size:11px;color:var(--muted)">${escMisc(item.gp)}</span>
+    </div>
+    <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--txt);margin-bottom:12px">${escMisc(item.name)}</div>
+    <div style="height:1px;background:rgba(255,255,255,.07);margin-bottom:11px"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px">${item.stats.map(s=>`
+      <div style="flex:1;min-width:72px;background:var(--bg-e);border:1px solid var(--bdr);border-radius:6px;padding:6px 8px;text-align:center">
+        <span style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:block;margin-bottom:2px">${s.l}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--txt)">${escMisc(s.v)}</span>
+      </div>`).join('')}
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.07);margin-bottom:11px"></div>
+    <div style="font-family:'Crimson Pro',serif;font-size:15px;color:var(--txt);line-height:1.65">${escMisc(item.desc)}</div>
+    <div style="margin-top:14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:inline-flex;align-items:center;gap:4px;border:1px solid var(--bdr);border-radius:20px;padding:3px 9px;opacity:.65">
+      <i class="ti ti-user-question" style="font-size:9px"></i> Holder unknown
+    </div>`;
+  ov.classList.add('open');
+}
+function closeMiscDetail() { document.getElementById('misc-detail-ov').classList.remove('open'); }
+function escMisc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 
+<!-- Misc item detail overlay -->
+<div id="misc-detail-ov" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;display:none;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeMiscDetail()">
+  <div id="misc-detail-card" style="background:var(--bg-s);border:1px solid rgba(255,255,255,.08);border-radius:12px;max-width:440px;width:100%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.7)">
+    <div id="misc-detail-stripe" style="height:5px;border-radius:12px 12px 0 0"></div>
+    <button onclick="closeMiscDetail()" style="position:absolute;top:9px;right:9px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;border-radius:4px;z-index:1"><i class="ti ti-x"></i></button>
+    <div id="misc-detail-body" style="padding:16px 18px 20px"></div>
+  </div>
+</div>
+
+<style>
+  #misc-detail-ov.open{display:flex;}
+</style>
 
 </body></html>

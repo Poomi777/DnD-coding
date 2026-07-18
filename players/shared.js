@@ -51,6 +51,7 @@ let abilities = [], inventory = [], notes = '', nextAbilityId = 1, nextItemId = 
 let deletedDefaultIds = [];
 let editingAbilityId = null, editingItemId = null;
 let activeType = 'all', lbIndex = 0, filteredIds = [];
+let lbMode = 'ability', lbItemId = null, lbCompanionId = null;
 let itemModalCat = 'misc';
 let trainingPoints = 200;
 let training = [], nextTrainingId = 1, editingTrainingId = null;
@@ -432,7 +433,7 @@ function renderCompanions() {
     const hpPct = c.hpMax > 0 ? Math.max(0, Math.min(100, Math.round(c.hp / c.hpMax * 100))) : 0;
     const hpColor = hpPct > 50 ? '#22c55e' : hpPct > 25 ? '#f59e0b' : '#ef4444';
     const subLine = [c.species, c.speed].filter(Boolean).join(' · ');
-    return `<div class="ac" style="--accent:${type.color}" onclick="openCompanionModal(${c.id})">
+    return `<div class="ac" style="--accent:${type.color}" onclick="openCompanionLb(${c.id})">
       <div class="ac-stripe"></div>
       <button class="ac-edit" onclick="event.stopPropagation();openCompanionModal(${c.id})" title="Edit"><i class="ti ti-pencil"></i></button>
       <button class="ac-del"  onclick="event.stopPropagation();deleteCompanion(${c.id})"   title="Delete"><i class="ti ti-trash"></i></button>
@@ -742,8 +743,10 @@ function saveAbility() {
 }
 
 // ─── Lightbox ────────────────────────────────────────────
-function openLb(idx)  { lbIndex=idx; renderLb(); document.getElementById('lb').classList.add('open'); }
-function closeLb()    { document.getElementById('lb').classList.remove('open'); }
+function openLb(idx) { lbMode='ability'; lbIndex=idx; renderLb(); document.getElementById('lb').classList.add('open'); }
+function openItemLb(id) { lbMode='item'; lbItemId=id; renderLb(); document.getElementById('lb').classList.add('open'); }
+function openCompanionLb(id) { lbMode='companion'; lbCompanionId=id; renderLb(); document.getElementById('lb').classList.add('open'); }
+function closeLb() { document.getElementById('lb').classList.remove('open'); lbMode='ability'; lbItemId=null; lbCompanionId=null; }
 function lbBgClick(e) { if(e.target===document.getElementById('lb')) closeLb(); }
 
 function lbStep(dir) {
@@ -754,6 +757,8 @@ function lbStep(dir) {
 }
 
 function renderLb() {
+  if (lbMode === 'item')      { renderItemLb();      return; }
+  if (lbMode === 'companion') { renderCompanionLb(); return; }
   const a   = abilities[lbIndex];
   const cfg = TYPES[a.type]||{color:'#64748b',label:a.type};
   const pos = filteredIds.indexOf(a.id);
@@ -781,6 +786,70 @@ function renderLb() {
     </div>`;
 }
 
+const INV_TYPE_META = {
+  weapon:     { color:'#ef4444', label:'Weapon'       },
+  armor:      { color:'#22c55e', label:'Armor'         },
+  consumable: { color:'#a855f7', label:'Consumable'    },
+  quest:      { color:'#f59e0b', label:'Quest Item'    },
+  misc:       { color:'#64748b', label:'Miscellaneous' },
+};
+
+function renderItemLb() {
+  const item = inventory.find(i => i.id === lbItemId);
+  if (!item) { closeLb(); return; }
+  const meta  = INV_TYPE_META[item.type] || INV_TYPE_META.misc;
+  const parts = item.notes ? item.notes.split(' · ') : [];
+  const isScroll = parts[0] && /spell scroll/i.test(parts[0]);
+  const bodyParts = isScroll ? parts.slice(1) : parts;
+  document.getElementById('lb-stripe').style.background = meta.color;
+  document.getElementById('lb-card').style.setProperty('--la', meta.color);
+  const statsHtml = bodyParts.length
+    ? `<div class="lb-stats">${bodyParts.map(p=>`<div class="lb-stat" style="min-width:80px"><span class="lb-stat-v" style="font-size:12px;white-space:normal;text-align:left">${esc(p)}</span></div>`).join('')}</div>`
+    : '';
+  document.getElementById('lb-body').innerHTML = `
+    <div class="lb-hd">
+      <span class="lb-badge">${isScroll ? esc(parts[0]) : meta.label}</span>
+      <span class="lb-rech">×${item.qty}</span>
+    </div>
+    <div class="lb-name">${esc(item.name)}</div>
+    <div class="lb-div"></div>
+    ${statsHtml}
+    <div style="margin-top:${statsHtml?'8':'0'}px;display:flex;gap:8px">
+      <button class="lb-nbtn" onclick="closeLb();openItemModal(null,${item.id})"><i class="ti ti-pencil" style="font-size:11px"></i> Edit</button>
+    </div>`;
+}
+
+function renderCompanionLb() {
+  const c = companions.find(x => x.id === lbCompanionId);
+  if (!c) { closeLb(); return; }
+  const type = COMPANION_TYPES[c.type] || COMPANION_TYPES.other;
+  const hpPct   = c.hpMax > 0 ? Math.max(0, Math.min(100, Math.round(c.hp / c.hpMax * 100))) : 0;
+  const hpColor = hpPct > 50 ? '#22c55e' : hpPct > 25 ? '#f59e0b' : '#ef4444';
+  const subLine = [c.species, c.speed].filter(Boolean).join(' · ');
+  document.getElementById('lb-stripe').style.background = type.color;
+  document.getElementById('lb-card').style.setProperty('--la', type.color);
+  const statRows = [];
+  if (c.ac) statRows.push({l:'AC', v:c.ac});
+  statRows.push({l:'HP', v:`${c.hp} / ${c.hpMax}`});
+  document.getElementById('lb-body').innerHTML = `
+    <div class="lb-hd"><span class="lb-badge">${type.label}</span></div>
+    <div class="lb-name">${esc(c.name)}</div>
+    ${subLine ? `<div class="lb-sub">${esc(subLine)}</div>` : ''}
+    <div class="lb-div"></div>
+    <div class="lb-stats">${statRows.map(s=>`<div class="lb-stat"><span class="lb-stat-l">${s.l}</span><span class="lb-stat-v">${esc(String(s.v))}</span></div>`).join('')}</div>
+    <div style="margin:6px 0 12px">
+      <div style="height:7px;background:var(--bg-e);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${hpPct}%;background:${hpColor};border-radius:4px;transition:width .25s"></div>
+      </div>
+    </div>
+    ${c.notes ? `<div class="lb-desc">${esc(c.notes)}</div><div class="lb-div"></div>` : ''}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="lb-nbtn" onclick="adjustCompanionHp(${c.id},-1);renderCompanionLb()">− HP</button>
+      <button class="lb-nbtn" onclick="adjustCompanionHp(${c.id},1);renderCompanionLb()">+ HP</button>
+      <button class="lb-nbtn" style="margin-left:auto" onclick="closeLb();openCompanionModal(${c.id})"><i class="ti ti-pencil" style="font-size:11px"></i> Edit</button>
+    </div>`;
+}
+
 // ─── Inventory ───────────────────────────────────────────
 function renderInventory() {
   document.getElementById('inv-body').innerHTML = INV_CATS.map(cat => {
@@ -796,7 +865,7 @@ function renderInventory() {
       ${items.length ? `<div class="inv-table-wrap"><table class="inv-table">
         <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th></th></tr></thead>
         <tbody>${items.map(i=>`<tr>
-          <td>${esc(i.name)}${i.weaponRef
+          <td><button class="inv-name-btn" onclick="openItemLb(${i.id})">${esc(i.name)}</button>${i.weaponRef
             ?`<a class="inv-arsenal" href="../../weapons/index.html" title="View in Weapons Arsenal" target="_blank"><i class="ti ti-bow-arrow" style="font-size:9px"></i> Arsenal</a>`
             :''}</td>
           <td><span class="inv-qty">×${i.qty}</span></td>

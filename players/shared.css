@@ -265,6 +265,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .cmp-hp-btn:hover{color:var(--txt);border-color:rgba(255,255,255,.15);}
 .cmp-hp-val{font-family:'Cinzel',serif;font-size:13px;font-weight:700;min-width:48px;text-align:center;}
 .cmp-hp-max{font-size:11px;font-weight:400;color:var(--muted);}
+.inv-name-btn{background:none;border:none;padding:0;cursor:pointer;color:var(--txt);font-family:inherit;font-size:inherit;text-align:left;font-weight:600;transition:color .12s;}
+.inv-name-btn:hover{color:rgba(var(--player-accent-rgb),1);text-decoration:underline;text-underline-offset:2px;}
 .tr-prog-sep{color:var(--dim);font-size:14px;font-weight:600;}
 
 /* ── Mobile ── */

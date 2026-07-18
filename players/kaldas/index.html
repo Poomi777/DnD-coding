@@ -179,14 +179,14 @@
 const PLAYER_NAME     = 'Kaldas';
 const CHAR            = { class:'—', level:'—', race:'—', hp:'—', ac:'—', speed:'—' };
 const STORE_KEY       = 'kaldas-data';
-const INV_VERSION     = 3;
+const INV_VERSION     = 4;
 const PURGE_IDS       = [];
 const DEFAULT_ABILITIES = [
   { id:1, name:'Analyze',            sub:'Homebrew Utility', type:'utility', cost:'Bonus Action', range:'Self',   save:'', uses:1, usesMax:1, recharge:'Long Rest', desc:"Analyze a person's or monster's attack, ability, or other action and store its pattern. You may use the stored technique as your own once per long rest." },
   { id:2, name:'Open Comms Message', sub:'Cantrip — Enhanced',  type:'magic',   cost:'Action',       range:'120 ft', save:'', uses:1, usesMax:1, recharge:'Long Rest', desc:"An enhanced casting of the Message cantrip. Opens a silent communication channel between up to 4 willing creatures simultaneously within range. All linked creatures can hear and whisper back to each other. The channel remains open for up to 3 minutes." },
 ];
 const DEFAULT_INVENTORY = [
-  { id:1,  name:'Frostball',                       qty:1, type:'consumable', notes:'Spell Scroll L4 · 9d6 cold · 20ft radius · DEX save' },
+  { id:1,  name:'Frostball',                       qty:1, type:'consumable', notes:'Spell Scroll L4 · 9d6 cold · 30ft radius · DEX save DC 16' },
   { id:2,  name:'Magic Missile',                   qty:2, type:'consumable', notes:'Spell Scroll L1 · 3 darts, 1d4+1 force each · auto-hit' },
   { id:3,  name:'Chromatic Orb',                   qty:1, type:'consumable', notes:'Spell Scroll L1 · 3d8 damage, choose element · spell atk' },
   { id:4,  name:'Thunderwave',                     qty:1, type:'consumable', notes:'Spell Scroll L1 · 2d8 thunder, 10ft cube · CON save · push 10ft' },
