@@ -665,6 +665,7 @@ function boot() {
   renderInventory();
   initNotes();
   initRulesTab();
+  initResolveRulesModal();
   initTrainingTab();
   initCompanionsTab();
 }
@@ -672,7 +673,8 @@ function boot() {
 // ─── Spellcaster Mechanics rules tab ──────────────────────
 function initRulesTab() {
   document.body.insertAdjacentHTML('beforeend',
-    '<div class="rules-tab" onclick="openRulesModal()"><i class="ti ti-book-2"></i><span>Spellcasting Rules</span></div>' +
+    '<div class="rules-tab" style="top:calc(50% - 58px)" onclick="openRulesModal()"><i class="ti ti-book-2"></i><span>Spellcasting Rules</span></div>' +
+    '<div class="rules-tab" style="top:calc(50% + 58px)" onclick="openResolveModal()"><i class="ti ti-shield-half"></i><span>Companion Resolve</span></div>' +
     '<div class="rules-modal-ov" id="rules-modal-ov" onclick="bgCloseRules(event)">' +
       '<div class="rules-modal">' +
         '<div class="rules-modal-head">' +
@@ -732,6 +734,93 @@ function initRulesTab() {
 function openRulesModal() { document.getElementById('rules-modal-ov').classList.add('open'); }
 function closeRulesModal() { document.getElementById('rules-modal-ov').classList.remove('open'); }
 function bgCloseRules(e) { if (e.target.id === 'rules-modal-ov') closeRulesModal(); }
+
+function openResolveModal()  { document.getElementById('resolve-rules-ov').classList.add('open'); }
+function closeResolveModal() { document.getElementById('resolve-rules-ov').classList.remove('open'); }
+
+function initResolveRulesModal() {
+  document.body.insertAdjacentHTML('beforeend',
+    '<div class="rules-modal-ov" id="resolve-rules-ov" onclick="if(event.target.id===\'resolve-rules-ov\')closeResolveModal()">' +
+      '<div class="rules-modal">' +
+        '<div class="rules-modal-head">' +
+          '<span class="rules-modal-title"><i class="ti ti-shield-half"></i> Companion Resolve System</span>' +
+          '<button class="rules-modal-close" onclick="closeResolveModal()"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="rules-modal-body">' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">🛡️ What is Resolve?</div>' +
+            '<p>Companions don\'t track hit points in the traditional sense. Instead, they have <strong>Resolve Points</strong> — a measure of their endurance, focus, and will to keep fighting.</p>' +
+            '<p>Each Resolve Point represents the companion\'s ability to shrug off or withstand one significant hit. When they run out, they go down.</p>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">🎲 How Taking a Hit Works</div>' +
+            '<p>Every time a companion takes damage, check the damage total against the tier thresholds and roll a <strong>CON saving throw</strong>:</p>' +
+            '<div class="rules-resolve-table">' +
+              '<div class="rules-resolve-row header">' +
+                '<span>Damage Dealt</span><span>CON Save DC</span><span>On Fail</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>1 – 8</span><span>DC 10</span><span>−1 Resolve</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>9 – 16</span><span>DC 15</span><span>−1 Resolve</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>17+</span><span>DC 20</span><span>−1 Resolve</span>' +
+              '</div>' +
+            '</div>' +
+            '<p><strong>Success:</strong> The companion weathers the blow — Resolve does not decrease.</p>' +
+            '<p><strong>Failure:</strong> The hit lands properly — Resolve decreases by 1.</p>' +
+            '<p><em>Note: The CON modifier is added to the saving throw roll as normal.</em></p>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">⬆️ Level Scaling</div>' +
+            '<p>As a companion grows in level, their endurance improves. Each level adds <strong>+1</strong> to each damage tier threshold:</p>' +
+            '<div class="rules-resolve-table">' +
+              '<div class="rules-resolve-row header">' +
+                '<span>Level</span><span>DC 10 tier</span><span>DC 15 tier</span><span>DC 20 tier</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>Lv. 0 (base)</span><span>1–8</span><span>9–16</span><span>17+</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>Lv. 1</span><span>1–9</span><span>10–17</span><span>18+</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>Lv. 4</span><span>1–12</span><span>13–20</span><span>21+</span>' +
+              '</div>' +
+              '<div class="rules-resolve-row">' +
+                '<span>Lv. N</span><span>1–(8+N)</span><span>(9+N)–(16+N)</span><span>(17+N)+</span>' +
+              '</div>' +
+            '</div>' +
+            '<p><em>The exact thresholds for each companion are always shown in their detail view.</em></p>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">💀 Reaching Zero</div>' +
+            '<p>When a companion reaches <strong>0 Resolve</strong>, they go unconscious or are otherwise incapacitated — the specific outcome is up to the DM and the fiction of the moment.</p>' +
+            '<p>Companions don\'t make death saving throws unless the DM decides otherwise. Recovery typically requires a short or long rest.</p>' +
+          '</div>' +
+
+          '<div class="rules-class">' +
+            '<div class="rules-class-name">📋 Quick Reference</div>' +
+            '<ul>' +
+              '<li>Resolve Points = how many hits the companion can take</li>' +
+              '<li>Every hit → roll CON save (DC based on damage tier)</li>' +
+              '<li>Pass → no change. Fail → −1 Resolve</li>' +
+              '<li>Level N adds N to every tier threshold</li>' +
+              '<li>0 Resolve → companion goes down</li>' +
+            '</ul>' +
+          '</div>' +
+
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
 
 // ─── Abilities ───────────────────────────────────────────
 function buildFilters() {
@@ -1143,7 +1232,7 @@ function switchTab(name, btn) {
 function bgClose(e, id) { if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open'); }
 
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); closeTrainingModal(); closeCompanionModal(); }
+  if (e.key==='Escape') { closeLb(); closeAbilityModal(); closeArsenalModal(); closeItemModal(); closeRulesModal(); closeResolveModal(); closeTrainingModal(); closeCompanionModal(); }
   if (!document.getElementById('lb').classList.contains('open')) return;
   if (lbMode === 'ability' && e.key==='ArrowLeft')  lbStep(-1);
   if (lbMode === 'ability' && e.key==='ArrowRight') lbStep(1);

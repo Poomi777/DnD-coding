@@ -70,6 +70,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .rules-sub-name{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
 .rules-sub p{margin-bottom:7px;}
 .rules-sub p:last-child{margin-bottom:0;}
+.rules-resolve-table{border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin:10px 0 12px;}
+.rules-resolve-row{display:flex;gap:0;}
+.rules-resolve-row span{flex:1;padding:7px 11px;font-family:'Crimson Pro',serif;font-size:13px;color:var(--txt);border-right:1px solid var(--bdr-d);border-bottom:1px solid var(--bdr-d);}
+.rules-resolve-row span:last-child{border-right:none;}
+.rules-resolve-row:last-child span{border-bottom:none;}
+.rules-resolve-row.header span{font-family:inherit;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);background:var(--bg-e);}
 
 @media(max-width:640px){
   .rules-tab{padding:13px 7px;font-size:10px;}
