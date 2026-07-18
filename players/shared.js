@@ -84,7 +84,11 @@ function loadState() {
       nextTrainingId  = s.nextTrainingId  || (Math.max(0, ...training.map(t=>t.id),  0) + 1);
       companions      = s.companions || [];
       if (typeof DEFAULT_COMPANIONS !== 'undefined') {
-        DEFAULT_COMPANIONS.forEach(dc => { if (!companions.find(c => c.id === dc.id)) companions.push({...dc}); });
+        DEFAULT_COMPANIONS.forEach(dc => {
+          const existing = companions.find(c => c.id === dc.id);
+          if (!existing) { companions.push({...dc}); }
+          else if (!existing.image && dc.image) { existing.image = dc.image; }
+        });
       }
       nextCompanionId = s.nextCompanionId || (Math.max(0, ...companions.map(c=>c.id), 0) + 1);
       persist(); return;
