@@ -162,6 +162,13 @@ svg#canvas.mode-select{cursor:default;}
         <select id="zoneOwner" class="field-select"></select>
       </div>
       <div>
+        <label class="field-label">Size</label>
+        <select id="zoneSize" class="field-select">
+          <option value="major">Major (planet / station)</option>
+          <option value="minor">Minor (moon / outpost)</option>
+        </select>
+      </div>
+      <div>
         <label class="field-label">Description</label>
         <textarea id="zoneDescription" class="field-textarea" placeholder="What is this place?"></textarea>
       </div>
@@ -262,6 +269,7 @@ function normalize(d){
     m.zones.forEach(function(z){
       if(!z.log)z.log=[];
       if(z.description==null)z.description='';
+      if(z.size!=='minor')z.size='major';
     });
   });
   return d;
@@ -409,22 +417,24 @@ function renderCanvas(){
   map.zones.forEach(function(z){
     var owner=z.ownerId!=null?getFaction(z.ownerId):null;
     var color=owner?owner.color:null;
+    var r=z.size==='minor'?15:26;
     var g=el('g',{class:'zone-grp'+(z.id===selectedZoneId||z.id===connectFirst?' selected':''),'data-id':z.id});
 
-    var circle=el('circle',{class:'zone-circle'+(owner?'':' unclaimed'),cx:z.x,cy:z.y,r:24});
+    var circle=el('circle',{class:'zone-circle'+(owner?'':' unclaimed'),cx:z.x,cy:z.y,r:r});
     if(owner)circle.setAttribute('fill',color);
     g.appendChild(circle);
 
     var initText=el('text',{class:'zone-initials',x:z.x,y:z.y});
     initText.setAttribute('fill',owner?(luminance(color)>0.55?'#111':'#fff'):'var(--text-muted)');
+    if(z.size==='minor')initText.setAttribute('font-size','9px');
     initText.textContent=initials(z.name||'?');
     g.appendChild(initText);
 
-    var label=el('text',{class:'zone-label',x:z.x,y:z.y+40});
+    var label=el('text',{class:'zone-label',x:z.x,y:z.y+r+16});
     label.textContent=z.name;
     g.appendChild(label);
 
-    var sub=el('text',{class:'zone-sub',x:z.x,y:z.y+52});
+    var sub=el('text',{class:'zone-sub',x:z.x,y:z.y+r+28});
     sub.textContent=owner?owner.name:'Unclaimed';
     g.appendChild(sub);
 
@@ -458,6 +468,7 @@ function openZoneDrawer(zoneId){
   renderZoneOwnerOptions();
   document.getElementById('zoneName').value=z.name;
   document.getElementById('zoneOwner').value=z.ownerId!=null?z.ownerId:'';
+  document.getElementById('zoneSize').value=z.size==='minor'?'minor':'major';
   document.getElementById('zoneDescription').value=z.description||'';
   renderZoneLog(z);
   document.getElementById('zoneOverlay').classList.add('open');
@@ -519,7 +530,7 @@ function renderCampaignLog(){
 function addZoneAt(x,y){
   var map=getActiveMap();
   var n=map.zones.length+1;
-  var z={id:uid(),name:'New Zone '+n,x:x,y:y,ownerId:null,description:'',log:[]};
+  var z={id:uid(),name:'New Zone '+n,x:x,y:y,ownerId:null,size:'major',description:'',log:[]};
   map.zones.push(z);
   save();
   renderAll();
@@ -695,6 +706,12 @@ function initUI(){
     if(!z)return;
     z.description=evt.target.value.trim();
     save();
+  });
+  document.getElementById('zoneSize').addEventListener('change',function(evt){
+    var map=getActiveMap();var z=findZone(map,selectedZoneId);
+    if(!z)return;
+    z.size=evt.target.value==='minor'?'minor':'major';
+    save();renderAll();
   });
   document.getElementById('zoneLogAddBtn').addEventListener('click',function(){
     var ta=document.getElementById('zoneLogInput');
