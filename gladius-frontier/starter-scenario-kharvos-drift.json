@@ -1,5 +1,5 @@
 {
-  "nextId": 37,
+  "nextId": 45,
   "activeMapId": 28,
   "factions": [
     {"id":1,"name":"Space Marines","color":"#3b82f6"},
@@ -30,64 +30,142 @@
     {"id":26,"name":"Adeptus Titanicus","color":"#334155"}
   ],
   "maps": [
-    {"id":27,"name":"Gladius Prime","zones":[],"connections":[]},
+    {"id":27,"name":"Gladius Prime","zones":[],"connections":[],"eventLog":[]},
     {
       "id":28,
       "name":"The Kharvos Drift",
       "zones":[
         {
-          "id":29,"name":"Kharvos Prime","x":700,"y":170,"ownerId":4,
+          "id":29,"name":"Kharvos Prime","x":1200,"y":130,"ownerId":4,
+          "description":"A fortified hive world at the heart of the Drift, home to three billion souls under the Astra Militarum's watch. The system's capital, and the first thing anyone attempting to enter the Drift has to get past.",
           "log":[
             {"ts":"Cycle 001, Day 1","text":"The warp storm that sealed the Kharvos Drift for three centuries has finally broken. Astra Militarum forces from the Cadian 771st make landfall at Kharvos Prime, reclaiming the hive spires in the Emperor's name and declaring the system open once more."},
             {"ts":"Cycle 001, Day 3","text":"Vox-traffic from orbit reports unidentified voidcraft massing beyond the system's edge. High Command orders all garrisons to full alert."}
           ]
         },
         {
-          "id":30,"name":"Aurun's Forge","x":919,"y":275,"ownerId":6,
+          "id":30,"name":"Aurun's Forge","x":1520,"y":230,"ownerId":6,
+          "description":"An ash-choked forge world riddled with pre-Imperial ruins. The Adeptus Mechanicus believes STC fragments lie in its deep, unexcavated vaults.",
           "log":[
             {"ts":"Cycle 001, Day 2","text":"The Adeptus Mechanicus arrives in force, its tech-priests eager to reclaim the pre-Imperial forge complexes buried beneath Aurun's ash fields. STC fragments are rumored to lie in the deep vaults."}
           ]
         },
         {
-          "id":31,"name":"The Reliquary","x":973,"y":512,"ownerId":11,
+          "id":31,"name":"The Reliquary","x":1200,"y":330,"ownerId":11,
+          "description":"An orbital shrine-station consecrated by the Order of the Sacred Rose, now a waypoint for pilgrims drawn to a system long thought lost to the Emperor's light.",
           "log":[
             {"ts":"Cycle 001, Day 4","text":"The Order of the Sacred Rose consecrates the orbital shrine-station, declaring it a beacon of the Emperor's light in a system long lost to darkness. Pilgrims begin to arrive even as the void beyond remains unsecured."}
           ]
         },
         {
-          "id":32,"name":"Skarn's Maw","x":822,"y":702,"ownerId":3,
+          "id":32,"name":"Skarn's Maw","x":850,"y":950,"ownerId":3,
+          "description":"A crater-pocked moon dominated by the wreck of a crashed hulk. Warboss Skarnag Grimjaw's Bloodmoon Krew has called it home for longer than anyone can prove.",
           "log":[
             {"ts":"Cycle 001, Day 1","text":"Warboss Skarnag Grimjaw and his Bloodmoon Krew were already dug into Skarn's Maw when the Imperials arrived — survivors, it seems, of a crashed hulk centuries ago. The Orks are not leaving without a fight."}
           ]
         },
         {
-          "id":33,"name":"Blightfen","x":579,"y":702,"ownerId":16,
+          "id":33,"name":"Blightfen","x":1550,"y":950,"ownerId":16,
+          "description":"A rot-choked swampworld tended for generations by Death Guard cultists, patient and unseen, waiting for a call that has finally come.",
           "log":[
             {"ts":"Cycle 001, Day 1","text":"Rot-choked and silent, Blightfen reeks of old plague magic. Death Guard cultists have tended its blighted swamps for generations, awaiting a call that finally seems to be answered."}
           ]
         },
         {
-          "id":34,"name":"Ashen Reach","x":427,"y":512,"ownerId":null,
+          "id":34,"name":"Ashen Reach","x":1550,"y":550,"ownerId":8,
+          "description":"A wasteland world scoured by ash storms, its skies now stained the color of old bone since the splinter fleet's arrival.",
           "log":[
-            {"ts":"Cycle 001, Day 5","text":"Imperial scouts report bio-signatures across Ashen Reach consistent with hive fleet spore contamination. No splinter fleet has been sighted yet — but the wind carries spores that shouldn't exist."}
+            {"ts":"Cycle 001, Day 5","text":"Imperial scouts report bio-signatures across Ashen Reach consistent with hive fleet spore contamination. No splinter fleet has been sighted yet — but the wind carries spores that shouldn't exist."},
+            {"ts":"Cycle 001, Day 6","text":"The spores were only the vanguard. A splinter fleet has translated in-system, and Ashen Reach's skies have gone the color of old bone. Bio-ships descend through the ash clouds, and the world's silence has become something far worse — hunger."}
           ]
         },
         {
-          "id":35,"name":"Necropolis","x":481,"y":275,"ownerId":null,
+          "id":35,"name":"Necropolis","x":850,"y":550,"ownerId":5,
+          "description":"A silent, glassy world long assumed dead. It was never dead — only sleeping. Its tomb complexes have begun to stir.",
           "log":[
-            {"ts":"Cycle 001, Day 2","text":"Auger scans of the tomb-world designated 'Necropolis' show no active signatures — for now. Astropaths report unquiet dreams when the fleet passes too close in the warp."}
+            {"ts":"Cycle 001, Day 2","text":"Auger scans of the tomb-world designated 'Necropolis' show no active signatures — for now. Astropaths report unquiet dreams when the fleet passes too close in the warp."},
+            {"ts":"Cycle 001, Day 6","text":"The unquiet dreams were a warning. Three tomb complexes beneath Necropolis's surface have opened. Reanimation protocols long dormant now flicker to life world-wide, and the world's ancient dynasty stirs to reclaim what was always theirs."}
           ]
         },
         {
-          "id":36,"name":"Drift Station","x":700,"y":450,"ownerId":null,
+          "id":36,"name":"Drift Station","x":1200,"y":700,"ownerId":null,
+          "description":"A derelict waystation sitting at the literal crossroads of the system. Whoever holds it controls the routes between every other world in the Drift — which is exactly why nobody does, for long.",
           "log":[
-            {"ts":"Cycle 001, Day 1","text":"Once a thriving waystation on the old trade route, the Drift Station now sits empty and unclaimed at the crossroads of the whole system — and every faction knows whoever holds it controls the routes between worlds."}
+            {"ts":"Cycle 001, Day 1","text":"Once a thriving waystation on the old trade route, the Drift Station now sits empty and unclaimed at the crossroads of the whole system — and every faction knows whoever holds it controls the routes between worlds."},
+            {"ts":"Cycle 001, Day 7","text":"Five warbands converge without warning: Drukhari raiders, an Astra Militarum column, an Ork Krew, a Necron honor guard, and a Tyranid bio-ship's opening wave. See the Campaign Log for the full account."}
+          ]
+        },
+        {
+          "id":37,"name":"Vantage Solar","x":880,"y":230,"ownerId":1,
+          "description":"A void-station in high geostationary orbit, bristling with augur arrays and long-range weapon batteries. The Adeptus Astartes garrison here answers to no local command.",
+          "log":[
+            {"ts":"Cycle 001, Day 3","text":"A single strike cruiser broke from the Kharvos relief fleet and made for the system's edge without explanation. The Adeptus Astartes rarely explain themselves. Vantage Solar's void-shields flickered to life within the hour — and have not powered down since."}
+          ]
+        },
+        {
+          "id":38,"name":"The Gallowspire","x":1850,"y":400,"ownerId":2,
+          "description":"A once-Imperial listening post, its aquila replaced by something that shifts when stared at too long. Those who linger nearby report hearing their own voice calling from inside the rock.",
+          "log":[
+            {"ts":"Cycle 001, Day 4","text":"Vox-logs recovered from a passing merchant vessel speak of a spire that should not still be standing — its Imperial aquila replaced by something that writhes when looked at too long. Those who venture too close report hearing their own voices, calling from inside the rock."}
+          ]
+        },
+        {
+          "id":39,"name":"The Silent Choir","x":550,"y":400,"ownerId":null,
+          "description":"A stretch of void where astropaths dream the same dream and Navigators refuse to plot a course. Something sings there. Nobody has found the source.",
+          "log":[
+            {"ts":"Cycle 001, Day 5","text":"Astropaths aboard three separate vessels reported the same dream on the same night: a choir singing in a language that predates the Imperium, emanating from an empty stretch of void. Navigators refuse to chart a course through it. Nobody has explained why the nebula there pulses, faintly, like a heartbeat."}
+          ]
+        },
+        {
+          "id":40,"name":"Ynnead's Veil","x":400,"y":750,"ownerId":9,
+          "description":"A webway node that, by every Imperial record, should not exist. Craftworld seers walk here on business they share with no one.",
+          "log":[
+            {"ts":"Cycle 001, Day 6","text":"The Craftworld seers arrived without warning and without fleet — stepping instead from a webway gate that, by every Imperial record, should not exist. They speak to no one of their purpose here, only that the threads of fate have drawn tight around the Drift, and they do not intend to be caught unprepared."}
+          ]
+        },
+        {
+          "id":41,"name":"The Rustfields","x":550,"y":1150,"ownerId":null,
+          "description":"A thousand-kilometer debris field from a battle no living record explains. Salvage crews go in. Not all of them come back.",
+          "log":[
+            {"ts":"Cycle 001, Day 4","text":"A debris field of shattered hulls stretches for a thousand kilometers, wreckage from a battle no living record accounts for. Salvage crews who venture in rarely come back with more than they went in with — and some don't come back at all."}
+          ]
+        },
+        {
+          "id":42,"name":"Sha'vastra Reach","x":1200,"y":1370,"ownerId":7,
+          "description":"A T'au colonial foothold, its terraforming engines already running before the ash from the last warp storm had even settled. The Greater Good does not wait for permission.",
+          "log":[
+            {"ts":"Cycle 001, Day 5","text":"Ethereal caste emissaries broadcast an open invitation on all frequencies: join the Greater Good, or step aside. The T'au colony ships arrived with terraforming engines already running, utterly undeterred by a system still smoldering from a warp storm's wake."}
+          ]
+        },
+        {
+          "id":43,"name":"Ghoul Reef","x":1850,"y":1150,"ownerId":null,
+          "description":"A mineral-rich asteroid belt plagued by ghostly vox-static and a body count that keeps climbing. Prospectors call it cursed. The T'au call it an opportunity.",
+          "log":[
+            {"ts":"Cycle 001, Day 3","text":"Named for the ghostly static that plagues every vox-channel nearby, Ghoul Reef's asteroid belt is rich in rare minerals and, according to salvagers, richer still in bad luck. Three prospecting crews have vanished here since the Drift reopened."}
+          ]
+        },
+        {
+          "id":44,"name":"The Obsidian Skein","x":2000,"y":750,"ownerId":10,
+          "description":"A hidden webway port that opened in the shadow of a dead moon without warning. A kabal with old business in this system has returned to collect.",
+          "log":[
+            {"ts":"Cycle 001, Day 6","text":"No astropath detected their arrival. No augur flagged their ships. The Obsidian Skein simply appeared one night in the shadow of a dead moon — a webway port opened by a kabal with old business in this system, and a taste for what the reopened Drift has to offer."}
           ]
         }
       ],
       "connections":[
-        [29,36],[30,36],[31,36],[32,36],[33,36],[34,36],[35,36],
-        [35,29],[32,33],[30,29]
+        [29,37],[29,30],[29,31],
+        [31,35],[31,34],
+        [35,36],[34,36],[32,36],[33,36],
+        [35,32],[34,33],
+        [36,40],[36,44],[36,42],
+        [40,41],[40,39],
+        [44,43],[44,33],
+        [32,41],[33,43],
+        [42,41],[42,43],
+        [37,39],[30,38],[34,38]
+      ],
+      "eventLog":[
+        {"ts":"Cycle 001, Day 7","text":"THE BATTLE FOR DRIFT STATION — Five banners converge on the system's crossroads.\n\nWord of Drift Station's emptiness has spread fast — too fast. A Kabal of the Obsidian Skein slips from the webway in raiding skiffs, hungry for slaves and sport. An Astra Militarum relief column from Kharvos Prime arrives to secure the waystation before it falls to xenos hands. Skarnag Grimjaw's Bloodmoon Krew roars in from Skarn's Maw, drawn by nothing more than the promise of a good scrap. Beneath the station's ancient foundations, Necron warriors phase into being — Necropolis's dynasty does not tolerate trespassers on ground it once called its own. And in the ash-choked void above, a Tyranid bio-ship vents its first wave of gaunts toward the drifting hulk, drawn by the sheer press of biomass converging below.\n\nFive factions. One station. No alliances, no truce — only the Drift, and whoever's left standing when the void goes quiet again."}
       ]
     }
   ]

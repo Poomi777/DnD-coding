@@ -113,6 +113,7 @@ svg#canvas.mode-select{cursor:default;}
     <button id="renameMapBtn" class="btn btn-sm">Rename Map</button>
     <button id="deleteMapBtn" class="btn btn-sm btn-danger">Delete Map</button>
     <div class="header-spacer"></div>
+    <button id="logBtn" class="btn btn-sm">📜 Campaign Log</button>
     <button id="exportBtn" class="btn btn-sm">Export</button>
     <button id="importBtn" class="btn btn-sm">Import</button>
     <input type="file" id="importFile" accept="application/json" style="display:none">
@@ -161,6 +162,10 @@ svg#canvas.mode-select{cursor:default;}
         <select id="zoneOwner" class="field-select"></select>
       </div>
       <div>
+        <label class="field-label">Description</label>
+        <textarea id="zoneDescription" class="field-textarea" placeholder="What is this place?"></textarea>
+      </div>
+      <div>
         <label class="field-label">Add log entry</label>
         <textarea id="zoneLogInput" class="field-textarea" placeholder="Battle outcome, narrative beat, notes..."></textarea>
         <button id="zoneLogAddBtn" class="btn btn-sm btn-primary" style="margin-top:6px;">Add Entry</button>
@@ -172,6 +177,26 @@ svg#canvas.mode-select{cursor:default;}
     </div>
     <div class="drawer-foot">
       <button id="zoneDeleteBtn" class="btn btn-danger" style="flex:1;">Delete Zone</button>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="logOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title">Campaign Log</span>
+      <button class="icon-btn" id="logCloseBtn">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div>
+        <label class="field-label">Add campaign event</label>
+        <textarea id="campaignLogInput" class="field-textarea" placeholder="What just happened across the map?"></textarea>
+        <button id="campaignLogAddBtn" class="btn btn-sm btn-primary" style="margin-top:6px;">Add Entry</button>
+      </div>
+      <div>
+        <label class="field-label">History</label>
+        <div class="log-list" id="campaignLogList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -225,16 +250,27 @@ function freshState(){
   function localUid(){return n++;}
   DEFAULT_FACTIONS.forEach(function(f){s.factions.push({id:localUid(),name:f[0],color:f[1]});});
   var mapId=localUid();
-  s.maps.push({id:mapId,name:'Gladius Prime',zones:[],connections:[]});
+  s.maps.push({id:mapId,name:'Gladius Prime',zones:[],connections:[],eventLog:[]});
   s.activeMapId=mapId;
   s.nextId=n;
   return s;
 }
 
+function normalize(d){
+  d.maps.forEach(function(m){
+    if(!m.eventLog)m.eventLog=[];
+    m.zones.forEach(function(z){
+      if(!z.log)z.log=[];
+      if(z.description==null)z.description='';
+    });
+  });
+  return d;
+}
+
 function load(){
   try{
     var raw=localStorage.getItem(STORAGE_KEY);
-    if(raw){var d=JSON.parse(raw);if(d&&d.maps&&d.maps.length)return d;}
+    if(raw){var d=JSON.parse(raw);if(d&&d.maps&&d.maps.length)return normalize(d);}
   }catch(e){}
   return freshState();
 }
@@ -422,6 +458,7 @@ function openZoneDrawer(zoneId){
   renderZoneOwnerOptions();
   document.getElementById('zoneName').value=z.name;
   document.getElementById('zoneOwner').value=z.ownerId!=null?z.ownerId:'';
+  document.getElementById('zoneDescription').value=z.description||'';
   renderZoneLog(z);
   document.getElementById('zoneOverlay').classList.add('open');
   renderCanvas();
@@ -449,12 +486,40 @@ function renderZoneLog(z){
   });
 }
 
+/* ---------- campaign log drawer ---------- */
+
+function openLogDrawer(){
+  renderCampaignLog();
+  document.getElementById('logOverlay').classList.add('open');
+}
+
+function closeLogDrawer(){
+  document.getElementById('logOverlay').classList.remove('open');
+}
+
+function renderCampaignLog(){
+  var map=getActiveMap();
+  var list=document.getElementById('campaignLogList');
+  list.innerHTML='';
+  if(!map.eventLog||map.eventLog.length===0){
+    list.innerHTML='<div class="log-empty">No campaign events yet.</div>';
+    return;
+  }
+  var entries=map.eventLog.slice().reverse();
+  entries.forEach(function(entry){
+    var div=document.createElement('div');div.className='log-entry';
+    div.innerHTML='<div class="log-ts">'+escapeHtml(entry.ts)+'</div><div class="log-text"></div>';
+    div.querySelector('.log-text').textContent=entry.text;
+    list.appendChild(div);
+  });
+}
+
 /* ---------- zone / connection mutation ---------- */
 
 function addZoneAt(x,y){
   var map=getActiveMap();
   var n=map.zones.length+1;
-  var z={id:uid(),name:'New Zone '+n,x:x,y:y,ownerId:null,log:[]};
+  var z={id:uid(),name:'New Zone '+n,x:x,y:y,ownerId:null,description:'',log:[]};
   map.zones.push(z);
   save();
   renderAll();
@@ -580,12 +645,14 @@ function initUI(){
   document.getElementById('mapSelect').addEventListener('change',function(evt){
     state.activeMapId=parseInt(evt.target.value,10);
     connectFirst=null;
+    closeZoneDrawer();
+    closeLogDrawer();
     save();renderAll();
   });
   document.getElementById('newMapBtn').addEventListener('click',function(){
     var name=window.prompt('New map name:','New System');
     if(!name)return;
-    var m={id:uid(),name:name.trim(),zones:[],connections:[]};
+    var m={id:uid(),name:name.trim(),zones:[],connections:[],eventLog:[]};
     state.maps.push(m);
     state.activeMapId=m.id;
     save();renderAll();
@@ -623,6 +690,12 @@ function initUI(){
     z.ownerId=evt.target.value===''?null:parseInt(evt.target.value,10);
     save();renderAll();
   });
+  document.getElementById('zoneDescription').addEventListener('change',function(evt){
+    var map=getActiveMap();var z=findZone(map,selectedZoneId);
+    if(!z)return;
+    z.description=evt.target.value.trim();
+    save();
+  });
   document.getElementById('zoneLogAddBtn').addEventListener('click',function(){
     var ta=document.getElementById('zoneLogInput');
     var text=ta.value.trim();
@@ -639,6 +712,22 @@ function initUI(){
     if(!z)return;
     if(!confirm('Delete zone "'+z.name+'"? This removes its history and connections.'))return;
     deleteZone(z.id);
+  });
+
+  document.getElementById('logBtn').addEventListener('click',openLogDrawer);
+  document.getElementById('logCloseBtn').addEventListener('click',closeLogDrawer);
+  document.getElementById('logOverlay').addEventListener('click',function(evt){
+    if(evt.target.id==='logOverlay')closeLogDrawer();
+  });
+  document.getElementById('campaignLogAddBtn').addEventListener('click',function(){
+    var ta=document.getElementById('campaignLogInput');
+    var text=ta.value.trim();
+    if(!text)return;
+    var map=getActiveMap();
+    if(!map.eventLog)map.eventLog=[];
+    map.eventLog.push({ts:new Date().toLocaleString(),text:text});
+    ta.value='';
+    save();renderCampaignLog();
   });
 
   document.getElementById('exportBtn').addEventListener('click',function(){
@@ -661,9 +750,10 @@ function initUI(){
         var d=JSON.parse(reader.result);
         if(!d||!d.maps||!d.factions)throw new Error('bad format');
         if(!confirm('Import will replace your current campaign data. Continue?'))return;
-        state=d;
+        state=normalize(d);
         if(!state.activeMapId&&state.maps.length)state.activeMapId=state.maps[0].id;
         connectFirst=null;selectedZoneId=null;
+        closeZoneDrawer();closeLogDrawer();
         save();renderAll();
       }catch(e){
         alert('Could not import file: not a valid Gladius Frontier export.');

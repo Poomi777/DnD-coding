@@ -11,6 +11,7 @@ A personal collection of Dungeons & Dragons tools built as standalone web apps �
 | [Player Compendium](players/) | ✅ Live | Per-player homebrew abilities, inventory, and character info |
 | [Map Creator](map-creator/) | 🔜 Planned | Build and annotate encounter maps |
 | [Character Creator](character-creator/) | 🔜 Planned | Build and manage character sheets |
+| [Gladius Frontier](gladius-frontier/) | ✅ Live | Warhammer 40K Gladius territory & campaign map |
 
 ## Usage
 
