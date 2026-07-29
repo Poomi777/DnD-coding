@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gladius Frontier — Territory Map</title>
+<style>
+:root{
+  --bg:#0b0d10; --bg-surface:#14171c; --bg-elevated:#1b1f26; --bg-input:#0f1216;
+  --border:#2a2f38; --border-dim:#1b1f26;
+  --text:#e5e7eb; --text-muted:#8b93a1; --text-dim:#454c58;
+  --accent:#c9a24b; --accent-bg:rgba(201,162,75,.13); --accent-border:rgba(201,162,75,.4);
+  --danger:#dc2626; --danger-bg:rgba(220,38,38,.1); --danger-border:rgba(220,38,38,.3);
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(201,162,75,.05) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(153,27,27,.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+.app{position:relative;max-width:1600px;margin:0 auto;padding:16px 16px 32px;z-index:1;}
+
+.header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,#c9a24b,#7a5c1e);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 2px 10px rgba(201,162,75,.35);}
+.header-text{margin-right:8px;}
+h1{font-size:16px;font-weight:600;letter-spacing:-.3px;}
+.header-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.header-spacer{flex:1;}
+
+select,.select{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;}
+
+.btn{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 12px;font-size:12.5px;font-family:inherit;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .12s,border-color .12s,transform .1s;white-space:nowrap;}
+.btn:hover{background:#232937;border-color:#374050;}
+.btn:active{transform:scale(.97);}
+.btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);}
+.btn-primary{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);}
+.btn-primary:hover{background:rgba(201,162,75,.22);}
+.btn-danger{background:var(--danger-bg);border-color:var(--danger-border);color:#fca5a5;}
+.btn-danger:hover{background:rgba(220,38,38,.2);}
+.btn-sm{padding:4px 9px;font-size:11.5px;}
+.icon-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px 6px;border-radius:var(--r-sm);font-size:14px;display:flex;align-items:center;transition:color .12s,background .12s;}
+.icon-btn:hover{color:var(--text);background:var(--bg-elevated);}
+
+.app-shell{display:flex;gap:14px;align-items:flex-start;}
+
+.sidebar{width:250px;flex-shrink:0;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;flex-direction:column;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:hidden;}
+.sidebar-head{display:flex;align-items:center;gap:7px;padding:9px 12px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-head-title{flex:1;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);}
+.sidebar-body{overflow-y:auto;max-height:38vh;}
+.sidebar-body::-webkit-scrollbar{width:3px;}
+.sidebar-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+.faction-row{display:flex;align-items:center;gap:7px;padding:6px 10px;border-bottom:1px solid var(--border-dim);}
+.faction-row:last-child{border-bottom:none;}
+.swatch{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.25);flex-shrink:0;cursor:pointer;padding:0;}
+.faction-name{flex:1;min-width:0;background:none;border:none;color:var(--text);font-size:12px;font-family:inherit;padding:3px 4px;border-radius:var(--r-sm);}
+.faction-name:hover,.faction-name:focus{background:var(--bg-elevated);outline:none;}
+.faction-del{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:3px;font-size:12px;flex-shrink:0;}
+.faction-del:hover{color:#fca5a5;}
+.empty-note{padding:16px 12px;text-align:center;color:var(--text-muted);font-size:11.5px;}
+
+.ov-row{display:flex;align-items:center;gap:7px;padding:6px 10px;border-bottom:1px solid var(--border-dim);font-size:12px;}
+.ov-row:last-child{border-bottom:none;}
+.ov-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ov-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+.ov-count{color:var(--text-muted);font-weight:600;font-size:11.5px;}
+
+.col-main{flex:1;min-width:0;}
+.toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.mode-hint{font-size:11.5px;color:var(--text-muted);margin-left:4px;}
+
+.canvas-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:auto;height:calc(100vh - 130px);position:relative;}
+.canvas-wrap::-webkit-scrollbar{height:8px;width:8px;}
+.canvas-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+svg#canvas{display:block;cursor:crosshair;}
+svg#canvas.mode-select{cursor:default;}
+.conn-line{stroke:var(--border);stroke-width:2;}
+.zone-grp{cursor:pointer;}
+.zone-grp .zone-circle{stroke:rgba(255,255,255,.3);stroke-width:2;transition:stroke .12s,stroke-width .12s;}
+.zone-grp:hover .zone-circle{stroke:#fff;}
+.zone-grp.selected .zone-circle{stroke:var(--accent);stroke-width:3;}
+.zone-grp .zone-initials{font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.zone-grp .zone-label{font-size:11px;fill:var(--text);text-anchor:middle;pointer-events:none;}
+.zone-grp .zone-sub{font-size:9.5px;fill:var(--text-muted);text-anchor:middle;pointer-events:none;}
+.zone-circle.unclaimed{fill:var(--bg-elevated);stroke-dasharray:4 3;stroke:var(--text-dim);}
+
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:none;align-items:stretch;justify-content:flex-end;}
+.drawer-overlay.open{display:flex;}
+.drawer{width:340px;max-width:90vw;background:var(--bg-surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100%;}
+.drawer-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.drawer-title{flex:1;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);}
+.drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+.field-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:5px;display:block;}
+.field-input,.field-select,.field-textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 10px;font-size:13px;color:var(--text);font-family:inherit;}
+.field-textarea{resize:vertical;min-height:56px;}
+.log-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.log-entry{background:var(--bg-elevated);border:1px solid var(--border-dim);border-radius:var(--r-md);padding:8px 10px;}
+.log-ts{font-size:10px;color:var(--text-dim);margin-bottom:3px;}
+.log-text{font-size:12.5px;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+.log-empty{font-size:11.5px;color:var(--text-dim);text-align:center;padding:10px 0;}
+.drawer-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">⚔</div>
+    <div class="header-text">
+      <h1>Gladius Frontier</h1>
+      <div class="header-sub">Territory & campaign map</div>
+    </div>
+    <select id="mapSelect" class="select"></select>
+    <button id="newMapBtn" class="btn btn-sm">+ Map</button>
+    <button id="renameMapBtn" class="btn btn-sm">Rename Map</button>
+    <button id="deleteMapBtn" class="btn btn-sm btn-danger">Delete Map</button>
+    <div class="header-spacer"></div>
+    <button id="exportBtn" class="btn btn-sm">Export</button>
+    <button id="importBtn" class="btn btn-sm">Import</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+  </div>
+
+  <div class="app-shell">
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <span class="sidebar-head-title">Factions</span>
+        <button id="addFactionBtn" class="icon-btn" title="Add faction">＋</button>
+      </div>
+      <div class="sidebar-body" id="factionList"></div>
+      <div class="sidebar-head">
+        <span class="sidebar-head-title">Territory Held</span>
+      </div>
+      <div class="sidebar-body" id="overviewList"></div>
+    </div>
+
+    <div class="col-main">
+      <div class="toolbar">
+        <button id="modeSelectBtn" class="btn btn-sm active" data-mode="select">Select / Move</button>
+        <button id="modeAddBtn" class="btn btn-sm" data-mode="add">＋ Add Zone</button>
+        <button id="modeConnectBtn" class="btn btn-sm" data-mode="connect">⤡ Connect Zones</button>
+        <span class="mode-hint" id="modeHint"></span>
+      </div>
+      <div class="canvas-wrap">
+        <svg id="canvas" class="mode-select" width="2400" height="1400"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="zoneOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title">Zone</span>
+      <button class="icon-btn" id="zoneCloseBtn">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div>
+        <label class="field-label">Name</label>
+        <input type="text" id="zoneName" class="field-input">
+      </div>
+      <div>
+        <label class="field-label">Controlled by</label>
+        <select id="zoneOwner" class="field-select"></select>
+      </div>
+      <div>
+        <label class="field-label">Add log entry</label>
+        <textarea id="zoneLogInput" class="field-textarea" placeholder="Battle outcome, narrative beat, notes..."></textarea>
+        <button id="zoneLogAddBtn" class="btn btn-sm btn-primary" style="margin-top:6px;">Add Entry</button>
+      </div>
+      <div>
+        <label class="field-label">History</label>
+        <div class="log-list" id="zoneLogList"></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <button id="zoneDeleteBtn" class="btn btn-danger" style="flex:1;">Delete Zone</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var STORAGE_KEY='gladius-frontier-state';
+
+var DEFAULT_FACTIONS=[
+  ['Space Marines','#3b82f6'],
+  ['Chaos Space Marines','#dc2626'],
+  ['Orks','#22c55e'],
+  ['Astra Militarum','#78716c'],
+  ['Necrons','#14b8a6'],
+  ['Adeptus Mechanicus','#ea580c'],
+  ["T'au Empire",'#0ea5e9'],
+  ['Tyranids','#7c3aed'],
+  ['Eldar','#f59e0b'],
+  ['Drukhari','#6b21a8'],
+  ['Sisters of Battle','#e11d48'],
+  ['Adeptus Custodes','#fbbf24'],
+  ['Chaos Daemons','#a855f7'],
+  ['Chaos Knights','#7f1d1d'],
+  ['Dark Mechanicum','#991b1b'],
+  ['Death Guard','#65a30d'],
+  ["Emperor's Children",'#db2777'],
+  ['Grey Knights','#94a3b8'],
+  ['Iron Warriors','#57534e'],
+  ['Night Lords','#312e81'],
+  ['Thousand Sons','#0369a1'],
+  ['Word Bearers','#7c2d12'],
+  ['World Eaters','#b91c1c'],
+  ['Imperial Knights','#1d4ed8'],
+  ['Genestealer Cults','#7e22ce'],
+  ['Adeptus Titanicus','#334155']
+];
+
+var state=null;
+var mode='select';
+var connectFirst=null;
+var selectedZoneId=null;
+var drag=null;
+
+function uid(){state.nextId=(state.nextId||1)+1;return state.nextId-1;}
+
+function freshState(){
+  var s={nextId:1,factions:[],maps:[],activeMapId:null};
+  var n=1;
+  function localUid(){return n++;}
+  DEFAULT_FACTIONS.forEach(function(f){s.factions.push({id:localUid(),name:f[0],color:f[1]});});
+  var mapId=localUid();
+  s.maps.push({id:mapId,name:'Gladius Prime',zones:[],connections:[]});
+  s.activeMapId=mapId;
+  s.nextId=n;
+  return s;
+}
+
+function load(){
+  try{
+    var raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){var d=JSON.parse(raw);if(d&&d.maps&&d.maps.length)return d;}
+  }catch(e){}
+  return freshState();
+}
+
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+
+function getActiveMap(){
+  for(var i=0;i<state.maps.length;i++){if(state.maps[i].id===state.activeMapId)return state.maps[i];}
+  return state.maps[0];
+}
+
+function getFaction(id){
+  for(var i=0;i<state.factions.length;i++){if(state.factions[i].id===id)return state.factions[i];}
+  return null;
+}
+
+function connKey(a,b){return a<b?a+'_'+b:b+'_'+a;}
+
+function luminance(hex){
+  var c=hex.replace('#','');
+  if(c.length===3)c=c.split('').map(function(ch){return ch+ch;}).join('');
+  var r=parseInt(c.substr(0,2),16)/255,g=parseInt(c.substr(2,2),16)/255,b=parseInt(c.substr(4,2),16)/255;
+  return .299*r+.587*g+.114*b;
+}
+
+function initials(name){
+  var words=name.trim().split(/\s+/);
+  if(words.length===1)return words[0].substr(0,2).toUpperCase();
+  return (words[0][0]+words[words.length-1][0]).toUpperCase();
+}
+
+var svgNS='http://www.w3.org/2000/svg';
+function el(tag,attrs){
+  var e=document.createElementNS(svgNS,tag);
+  for(var k in attrs)e.setAttribute(k,attrs[k]);
+  return e;
+}
+
+/* ---------- rendering ---------- */
+
+function renderAll(){
+  renderMapSelect();
+  renderFactions();
+  renderOverview();
+  renderCanvas();
+}
+
+function renderMapSelect(){
+  var sel=document.getElementById('mapSelect');
+  sel.innerHTML='';
+  state.maps.forEach(function(m){
+    var o=document.createElement('option');
+    o.value=m.id;o.textContent=m.name;
+    if(m.id===state.activeMapId)o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function renderFactions(){
+  var list=document.getElementById('factionList');
+  list.innerHTML='';
+  if(state.factions.length===0){
+    list.innerHTML='<div class="empty-note">No factions yet. Click + to add one.</div>';
+    return;
+  }
+  state.factions.forEach(function(f){
+    var row=document.createElement('div');
+    row.className='faction-row';
+
+    var swatch=document.createElement('input');
+    swatch.type='color';swatch.className='swatch';swatch.value=f.color;
+    swatch.addEventListener('input',function(){f.color=swatch.value;save();renderOverview();renderCanvas();});
+
+    var name=document.createElement('input');
+    name.type='text';name.className='faction-name';name.value=f.name;
+    name.addEventListener('change',function(){f.name=name.value.trim()||'Unnamed';save();renderOverview();renderCanvas();renderZoneOwnerOptions();});
+
+    var del=document.createElement('button');
+    del.className='faction-del';del.textContent='✕';del.title='Delete faction';
+    del.addEventListener('click',function(){
+      if(!confirm('Delete faction "'+f.name+'"? Zones it controls become unclaimed.'))return;
+      state.factions=state.factions.filter(function(x){return x.id!==f.id;});
+      state.maps.forEach(function(m){
+        m.zones.forEach(function(z){if(z.ownerId===f.id)z.ownerId=null;});
+      });
+      save();renderAll();
+    });
+
+    row.appendChild(swatch);row.appendChild(name);row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function renderOverview(){
+  var list=document.getElementById('overviewList');
+  list.innerHTML='';
+  var map=getActiveMap();
+  var counts={};
+  map.zones.forEach(function(z){counts[z.ownerId]=(counts[z.ownerId]||0)+1;});
+  var unclaimed=counts['null']||0;
+  map.zones.forEach(function(z){if(z.ownerId==null)unclaimed++;});
+  unclaimed=map.zones.filter(function(z){return z.ownerId==null;}).length;
+
+  state.factions.forEach(function(f){
+    var n=map.zones.filter(function(z){return z.ownerId===f.id;}).length;
+    if(n===0)return;
+    var row=document.createElement('div');row.className='ov-row';
+    row.innerHTML='<span class="ov-swatch" style="background:'+f.color+'"></span><span class="ov-name">'+escapeHtml(f.name)+'</span><span class="ov-count">'+n+'</span>';
+    list.appendChild(row);
+  });
+  if(unclaimed>0){
+    var row=document.createElement('div');row.className='ov-row';
+    row.innerHTML='<span class="ov-swatch" style="background:var(--bg-elevated);border:1px dashed var(--text-dim)"></span><span class="ov-name">Unclaimed</span><span class="ov-count">'+unclaimed+'</span>';
+    list.appendChild(row);
+  }
+  if(map.zones.length===0){
+    list.innerHTML='<div class="empty-note">No zones on this map yet.</div>';
+  }
+}
+
+function escapeHtml(s){
+  var d=document.createElement('div');d.textContent=s;return d.innerHTML;
+}
+
+function renderCanvas(){
+  var svg=document.getElementById('canvas');
+  svg.innerHTML='';
+  var map=getActiveMap();
+
+  map.connections.forEach(function(pair){
+    var a=findZone(map,pair[0]),b=findZone(map,pair[1]);
+    if(!a||!b)return;
+    svg.appendChild(el('line',{class:'conn-line',x1:a.x,y1:a.y,x2:b.x,y2:b.y}));
+  });
+
+  map.zones.forEach(function(z){
+    var owner=z.ownerId!=null?getFaction(z.ownerId):null;
+    var color=owner?owner.color:null;
+    var g=el('g',{class:'zone-grp'+(z.id===selectedZoneId||z.id===connectFirst?' selected':''),'data-id':z.id});
+
+    var circle=el('circle',{class:'zone-circle'+(owner?'':' unclaimed'),cx:z.x,cy:z.y,r:24});
+    if(owner)circle.setAttribute('fill',color);
+    g.appendChild(circle);
+
+    var initText=el('text',{class:'zone-initials',x:z.x,y:z.y});
+    initText.setAttribute('fill',owner?(luminance(color)>0.55?'#111':'#fff'):'var(--text-muted)');
+    initText.textContent=initials(z.name||'?');
+    g.appendChild(initText);
+
+    var label=el('text',{class:'zone-label',x:z.x,y:z.y+40});
+    label.textContent=z.name;
+    g.appendChild(label);
+
+    var sub=el('text',{class:'zone-sub',x:z.x,y:z.y+52});
+    sub.textContent=owner?owner.name:'Unclaimed';
+    g.appendChild(sub);
+
+    svg.appendChild(g);
+  });
+}
+
+function findZone(map,id){
+  for(var i=0;i<map.zones.length;i++){if(map.zones[i].id===id)return map.zones[i];}
+  return null;
+}
+
+function renderZoneOwnerOptions(){
+  var sel=document.getElementById('zoneOwner');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">Unclaimed</option>';
+  state.factions.forEach(function(f){
+    var o=document.createElement('option');o.value=f.id;o.textContent=f.name;
+    sel.appendChild(o);
+  });
+  if(cur)sel.value=cur;
+}
+
+/* ---------- zone drawer ---------- */
+
+function openZoneDrawer(zoneId){
+  selectedZoneId=zoneId;
+  var map=getActiveMap();
+  var z=findZone(map,zoneId);
+  if(!z)return;
+  renderZoneOwnerOptions();
+  document.getElementById('zoneName').value=z.name;
+  document.getElementById('zoneOwner').value=z.ownerId!=null?z.ownerId:'';
+  renderZoneLog(z);
+  document.getElementById('zoneOverlay').classList.add('open');
+  renderCanvas();
+}
+
+function closeZoneDrawer(){
+  selectedZoneId=null;
+  document.getElementById('zoneOverlay').classList.remove('open');
+  renderCanvas();
+}
+
+function renderZoneLog(z){
+  var list=document.getElementById('zoneLogList');
+  list.innerHTML='';
+  if(!z.log||z.log.length===0){
+    list.innerHTML='<div class="log-empty">No history yet.</div>';
+    return;
+  }
+  var entries=z.log.slice().reverse();
+  entries.forEach(function(entry){
+    var div=document.createElement('div');div.className='log-entry';
+    div.innerHTML='<div class="log-ts">'+escapeHtml(entry.ts)+'</div><div class="log-text"></div>';
+    div.querySelector('.log-text').textContent=entry.text;
+    list.appendChild(div);
+  });
+}
+
+/* ---------- zone / connection mutation ---------- */
+
+function addZoneAt(x,y){
+  var map=getActiveMap();
+  var n=map.zones.length+1;
+  var z={id:uid(),name:'New Zone '+n,x:x,y:y,ownerId:null,log:[]};
+  map.zones.push(z);
+  save();
+  renderAll();
+  openZoneDrawer(z.id);
+}
+
+function deleteZone(zoneId){
+  var map=getActiveMap();
+  map.zones=map.zones.filter(function(z){return z.id!==zoneId;});
+  map.connections=map.connections.filter(function(p){return p[0]!==zoneId&&p[1]!==zoneId;});
+  save();
+  closeZoneDrawer();
+  renderAll();
+}
+
+function toggleConnection(map,idA,idB){
+  if(idA===idB)return;
+  var idx=-1;
+  for(var i=0;i<map.connections.length;i++){
+    var p=map.connections[i];
+    if(connKey(p[0],p[1])===connKey(idA,idB)){idx=i;break;}
+  }
+  if(idx>=0)map.connections.splice(idx,1);
+  else map.connections.push([idA,idB]);
+  save();
+}
+
+/* ---------- mode / toolbar ---------- */
+
+function setMode(m){
+  mode=m;
+  connectFirst=null;
+  ['modeSelectBtn','modeAddBtn','modeConnectBtn'].forEach(function(id){
+    document.getElementById(id).classList.remove('active');
+  });
+  var map={select:'modeSelectBtn',add:'modeAddBtn',connect:'modeConnectBtn'}[m];
+  document.getElementById(map).classList.add('active');
+  var hints={select:'Click a zone to inspect, drag to move.',add:'Click empty space to place a new zone.',connect:'Click two zones to link or unlink them.'};
+  document.getElementById('modeHint').textContent=hints[m]||'';
+  var svg=document.getElementById('canvas');
+  svg.setAttribute('class',m==='select'?'mode-select':'');
+  renderCanvas();
+}
+
+/* ---------- canvas interaction ---------- */
+
+function svgPoint(evt){
+  var svg=document.getElementById('canvas');
+  var rect=svg.getBoundingClientRect();
+  var scaleX=svg.width.baseVal.value/rect.width;
+  var scaleY=svg.height.baseVal.value/rect.height;
+  return {x:(evt.clientX-rect.left)*scaleX,y:(evt.clientY-rect.top)*scaleY};
+}
+
+function initCanvasEvents(){
+  var svg=document.getElementById('canvas');
+
+  svg.addEventListener('pointerdown',function(evt){
+    var grp=evt.target.closest('.zone-grp');
+    if(!grp){
+      if(mode==='add'){
+        var pt=svgPoint(evt);
+        addZoneAt(Math.round(pt.x),Math.round(pt.y));
+      }
+      return;
+    }
+    var zoneId=parseInt(grp.getAttribute('data-id'),10);
+
+    if(mode==='connect'){
+      if(connectFirst==null){connectFirst=zoneId;renderCanvas();}
+      else{
+        toggleConnection(getActiveMap(),connectFirst,zoneId);
+        connectFirst=null;
+        renderCanvas();
+      }
+      return;
+    }
+
+    if(mode==='select'){
+      var map=getActiveMap();
+      var z=findZone(map,zoneId);
+      if(!z)return;
+      var start=svgPoint(evt);
+      drag={zoneId:zoneId,startX:start.x,startY:start.y,origX:z.x,origY:z.y,moved:false};
+      svg.setPointerCapture(evt.pointerId);
+    }
+  });
+
+  svg.addEventListener('pointermove',function(evt){
+    if(!drag)return;
+    var pt=svgPoint(evt);
+    var dx=pt.x-drag.startX,dy=pt.y-drag.startY;
+    if(Math.abs(dx)>3||Math.abs(dy)>3)drag.moved=true;
+    if(!drag.moved)return;
+    var map=getActiveMap();
+    var z=findZone(map,drag.zoneId);
+    if(!z)return;
+    z.x=Math.round(drag.origX+dx);
+    z.y=Math.round(drag.origY+dy);
+    renderCanvas();
+  });
+
+  svg.addEventListener('pointerup',function(evt){
+    if(!drag)return;
+    var d=drag;drag=null;
+    if(d.moved){save();}
+    else{openZoneDrawer(d.zoneId);}
+  });
+}
+
+/* ---------- toolbar / drawer wiring ---------- */
+
+function initUI(){
+  document.getElementById('modeSelectBtn').addEventListener('click',function(){setMode('select');});
+  document.getElementById('modeAddBtn').addEventListener('click',function(){setMode('add');});
+  document.getElementById('modeConnectBtn').addEventListener('click',function(){setMode('connect');});
+
+  document.getElementById('addFactionBtn').addEventListener('click',function(){
+    state.factions.push({id:uid(),name:'New Faction',color:'#64748b'});
+    save();renderFactions();renderOverview();renderZoneOwnerOptions();
+  });
+
+  document.getElementById('mapSelect').addEventListener('change',function(evt){
+    state.activeMapId=parseInt(evt.target.value,10);
+    connectFirst=null;
+    save();renderAll();
+  });
+  document.getElementById('newMapBtn').addEventListener('click',function(){
+    var name=window.prompt('New map name:','New System');
+    if(!name)return;
+    var m={id:uid(),name:name.trim(),zones:[],connections:[]};
+    state.maps.push(m);
+    state.activeMapId=m.id;
+    save();renderAll();
+  });
+  document.getElementById('renameMapBtn').addEventListener('click',function(){
+    var map=getActiveMap();
+    var name=window.prompt('Rename map:',map.name);
+    if(!name)return;
+    map.name=name.trim()||map.name;
+    save();renderMapSelect();
+  });
+  document.getElementById('deleteMapBtn').addEventListener('click',function(){
+    if(state.maps.length<=1){alert('At least one map must remain.');return;}
+    var map=getActiveMap();
+    if(!confirm('Delete map "'+map.name+'" and all its zones?'))return;
+    state.maps=state.maps.filter(function(m){return m.id!==map.id;});
+    state.activeMapId=state.maps[0].id;
+    save();renderAll();
+  });
+
+  document.getElementById('zoneCloseBtn').addEventListener('click',closeZoneDrawer);
+  document.getElementById('zoneOverlay').addEventListener('click',function(evt){
+    if(evt.target.id==='zoneOverlay')closeZoneDrawer();
+  });
+  document.getElementById('zoneName').addEventListener('change',function(evt){
+    var map=getActiveMap();var z=findZone(map,selectedZoneId);
+    if(!z)return;
+    z.name=evt.target.value.trim()||z.name;
+    save();renderAll();
+    if(selectedZoneId)openZoneDrawer(selectedZoneId);
+  });
+  document.getElementById('zoneOwner').addEventListener('change',function(evt){
+    var map=getActiveMap();var z=findZone(map,selectedZoneId);
+    if(!z)return;
+    z.ownerId=evt.target.value===''?null:parseInt(evt.target.value,10);
+    save();renderAll();
+  });
+  document.getElementById('zoneLogAddBtn').addEventListener('click',function(){
+    var ta=document.getElementById('zoneLogInput');
+    var text=ta.value.trim();
+    if(!text)return;
+    var map=getActiveMap();var z=findZone(map,selectedZoneId);
+    if(!z)return;
+    if(!z.log)z.log=[];
+    z.log.push({ts:new Date().toLocaleString(),text:text});
+    ta.value='';
+    save();renderZoneLog(z);
+  });
+  document.getElementById('zoneDeleteBtn').addEventListener('click',function(){
+    var map=getActiveMap();var z=findZone(map,selectedZoneId);
+    if(!z)return;
+    if(!confirm('Delete zone "'+z.name+'"? This removes its history and connections.'))return;
+    deleteZone(z.id);
+  });
+
+  document.getElementById('exportBtn').addEventListener('click',function(){
+    var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='gladius-frontier-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById('importBtn').addEventListener('click',function(){
+    document.getElementById('importFile').click();
+  });
+  document.getElementById('importFile').addEventListener('change',function(evt){
+    var file=evt.target.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var d=JSON.parse(reader.result);
+        if(!d||!d.maps||!d.factions)throw new Error('bad format');
+        if(!confirm('Import will replace your current campaign data. Continue?'))return;
+        state=d;
+        if(!state.activeMapId&&state.maps.length)state.activeMapId=state.maps[0].id;
+        connectFirst=null;selectedZoneId=null;
+        save();renderAll();
+      }catch(e){
+        alert('Could not import file: not a valid Gladius Frontier export.');
+      }
+    };
+    reader.readAsText(file);
+    evt.target.value='';
+  });
+}
+
+/* ---------- boot ---------- */
+
+state=load();
+initUI();
+initCanvasEvents();
+setMode('select');
+renderAll();
+
+})();
+</script>
+</body>
+</html>
