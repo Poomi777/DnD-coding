@@ -1,0 +1,94 @@
+{
+  "nextId": 37,
+  "activeMapId": 28,
+  "factions": [
+    {"id":1,"name":"Space Marines","color":"#3b82f6"},
+    {"id":2,"name":"Chaos Space Marines","color":"#dc2626"},
+    {"id":3,"name":"Orks","color":"#22c55e"},
+    {"id":4,"name":"Astra Militarum","color":"#78716c"},
+    {"id":5,"name":"Necrons","color":"#14b8a6"},
+    {"id":6,"name":"Adeptus Mechanicus","color":"#ea580c"},
+    {"id":7,"name":"T'au Empire","color":"#0ea5e9"},
+    {"id":8,"name":"Tyranids","color":"#7c3aed"},
+    {"id":9,"name":"Eldar","color":"#f59e0b"},
+    {"id":10,"name":"Drukhari","color":"#6b21a8"},
+    {"id":11,"name":"Sisters of Battle","color":"#e11d48"},
+    {"id":12,"name":"Adeptus Custodes","color":"#fbbf24"},
+    {"id":13,"name":"Chaos Daemons","color":"#a855f7"},
+    {"id":14,"name":"Chaos Knights","color":"#7f1d1d"},
+    {"id":15,"name":"Dark Mechanicum","color":"#991b1b"},
+    {"id":16,"name":"Death Guard","color":"#65a30d"},
+    {"id":17,"name":"Emperor's Children","color":"#db2777"},
+    {"id":18,"name":"Grey Knights","color":"#94a3b8"},
+    {"id":19,"name":"Iron Warriors","color":"#57534e"},
+    {"id":20,"name":"Night Lords","color":"#312e81"},
+    {"id":21,"name":"Thousand Sons","color":"#0369a1"},
+    {"id":22,"name":"Word Bearers","color":"#7c2d12"},
+    {"id":23,"name":"World Eaters","color":"#b91c1c"},
+    {"id":24,"name":"Imperial Knights","color":"#1d4ed8"},
+    {"id":25,"name":"Genestealer Cults","color":"#7e22ce"},
+    {"id":26,"name":"Adeptus Titanicus","color":"#334155"}
+  ],
+  "maps": [
+    {"id":27,"name":"Gladius Prime","zones":[],"connections":[]},
+    {
+      "id":28,
+      "name":"The Kharvos Drift",
+      "zones":[
+        {
+          "id":29,"name":"Kharvos Prime","x":700,"y":170,"ownerId":4,
+          "log":[
+            {"ts":"Cycle 001, Day 1","text":"The warp storm that sealed the Kharvos Drift for three centuries has finally broken. Astra Militarum forces from the Cadian 771st make landfall at Kharvos Prime, reclaiming the hive spires in the Emperor's name and declaring the system open once more."},
+            {"ts":"Cycle 001, Day 3","text":"Vox-traffic from orbit reports unidentified voidcraft massing beyond the system's edge. High Command orders all garrisons to full alert."}
+          ]
+        },
+        {
+          "id":30,"name":"Aurun's Forge","x":919,"y":275,"ownerId":6,
+          "log":[
+            {"ts":"Cycle 001, Day 2","text":"The Adeptus Mechanicus arrives in force, its tech-priests eager to reclaim the pre-Imperial forge complexes buried beneath Aurun's ash fields. STC fragments are rumored to lie in the deep vaults."}
+          ]
+        },
+        {
+          "id":31,"name":"The Reliquary","x":973,"y":512,"ownerId":11,
+          "log":[
+            {"ts":"Cycle 001, Day 4","text":"The Order of the Sacred Rose consecrates the orbital shrine-station, declaring it a beacon of the Emperor's light in a system long lost to darkness. Pilgrims begin to arrive even as the void beyond remains unsecured."}
+          ]
+        },
+        {
+          "id":32,"name":"Skarn's Maw","x":822,"y":702,"ownerId":3,
+          "log":[
+            {"ts":"Cycle 001, Day 1","text":"Warboss Skarnag Grimjaw and his Bloodmoon Krew were already dug into Skarn's Maw when the Imperials arrived — survivors, it seems, of a crashed hulk centuries ago. The Orks are not leaving without a fight."}
+          ]
+        },
+        {
+          "id":33,"name":"Blightfen","x":579,"y":702,"ownerId":16,
+          "log":[
+            {"ts":"Cycle 001, Day 1","text":"Rot-choked and silent, Blightfen reeks of old plague magic. Death Guard cultists have tended its blighted swamps for generations, awaiting a call that finally seems to be answered."}
+          ]
+        },
+        {
+          "id":34,"name":"Ashen Reach","x":427,"y":512,"ownerId":null,
+          "log":[
+            {"ts":"Cycle 001, Day 5","text":"Imperial scouts report bio-signatures across Ashen Reach consistent with hive fleet spore contamination. No splinter fleet has been sighted yet — but the wind carries spores that shouldn't exist."}
+          ]
+        },
+        {
+          "id":35,"name":"Necropolis","x":481,"y":275,"ownerId":null,
+          "log":[
+            {"ts":"Cycle 001, Day 2","text":"Auger scans of the tomb-world designated 'Necropolis' show no active signatures — for now. Astropaths report unquiet dreams when the fleet passes too close in the warp."}
+          ]
+        },
+        {
+          "id":36,"name":"Drift Station","x":700,"y":450,"ownerId":null,
+          "log":[
+            {"ts":"Cycle 001, Day 1","text":"Once a thriving waystation on the old trade route, the Drift Station now sits empty and unclaimed at the crossroads of the whole system — and every faction knows whoever holds it controls the routes between worlds."}
+          ]
+        }
+      ],
+      "connections":[
+        [29,36],[30,36],[31,36],[32,36],[33,36],[34,36],[35,36],
+        [35,29],[32,33],[30,29]
+      ]
+    }
+  ]
+}
