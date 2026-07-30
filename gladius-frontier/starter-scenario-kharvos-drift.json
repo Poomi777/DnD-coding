@@ -507,7 +507,7 @@
           "name": "Drift Station",
           "x": 1150,
           "y": 1200,
-          "ownerId": null,
+          "ownerId": 10,
           "size": "major",
           "description": "A derelict waystation sitting at the literal crossroads of the system. Whoever holds it controls the routes between every other world in the Drift — which is exactly why nobody does, for long.",
           "log": [
@@ -518,6 +518,10 @@
             {
               "ts": "Cycle 001, Day 7",
               "text": "Five warbands converge without warning: Drukhari raiders, an Astra Militarum column, an Ork Krew, a Necron honor guard, and a Tyranid bio-ship's opening wave. See the Campaign Log for the full account."
+            },
+            {
+              "ts": "Cycle 001, Day 9",
+              "text": "The dust settles at Drift Station, and it's Kabalite banners flying over the wreckage. The Astra Militarum column broke first, the Ork Krew's charge dissolved into a rout, the Necron honor guard was driven back beneath the station's foundations before it could fully deploy, and the Tyranid vanguard's opening wave died screaming in the void before the rest of the brood could translate in-system. The Obsidian Skein claims the crossroads — and with it, every route through the Drift."
             }
           ]
         },
@@ -858,6 +862,10 @@
         {
           "ts": "Cycle 001, Day 8",
           "text": "STORM ON THE NORTHERN MARCHES\n\nWhile the dust hasn't yet settled over Drift Station, vox-traffic from the system's northern dark tells a second story. The Astra Militarum has broken ground on Solthane Bastion, extending the line to Highwatch and the Sanctum Vigil alongside it — Munitorum banners over all three. Allies have answered the muster in support rather than command: a Space Marine liaison force at Highwatch, and an Adepta Sororitas chaplaincy lending its blessing at the Vigil before moving on.\n\nThey have good reason to hurry. A second hive fleet splinter — unconnected to the one devouring Ashen Reach — has torn into real space at Voidmaw Rift, and it is not waiting politely. The Chittering Waste and the Bone-Ash Expanse have already fallen, stripped in less than a day.\n\nAnd, inevitably, the noise has drawn other eyes. Ork raiders out of Skarn's Maw haven't just been probing the frontier — they've planted a flag. Grimfang Landing and the Skullgrin Camp have gone up within sight of both the Sanctum Vigil and Bone-Ash Expanse, an Ork foothold wedged directly between two much larger wars. Three banners are converging on the northern marches, and for the first time, all three are close enough to see each other."
+        },
+        {
+          "ts": "Cycle 001, Day 9",
+          "text": "THE OBSIDIAN SKEIN TAKES THE CROSSROADS\n\nFive banners went into Drift Station. One came out standing. The Astra Militarum relief column broke and fell back toward Kharvos Prime, the Bloodmoon Krew's charge dissolved into a rout, a Necron honor guard was driven back beneath the station's foundations before it could fully deploy, and the Tyranid vanguard's opening wave was cut down before the rest of the bio-ship's brood could translate in-system. When the void went quiet, it was Kabalite blades doing the counting.\n\nDrift Station now flies the Obsidian Skein's colors — and with the crossroads in Drukhari hands, every route through the Kharvos Drift runs through territory they control. The other four factions have a great deal to say about that. None of it complimentary."
         }
       ]
     }
