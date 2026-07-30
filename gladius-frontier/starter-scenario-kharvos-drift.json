@@ -1,5 +1,5 @@
 {
-  "nextId": 61,
+  "nextId": 62,
   "activeMapId": 28,
   "factions": [
     {
@@ -571,13 +571,13 @@
           "name": "Highwatch Priory",
           "x": 620,
           "y": 300,
-          "ownerId": 1,
+          "ownerId": 4,
           "size": "minor",
-          "description": "A fortified monastery-outpost raised beside Solthane Bastion, garrisoned by a small Adeptus Astartes detachment answering an old oath of mutual defense with the sector's Militarum regiments.",
+          "description": "A fortified watch-post the Astra Militarum drilled into the high ground beside Solthane Bastion, named for the ruined priory whose foundations it was built on. Adeptus Astartes liaison officers move through here more often than anywhere else on the line — but the garrison, and the banner over it, is Militarum through and through.",
           "log": [
             {
               "ts": "Cycle 001, Day 8",
-              "text": "A Space Marine detachment makes planetfall at Highwatch Priory without ceremony, their Chapter's reasons for answering the muster left unspoken. Solthane's garrison isn't complaining."
+              "text": "Militarum engineers finish fortifying Highwatch within a day of Solthane's groundbreaking — and a Space Marine liaison force arrives not long after, here to see the line holds, not to hold it themselves."
             }
           ]
         },
@@ -586,13 +586,13 @@
           "name": "The Sanctum Vigil",
           "x": 280,
           "y": 300,
-          "ownerId": 11,
+          "ownerId": 4,
           "size": "minor",
-          "description": "A convent-fortress of the Adepta Sororitas, its reliquary halls converted to war footing the moment word came north of what auspex stations were tracking beyond Solthane's line.",
+          "description": "A shrine-fort raised beside Solthane Bastion at the Munitorum's order, its chapel consecrated in haste by a visiting Adepta Sororitas chaplaincy before the Militarum garrison moved in to hold it.",
           "log": [
             {
               "ts": "Cycle 001, Day 8",
-              "text": "Sisters of the Sacred Rose arrive at the Sanctum Vigil in force, their Canoness declaring the northern marches a new front in the Emperor’s war whether High Command has caught up to that fact yet or not."
+              "text": "The Sanctum Vigil is garrisoned by Militarum troops within the week, though it's the Sisters' benediction — delivered before their chaplaincy moved on to reinforce elsewhere — that the soldiers here credit for keeping the line quiet so far."
             }
           ]
         },
@@ -638,6 +638,21 @@
             {
               "ts": "Cycle 001, Day 8",
               "text": "Long-range picts of the Bone-Ash Expanse show a world already stripped to the bone in less than a day. Militarum tacticians at Solthane revise their timeline for how long the Bastion has before contact."
+            }
+          ]
+        },
+        {
+          "id": 61,
+          "name": "Grudgemark",
+          "x": 120,
+          "y": 800,
+          "ownerId": null,
+          "size": "major",
+          "description": "A drifting field of wrecked hulls and shattered rock, contested by nobody and claimed by nobody — which suits the Ork raiding parties who've started using it as a staging ground just fine. Militarum scouts out of Solthane Bastion have flagged it as the most likely route an Ork push north would take. It would also, inconveniently, work just as well as a route south, straight back into Skarn's Maw.",
+          "log": [
+            {
+              "ts": "Cycle 001, Day 8",
+              "text": "Vox-chatter picked up near Grudgemark is mostly engine-noise and Orkish trash-talk, but the pattern is unmistakable to anyone who's read a Militarum tactical briefing: raiding parties gathering, probing, waiting for a reason. Solthane's garrison has started keeping one eye pointed this way."
             }
           ]
         }
@@ -802,6 +817,14 @@
         [
           60,
           58
+        ],
+        [
+          61,
+          34
+        ],
+        [
+          61,
+          55
         ]
       ],
       "eventLog": [
@@ -811,7 +834,7 @@
         },
         {
           "ts": "Cycle 001, Day 8",
-          "text": "STORM ON THE NORTHERN MARCHES\n\nWhile the dust hasn't yet settled over Drift Station, vox-traffic from the system's northern dark tells a second story. The Astra Militarum has broken ground on Solthane Bastion, a fortress line meant to hold whatever is coming. It didn't take long for allies to answer the muster: a Space Marine detachment at Highwatch Priory, and the Adepta Sororitas in force at the Sanctum Vigil.\n\nThey have good reason to hurry. A second hive fleet splinter — unconnected to the one devouring Ashen Reach — has torn into real space at Voidmaw Rift, and it is not waiting politely. The Chittering Waste and the Bone-Ash Expanse have already fallen, stripped in less than a day.\n\nAnd, inevitably, the noise has drawn other eyes. Ork raiders out of Skarn's Maw are reportedly probing the frontier, less interested in picking a side than in being wherever the biggest fight breaks out. Three banners are converging on the northern marches. None of them are inclined to share."
+          "text": "STORM ON THE NORTHERN MARCHES\n\nWhile the dust hasn't yet settled over Drift Station, vox-traffic from the system's northern dark tells a second story. The Astra Militarum has broken ground on Solthane Bastion, extending the line to Highwatch and the Sanctum Vigil alongside it — Munitorum banners over all three. Allies have answered the muster in support rather than command: a Space Marine liaison force at Highwatch, and an Adepta Sororitas chaplaincy lending its blessing at the Vigil before moving on.\n\nThey have good reason to hurry. A second hive fleet splinter — unconnected to the one devouring Ashen Reach — has torn into real space at Voidmaw Rift, and it is not waiting politely. The Chittering Waste and the Bone-Ash Expanse have already fallen, stripped in less than a day.\n\nAnd, inevitably, the noise has drawn other eyes. Ork raiders out of Skarn's Maw have already started massing at a stretch of contested wreckage the Militarum has taken to calling Grudgemark — less interested in picking a side than in being wherever the biggest fight breaks out, and perfectly happy to carve a path north through it if nobody stops them. Three banners are converging on the northern marches. None of them are inclined to share."
         }
       ]
     }
