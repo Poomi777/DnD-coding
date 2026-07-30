@@ -1,5 +1,5 @@
 {
-  "nextId": 62,
+  "nextId": 64,
   "activeMapId": 28,
   "factions": [
     {
@@ -642,17 +642,32 @@
           ]
         },
         {
-          "id": 61,
-          "name": "Grudgemark",
-          "x": 120,
-          "y": 800,
-          "ownerId": null,
+          "id": 62,
+          "name": "Grimfang Landing",
+          "x": 100,
+          "y": 280,
+          "ownerId": 3,
           "size": "major",
-          "description": "A drifting field of wrecked hulls and shattered rock, contested by nobody and claimed by nobody — which suits the Ork raiding parties who've started using it as a staging ground just fine. Militarum scouts out of Solthane Bastion have flagged it as the most likely route an Ork push north would take. It would also, inconveniently, work just as well as a route south, straight back into Skarn's Maw.",
+          "description": "A crude but effective beachhead Skarnag Grimjaw's kin hammered together within sight of the Imperium's new bastion line — proof that no matter how fast the Munitorum builds a wall, there's always an Ork already looking at it funny.",
           "log": [
             {
-              "ts": "Cycle 001, Day 8",
-              "text": "Vox-chatter picked up near Grudgemark is mostly engine-noise and Orkish trash-talk, but the pattern is unmistakable to anyone who's read a Militarum tactical briefing: raiding parties gathering, probing, waiting for a reason. Solthane's garrison has started keeping one eye pointed this way."
+              "ts": "Cycle 001, Day 9",
+              "text": "Grimfang Landing goes up almost overnight, a scrapheap fortress planted defiantly close to the Sanctum Vigil's void-shields. Nobody sent these Orks an invitation to the fight brewing over the northern marches. They came anyway."
+            }
+          ]
+        },
+        {
+          "id": 63,
+          "name": "Skullgrin Camp",
+          "x": 150,
+          "y": 80,
+          "ownerId": 3,
+          "size": "minor",
+          "description": "A forward raiding camp close enough to Bone-Ash Expanse that the Orks here can watch the Tyranid feeder-swarms at work through a scope — mostly, by all accounts, so they can time their raids for maximum chaos.",
+          "log": [
+            {
+              "ts": "Cycle 001, Day 9",
+              "text": "Skullgrin's boyz have taken to lobbing crude ordnance at anything that crawls out of Bone-Ash Expanse, less out of strategy than boredom. It's working better than it has any right to."
             }
           ]
         }
@@ -819,12 +834,20 @@
           58
         ],
         [
-          61,
+          62,
           34
         ],
         [
-          61,
-          55
+          62,
+          63
+        ],
+        [
+          62,
+          57
+        ],
+        [
+          63,
+          60
         ]
       ],
       "eventLog": [
@@ -834,7 +857,7 @@
         },
         {
           "ts": "Cycle 001, Day 8",
-          "text": "STORM ON THE NORTHERN MARCHES\n\nWhile the dust hasn't yet settled over Drift Station, vox-traffic from the system's northern dark tells a second story. The Astra Militarum has broken ground on Solthane Bastion, extending the line to Highwatch and the Sanctum Vigil alongside it — Munitorum banners over all three. Allies have answered the muster in support rather than command: a Space Marine liaison force at Highwatch, and an Adepta Sororitas chaplaincy lending its blessing at the Vigil before moving on.\n\nThey have good reason to hurry. A second hive fleet splinter — unconnected to the one devouring Ashen Reach — has torn into real space at Voidmaw Rift, and it is not waiting politely. The Chittering Waste and the Bone-Ash Expanse have already fallen, stripped in less than a day.\n\nAnd, inevitably, the noise has drawn other eyes. Ork raiders out of Skarn's Maw have already started massing at a stretch of contested wreckage the Militarum has taken to calling Grudgemark — less interested in picking a side than in being wherever the biggest fight breaks out, and perfectly happy to carve a path north through it if nobody stops them. Three banners are converging on the northern marches. None of them are inclined to share."
+          "text": "STORM ON THE NORTHERN MARCHES\n\nWhile the dust hasn't yet settled over Drift Station, vox-traffic from the system's northern dark tells a second story. The Astra Militarum has broken ground on Solthane Bastion, extending the line to Highwatch and the Sanctum Vigil alongside it — Munitorum banners over all three. Allies have answered the muster in support rather than command: a Space Marine liaison force at Highwatch, and an Adepta Sororitas chaplaincy lending its blessing at the Vigil before moving on.\n\nThey have good reason to hurry. A second hive fleet splinter — unconnected to the one devouring Ashen Reach — has torn into real space at Voidmaw Rift, and it is not waiting politely. The Chittering Waste and the Bone-Ash Expanse have already fallen, stripped in less than a day.\n\nAnd, inevitably, the noise has drawn other eyes. Ork raiders out of Skarn's Maw haven't just been probing the frontier — they've planted a flag. Grimfang Landing and the Skullgrin Camp have gone up within sight of both the Sanctum Vigil and Bone-Ash Expanse, an Ork foothold wedged directly between two much larger wars. Three banners are converging on the northern marches, and for the first time, all three are close enough to see each other."
         }
       ]
     }
