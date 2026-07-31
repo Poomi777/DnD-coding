@@ -560,13 +560,17 @@
           "name": "Solthane Bastion",
           "x": 450,
           "y": 380,
-          "ownerId": 4,
+          "ownerId": 3,
           "size": "major",
-          "description": "A fortress-world raised in haste along the Drift's northern marches, its void-shields and macro-cannon emplacements aimed squarely at the dark beyond Kharvos space. The Astra Militarum calls it a garrison. Everyone else calls it a wall.",
+          "description": "A fortress-world the Astra Militarum raised in haste — and lost just as fast. Skarnag Grimjaw's warband walks its ramparts now, repainting the gun emplacements green and using the wreckage of the old garrison as a very large, very morbid trophy pile.",
           "log": [
             {
               "ts": "Cycle 001, Day 8",
               "text": "Engineering corps break ground on Solthane Bastion within a day of the order arriving from Kharvos Prime. High Command wants a fortified line to the north before anything currently out there decides to come looking."
+            },
+            {
+              "ts": "Cycle 001, Day 10",
+              "text": "Solthane Bastion falls hard and fast. Skarnag Grimjaw's Krew hits the line before the garrison can properly muster a response, and the fortress-world's own guns are turned inward within the hour. What's left of the human defense doesn't survive long enough to fall back."
             }
           ]
         },
@@ -575,13 +579,17 @@
           "name": "Highwatch Priory",
           "x": 620,
           "y": 300,
-          "ownerId": 4,
+          "ownerId": 8,
           "size": "minor",
-          "description": "A fortified watch-post the Astra Militarum drilled into the high ground beside Solthane Bastion, named for the ruined priory whose foundations it was built on. Adeptus Astartes liaison officers move through here more often than anywhere else on the line — but the garrison, and the banner over it, is Militarum through and through.",
+          "description": "What the Space Marine liaison force didn't burn on their way out, the swarm has already started digesting. The watch-post's augur arrays still turn, uselessly, tracking nothing anyone alive still cares about.",
           "log": [
             {
               "ts": "Cycle 001, Day 8",
               "text": "Militarum engineers finish fortifying Highwatch within a day of Solthane's groundbreaking — and a Space Marine liaison force arrives not long after, here to see the line holds, not to hold it themselves."
+            },
+            {
+              "ts": "Cycle 001, Day 10",
+              "text": "The Space Marine liaison force at Highwatch reads the field correctly and pulls back in good order rather than be caught between an emboldened Ork Krew and the Tyranid vanguard grinding down from Voidmaw Rift. It's the right call — within a day, the swarm and the Orks are tearing into each other over the abandoned priory, and the swarm wins that particular argument."
             }
           ]
         },
@@ -590,13 +598,17 @@
           "name": "The Sanctum Vigil",
           "x": 280,
           "y": 300,
-          "ownerId": 4,
+          "ownerId": 3,
           "size": "minor",
-          "description": "A shrine-fort raised beside Solthane Bastion at the Munitorum's order, its chapel consecrated in haste by a visiting Adepta Sororitas chaplaincy before the Militarum garrison moved in to hold it.",
+          "description": "A shrine-fort overrun in the same push that broke Solthane Bastion. The Sisters' chapel still stands, technically — the Orks just don't see the point in knocking down something that useful as a mess hall.",
           "log": [
             {
               "ts": "Cycle 001, Day 8",
               "text": "The Sanctum Vigil is garrisoned by Militarum troops within the week, though it's the Sisters' benediction — delivered before their chaplaincy moved on to reinforce elsewhere — that the soldiers here credit for keeping the line quiet so far."
+            },
+            {
+              "ts": "Cycle 001, Day 10",
+              "text": "With Solthane broken, the Sanctum Vigil goes next — the same Ork warband riding the momentum straight through its gates. Whatever the Sisters' chaplaincy managed to evacuate, it wasn't much."
             }
           ]
         },
@@ -866,6 +878,10 @@
         {
           "ts": "Cycle 001, Day 9",
           "text": "THE OBSIDIAN SKEIN TAKES THE CROSSROADS\n\nFive banners went into Drift Station. One came out standing. The Astra Militarum relief column broke and fell back toward Kharvos Prime, the Bloodmoon Krew's charge dissolved into a rout, a Necron honor guard was driven back beneath the station's foundations before it could fully deploy, and the Tyranid vanguard's opening wave was cut down before the rest of the bio-ship's brood could translate in-system. When the void went quiet, it was Kabalite blades doing the counting.\n\nDrift Station now flies the Obsidian Skein's colors — and with the crossroads in Drukhari hands, every route through the Kharvos Drift runs through territory they control. The other four factions have a great deal to say about that. None of it complimentary."
+        },
+        {
+          "ts": "Cycle 001, Day 10",
+          "text": "THE FALL OF THE NORTHERN LINE\n\nThe defense of Solthane Bastion doesn't hold. Skarnag Grimjaw's Krew breaks through before the garrison can properly answer, and Astra Militarum command overseeing the line falls in the opening hours of the assault. The Sanctum Vigil goes next, taken in the same push. Only the Space Marine liaison force at Highwatch reads the field in time — pulling back rather than standing to be ground up between an emboldened Ork warband and the Tyranid vanguard already pressing down from Voidmaw Rift.\n\nWithout an Imperial line left to break, the two invaders turn on each other over what remains. Highwatch changes hands one more time before the fighting settles: the swarm wins that argument, consuming the abandoned priory in short order. The Orks, already dug in at Solthane and the Vigil, don't contest it further — there's still plenty to hold, and holding it is more an Ork specialty than pushing further into a hungry tree line.\n\nThe northern marches are lost. Astra Militarum command will have questions about how quickly. The Space Marines, at least, live to answer them."
         }
       ]
     }
