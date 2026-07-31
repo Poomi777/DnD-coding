@@ -552,6 +552,10 @@
             {
               "ts": "Cycle 001, Day 3",
               "text": "Named for the ghostly static that plagues every vox-channel nearby, Ghoul Reef's asteroid belt is rich in rare minerals and, according to salvagers, richer still in bad luck. Three prospecting crews have vanished here since the Drift reopened."
+            },
+            {
+              "ts": "Cycle 001, Day 11",
+              "text": "The dead static that gave Ghoul Reef its name changes pitch for the first time anyone can remember — a rhythmic pulse bleeding out from somewhere deep in the asteroid field. Whatever is down there has been quiet for a very long time. It isn't anymore."
             }
           ]
         },
@@ -864,6 +868,14 @@
         [
           63,
           60
+        ],
+        [
+          54,
+          48
+        ],
+        [
+          54,
+          40
         ]
       ],
       "eventLog": [
@@ -882,6 +894,10 @@
         {
           "ts": "Cycle 001, Day 10",
           "text": "THE FALL OF THE NORTHERN LINE\n\nThe defense of Solthane Bastion doesn't hold. Skarnag Grimjaw's Krew breaks through before the garrison can properly answer, and Astra Militarum command overseeing the line falls in the opening hours of the assault. The Sanctum Vigil goes next, taken in the same push. Only the Space Marine liaison force at Highwatch reads the field in time — pulling back rather than standing to be ground up between an emboldened Ork warband and the Tyranid vanguard already pressing down from Voidmaw Rift.\n\nWithout an Imperial line left to break, the two invaders turn on each other over what remains. Highwatch changes hands one more time before the fighting settles: the swarm wins that argument, consuming the abandoned priory in short order. The Orks, already dug in at Solthane and the Vigil, don't contest it further — there's still plenty to hold, and holding it is more an Ork specialty than pushing further into a hungry tree line.\n\nThe northern marches are lost. Astra Militarum command will have questions about how quickly. The Space Marines, at least, live to answer them."
+        },
+        {
+          "ts": "Cycle 001, Day 11",
+          "text": "THE CINDERGATE SIGNAL\n\nWhile the northern marches burn, the Adeptus Mechanicus decides — with characteristic priorities — that it isn't their war. Aurun's Forge quietly diverts a second expedition, not north to reinforce Solthane's ashes, but south toward Ghoul Reef, where auspex arrays have picked up a structure buried deep in the asteroid field: something old, something that shouldn't still have power, and something that just started broadcasting.\n\nThe Mechanicus isn't alone in noticing. A Kabal out of the Obsidian Skein — never one to let anyone else profit from a good mystery unattended — burns hard for the Reef. Eldar seers at Ynnead's Veil, who have spent this whole campaign speaking of threads drawing tight, finally say the quiet part aloud: whatever is in that rock matters, and they intend to reach it first, or make sure no one else keeps it. A warband breaks from the Gallowspire, drawn by something in the signal that speaks a language older than the Emperor's Imperium. And in the ash-dark beyond it all, a bio-ship changes course — the Hive Mind has felt the pulse too, and it does not ignore things that think.\n\nFive banners, one buried secret, and a Techpriest expedition that would very much like everyone else to leave before they have to explain the paperwork. The Cindergate, whatever it is, is about to have visitors."
         }
       ]
     }
