@@ -545,9 +545,9 @@
           "name": "Ghoul Reef",
           "x": 1550,
           "y": 1300,
-          "ownerId": null,
+          "ownerId": 6,
           "size": "minor",
-          "description": "A mineral-rich asteroid belt plagued by ghostly vox-static and a body count that keeps climbing. Prospectors call it cursed. The T'au call it an opportunity.",
+          "description": "A mineral-rich asteroid belt that just became a great deal more interesting. Whatever the Cindergate was, it's Adeptus Mechanicus property now — and the Techpriests overseeing its excavation aren't taking questions.",
           "log": [
             {
               "ts": "Cycle 001, Day 3",
@@ -556,6 +556,10 @@
             {
               "ts": "Cycle 001, Day 11",
               "text": "The dead static that gave Ghoul Reef its name changes pitch for the first time anyone can remember — a rhythmic pulse bleeding out from somewhere deep in the asteroid field. Whatever is down there has been quiet for a very long time. It isn't anymore."
+            },
+            {
+              "ts": "Cycle 001, Day 12",
+              "text": "The dust settles, and it's a Mechanicus banner planted over what's left of the Cindergate. Eldar and Drukhari tore into each other before either could reach the structure, the Gallowspire's warband got caught in the crossfire, and the Tyranid broodswarm arrived just in time to feed on the wreckage of all three. The Techpriest expedition walked in when it mattered and walked out with whatever the Cindergate was hiding."
             }
           ]
         },
@@ -868,14 +872,6 @@
         [
           63,
           60
-        ],
-        [
-          54,
-          48
-        ],
-        [
-          54,
-          40
         ]
       ],
       "eventLog": [
@@ -898,6 +894,10 @@
         {
           "ts": "Cycle 001, Day 11",
           "text": "THE CINDERGATE SIGNAL\n\nWhile the northern marches burn, the Adeptus Mechanicus decides — with characteristic priorities — that it isn't their war. Aurun's Forge quietly diverts a second expedition, not north to reinforce Solthane's ashes, but south toward Ghoul Reef, where auspex arrays have picked up a structure buried deep in the asteroid field: something old, something that shouldn't still have power, and something that just started broadcasting.\n\nThe Mechanicus isn't alone in noticing. A Kabal out of the Obsidian Skein — never one to let anyone else profit from a good mystery unattended — burns hard for the Reef. Eldar seers at Ynnead's Veil, who have spent this whole campaign speaking of threads drawing tight, finally say the quiet part aloud: whatever is in that rock matters, and they intend to reach it first, or make sure no one else keeps it. A warband breaks from the Gallowspire, drawn by something in the signal that speaks a language older than the Emperor's Imperium. And in the ash-dark beyond it all, a bio-ship changes course — the Hive Mind has felt the pulse too, and it does not ignore things that think.\n\nFive banners, one buried secret, and a Techpriest expedition that would very much like everyone else to leave before they have to explain the paperwork. The Cindergate, whatever it is, is about to have visitors."
+        },
+        {
+          "ts": "Cycle 001, Day 12",
+          "text": "THE MECHANICUS CLAIMS THE CINDERGATE\n\nFive banners came for the Cindergate. The Adeptus Mechanicus barely had to fight for it.\n\nEldar and Drukhari clashed first — old grudges reasserting themselves the moment both fleets arrived, neither willing to let the other near the signal first. The Gallowspire's warband tried to exploit the opening and got caught between both xenos forces for its trouble. And when the Tyranid broodswarm finally arrived, it found four exhausted, bleeding forces instead of one — and simply started feeding on whichever was closest.\n\nWhile the Reef burned around them, the Techpriest expedition did what the Mechanicus does best: it waited, catalogued, and moved only when the calculus favored certainty over glory. By the time the other factions had ground each other down, servitor crews had already breached the Cindergate's outer shell — and whatever ancient systems still lived inside it apparently recognized something in the Mechanicus's approach, because it let them in without a fight. The other four factions got the opposite welcome on their way out.\n\nGhoul Reef now flies the Cog Mechanicus's banner, and Aurun's Forge has a great deal of new data to process. The Mechanicus is not, by all reports, in any hurry to share what it found."
         }
       ]
     }
