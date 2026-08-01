@@ -1,5 +1,5 @@
 {
-  "nextId": 64,
+  "nextId": 66,
   "activeMapId": 28,
   "factions": [
     {
@@ -310,11 +310,15 @@
           "y": 1630,
           "ownerId": null,
           "size": "minor",
-          "description": "A stretch of void where astropaths dream the same dream and Navigators refuse to plot a course. Something sings there. Nobody has found the source.",
+          "description": "A stretch of void that hums like a heartbeat — and, as of very recently, everyone knows why. Eldar seers have identified it as a dormant Necron resonance-ward, one that just changed frequency in perfect sync with Necropolis's own reawakening. Two ancient empires have very different opinions about what should happen to it next.",
           "log": [
             {
               "ts": "Cycle 001, Day 5",
               "text": "Astropaths aboard three separate vessels reported the same dream on the same night: a choir singing in a language that predates the Imperium, emanating from an empty stretch of void. Navigators refuse to chart a course through it. Nobody has explained why the nebula there pulses, faintly, like a heartbeat."
+            },
+            {
+              "ts": "Cycle 001, Day 13",
+              "text": "Eldar farseers finally name what's been singing in the dark: not a ghost, not a nebula — a Necron resonance-ward, ancient even by Necropolis's standards, and it just synchronized with the tomb-world's own reactivation. Four separate Eldar forces move to seize or silence it before the dynasty can finish networking it in."
             }
           ]
         },
@@ -694,6 +698,36 @@
               "text": "Skullgrin's boyz have taken to lobbing crude ordnance at anything that crawls out of Bone-Ash Expanse, less out of strategy than boredom. It's working better than it has any right to."
             }
           ]
+        },
+        {
+          "id": 64,
+          "name": "The Bonewrought Ward",
+          "x": 400,
+          "y": 1720,
+          "ownerId": 5,
+          "size": "minor",
+          "description": "A half-buried ward-spire on Necropolis's southern approach, silent for sixty million years until the dynasty's reawakening gave it a reason to open its eyes again. It exists for exactly one purpose: making sure nothing reaches the tomb-world uninvited.",
+          "log": [
+            {
+              "ts": "Cycle 001, Day 13",
+              "text": "The Bonewrought Ward’s weapon batteries cycle up for the first time in longer than the Imperium has existed. Necron sentries have clearly been briefed on what’s approaching from the direction of Ynnead’s Veil, and they are not interested in a diplomatic solution."
+            }
+          ]
+        },
+        {
+          "id": 65,
+          "name": "Aelindra's Waystone",
+          "x": 760,
+          "y": 1850,
+          "ownerId": 9,
+          "size": "minor",
+          "description": "A forward waystone raised at speed on Necropolis's doorstep, its wraithbone lattice barely settled before the first Eldar strike force used it as a staging point. The farseers didn't come to negotiate either.",
+          "log": [
+            {
+              "ts": "Cycle 001, Day 13",
+              "text": "Four separate Eldar warhosts converge on the newly-raised waystone within a day of each other — an unusually large commitment for a single objective, which tells its own story about how seriously the farseers are taking whatever the Choir turns out to be."
+            }
+          ]
         }
       ],
       "connections": [
@@ -872,6 +906,26 @@
         [
           63,
           60
+        ],
+        [
+          64,
+          37
+        ],
+        [
+          64,
+          39
+        ],
+        [
+          65,
+          48
+        ],
+        [
+          65,
+          39
+        ],
+        [
+          64,
+          65
         ]
       ],
       "eventLog": [
@@ -898,6 +952,10 @@
         {
           "ts": "Cycle 001, Day 12",
           "text": "THE MECHANICUS CLAIMS THE CINDERGATE\n\nFive banners came for the Cindergate. The Adeptus Mechanicus barely had to fight for it.\n\nEldar and Drukhari clashed first — old grudges reasserting themselves the moment both fleets arrived, neither willing to let the other near the signal first. The Gallowspire's warband tried to exploit the opening and got caught between both xenos forces for its trouble. And when the Tyranid broodswarm finally arrived, it found four exhausted, bleeding forces instead of one — and simply started feeding on whichever was closest.\n\nWhile the Reef burned around them, the Techpriest expedition did what the Mechanicus does best: it waited, catalogued, and moved only when the calculus favored certainty over glory. By the time the other factions had ground each other down, servitor crews had already breached the Cindergate's outer shell — and whatever ancient systems still lived inside it apparently recognized something in the Mechanicus's approach, because it let them in without a fight. The other four factions got the opposite welcome on their way out.\n\nGhoul Reef now flies the Cog Mechanicus's banner, and Aurun's Forge has a great deal of new data to process. The Mechanicus is not, by all reports, in any hurry to share what it found."
+        },
+        {
+          "ts": "Cycle 001, Day 13",
+          "text": "ECHOES OF THE WAR IN HEAVEN\n\nLong before there was an Imperium, before there was a Drift to fight over, there was a war between the Necrontyr and the Aeldari empire that predates every banner currently flying over the Kharvos system. Nobody currently drawing breath here remembers it. The Silent Choir, it turns out, does.\n\nEldar farseers have finally identified the source of the void's endless, wordless hum: a Necron resonance-ward, buried and dormant for sixty million years, that just changed its frequency in perfect synchrony with Necropolis's own reawakening. That is, by any reading, a very bad sign — and the Aeldari response is not subtle. Four separate warhosts have committed to the Choir's seizure, converging from Ynnead's Veil and a newly-raised waystone planted defiantly on the tomb-world's own doorstep.\n\nThe dynasty's answer is exactly what sixty million years of patience would suggest: the Bonewrought Ward, an outer defense spire nobody knew was still capable of opening its eyes, has woken up specifically to make sure it doesn't have to ask twice. Two Necron forces now stand against four Aeldari warhosts, refighting — on a much smaller scale — a war that ended before either side's current soldiers were anything but potential."
         }
       ]
     }
