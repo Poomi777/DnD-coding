@@ -308,9 +308,9 @@
           "name": "The Silent Choir",
           "x": 520,
           "y": 1630,
-          "ownerId": null,
+          "ownerId": 5,
           "size": "minor",
-          "description": "A stretch of void that hums like a heartbeat — and, as of very recently, everyone knows why. Eldar seers have identified it as a dormant Necron resonance-ward, one that just changed frequency in perfect sync with Necropolis's own reawakening. Two ancient empires have very different opinions about what should happen to it next.",
+          "description": "A stretch of void that used to hum with a mystery. Now it hums under Necron control, its resonance folded back into Necropolis's own network — exactly where the dynasty always intended it to end up.",
           "log": [
             {
               "ts": "Cycle 001, Day 5",
@@ -319,6 +319,10 @@
             {
               "ts": "Cycle 001, Day 13",
               "text": "Eldar farseers finally name what's been singing in the dark: not a ghost, not a nebula — a Necron resonance-ward, ancient even by Necropolis's standards, and it just synchronized with the tomb-world's own reactivation. Four separate Eldar forces move to seize or silence it before the dynasty can finish networking it in."
+            },
+            {
+              "ts": "Cycle 001, Day 14",
+              "text": "The Bonewrought Ward's defenses hold long enough for a second Necron phalanx to flank through the Choir's own resonance field, using the ward-signal itself as a targeting beacon. The dynasty's crypteks are reportedly delighted by the irony. The Silent Choir answers to Necropolis again."
             }
           ]
         },
@@ -711,6 +715,10 @@
             {
               "ts": "Cycle 001, Day 13",
               "text": "The Bonewrought Ward’s weapon batteries cycle up for the first time in longer than the Imperium has existed. Necron sentries have clearly been briefed on what’s approaching from the direction of Ynnead’s Veil, and they are not interested in a diplomatic solution."
+            },
+            {
+              "ts": "Cycle 001, Day 14",
+              "text": "The Ward held. It was never really in doubt — sixty million years of patience doesn't break because four warhosts showed up on the same day."
             }
           ]
         },
@@ -719,13 +727,17 @@
           "name": "Aelindra's Waystone",
           "x": 760,
           "y": 1850,
-          "ownerId": 9,
+          "ownerId": 5,
           "size": "minor",
-          "description": "A forward waystone raised at speed on Necropolis's doorstep, its wraithbone lattice barely settled before the first Eldar strike force used it as a staging point. The farseers didn't come to negotiate either.",
+          "description": "What's left of an Eldar forward waystone, its wraithbone lattice stripped for parts by the same Necron force that turned the Choir's own signal into a targeting beacon against it.",
           "log": [
             {
               "ts": "Cycle 001, Day 13",
               "text": "Four separate Eldar warhosts converge on the newly-raised waystone within a day of each other — an unusually large commitment for a single objective, which tells its own story about how seriously the farseers are taking whatever the Choir turns out to be."
+            },
+            {
+              "ts": "Cycle 001, Day 14",
+              "text": "By the time the Eldar realized the Choir wasn't the objective but the weapon, Aelindra's Waystone was already being dismantled. Whatever four warhosts' worth of coordination was supposed to look like, it didn't survive contact with either the enemy or each other."
             }
           ]
         }
@@ -956,6 +968,10 @@
         {
           "ts": "Cycle 001, Day 13",
           "text": "ECHOES OF THE WAR IN HEAVEN\n\nLong before there was an Imperium, before there was a Drift to fight over, there was a war between the Necrontyr and the Aeldari empire that predates every banner currently flying over the Kharvos system. Nobody currently drawing breath here remembers it. The Silent Choir, it turns out, does.\n\nEldar farseers have finally identified the source of the void's endless, wordless hum: a Necron resonance-ward, buried and dormant for sixty million years, that just changed its frequency in perfect synchrony with Necropolis's own reawakening. That is, by any reading, a very bad sign — and the Aeldari response is not subtle. Four separate warhosts have committed to the Choir's seizure, converging from Ynnead's Veil and a newly-raised waystone planted defiantly on the tomb-world's own doorstep.\n\nThe dynasty's answer is exactly what sixty million years of patience would suggest: the Bonewrought Ward, an outer defense spire nobody knew was still capable of opening its eyes, has woken up specifically to make sure it doesn't have to ask twice. Two Necron forces now stand against four Aeldari warhosts, refighting — on a much smaller scale — a war that ended before either side's current soldiers were anything but potential."
+        },
+        {
+          "ts": "Cycle 001, Day 14",
+          "text": "THE CHOIR FALLS SILENT ONCE MORE\n\nTwo Necron forces against four Aeldari warhosts should not have been close. It wasn't — just not in the direction the Eldar expected.\n\nWhatever coordination existed between the four warhosts converging on Aelindra's Waystone evidently didn't survive first contact with each other's battle-plans, let alone the enemy's. The Bonewrought Ward's reawakened defenses held the line long enough for a second phalanx to flank around through the Choir's own resonance field — using the ward-signal itself as a targeting beacon, an irony the dynasty's crypteks were reportedly delighted by. By the time the Eldar realized the ward wasn't the objective but the weapon, Aelindra's Waystone was already being dismantled for parts.\n\nThe Silent Choir belongs to Necropolis again, and it isn't singing to anyone else's frequency now. Whatever the Eldar farseers foresaw when they committed four warhosts to this fight, it evidently wasn't this."
         }
       ]
     }
