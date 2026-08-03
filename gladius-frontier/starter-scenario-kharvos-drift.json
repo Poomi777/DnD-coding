@@ -587,6 +587,10 @@
             {
               "ts": "Cycle 001, Day 10",
               "text": "Solthane Bastion falls hard and fast. Skarnag Grimjaw's Krew hits the line before the garrison can properly muster a response, and the fortress-world's own guns are turned inward within the hour. What's left of the human defense doesn't survive long enough to fall back."
+            },
+            {
+              "ts": "Cycle 001, Day 15",
+              "text": "Vox intercepts confirm it: the Adepta Sororitas and a fresh Astra Militarum column are inbound, and neither is interested in negotiating passage. Solthane Bastion's occupiers — Ork and Tyranid alike — are about to have company."
             }
           ]
         },
@@ -972,6 +976,10 @@
         {
           "ts": "Cycle 001, Day 14",
           "text": "THE CHOIR FALLS SILENT ONCE MORE\n\nTwo Necron forces against four Aeldari warhosts should not have been close. It wasn't — just not in the direction the Eldar expected.\n\nWhatever coordination existed between the four warhosts converging on Aelindra's Waystone evidently didn't survive first contact with each other's battle-plans, let alone the enemy's. The Bonewrought Ward's reawakened defenses held the line long enough for a second phalanx to flank around through the Choir's own resonance field — using the ward-signal itself as a targeting beacon, an irony the dynasty's crypteks were reportedly delighted by. By the time the Eldar realized the ward wasn't the objective but the weapon, Aelindra's Waystone was already being dismantled for parts.\n\nThe Silent Choir belongs to Necropolis again, and it isn't singing to anyone else's frequency now. Whatever the Eldar farseers foresaw when they committed four warhosts to this fight, it evidently wasn't this."
+        },
+        {
+          "ts": "Cycle 001, Day 15",
+          "text": "THE SECOND SIEGE OF SOLTHANE BASTION\n\nAstra Militarum command didn't take the loss of the northern line well. Neither, as it turns out, did the Adepta Sororitas — and this time it's not a chaplaincy passing through, but a full Sisters of Battle strike force leading the counter-offensive back to Solthane Bastion in person, with a fresh Militarum column at their side.\n\nThey are not walking into an empty fortress. Skarnag Grimjaw's Krew has spent the intervening time digging in rather than moving on, and the Tyranid presence pressing down from Voidmaw Rift never fully committed to Highwatch alone — both are still very much on the board, and still just as willing to turn on each other as on any Imperial banner that shows up.\n\nThen the augurs pick up a fourth signature. T'au warfleets, unannounced and uninvited, translate in-system at the exact moment three exhausted factions are least equipped to deal with a fresh one — the Greater Good, it turns out, has been quietly watching this fight the whole time, and has decided a half-ruined fortress-world held by nobody in particular is exactly the kind of opportunity worth a war fleet.\n\nFour banners, one bastion, zero alliances. The Sisters of Battle have come to take back what was lost. They may have to get in line."
         }
       ]
     }
