@@ -1,5 +1,5 @@
 {
-  "nextId": 123,
+  "nextId": 124,
   "activeMapId": 27,
   "factions": [
     {
@@ -1027,6 +1027,21 @@
               "text": "The Silent Marches remain exactly that. No fleet has claimed it. No fleet has explained why not."
             }
           ]
+        },
+        {
+          "id": 123,
+          "name": "The Silent Conduit",
+          "x": 950,
+          "y": 1050,
+          "ownerId": null,
+          "size": "major",
+          "description": "A newly-detected relay station wedged in the dead space between the Cogforge Deep and the Blackened Throne, its architecture unmistakably pre-Imperial and its signal, after epochs of silence, suddenly very much alive.",
+          "log": [
+            {
+              "ts": "Founding, Day 2",
+              "text": "Auspex sweeps from both directions register the same anomaly within hours of each other — a derelict conduit neither side has any record of, broadcasting on a frequency the Cogforge Deep's archives can't place and the Blackened Throne's warp-sensitives don't like the taste of."
+            }
+          ]
         }
       ],
       "connections": [
@@ -1133,12 +1148,24 @@
         [
           117,
           69
+        ],
+        [
+          123,
+          78
+        ],
+        [
+          123,
+          86
         ]
       ],
       "eventLog": [
         {
           "ts": "Founding, Day 1",
           "text": "THE GLADIUS SECTOR AWAKENS\n\nEvery major power in the sector is active at once, for the first time anyone can document. The Imperium in all its fractured pillars — Militarum, Astartes, Mechanicus, Sororitas, Custodes, and more besides. The Orks, the Necron dynasties, the hive fleets, the Aeldari and their kin in the dark. And Chaos, fractured a dozen ways and answering to a dozen masters, spread across nearly a third of the charted rim.\n\nNobody commissioned this convergence. Nobody is in charge of it. Every banner on this map got here under its own power, for its own reasons, and none of them are inclined to explain themselves to anyone else. Whatever the Gladius Sector becomes, it will not be decided by any one side alone."
+        },
+        {
+          "ts": "Founding, Day 2",
+          "text": "THE SILENT CONDUIT DISCOVERED\n\nSomething ancient has woken up in the dead space between the Cogforge Deep and the Blackened Throne. Neither side has a record of it, which is precisely the problem — the Adeptus Mechanicus doesn't tolerate unlogged technology within reach of its forges, and the Chaos warband holding the Blackened Throne has never once let a genuine unknown go unclaimed. Three cohorts of each converge on the newly-named Silent Conduit, and for once neither side is interested in subtlety."
         }
       ],
       "rings": {
