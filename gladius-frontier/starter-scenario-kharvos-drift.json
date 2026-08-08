@@ -1,5 +1,5 @@
 {
-  "nextId": 114,
+  "nextId": 123,
   "activeMapId": 27,
   "factions": [
     {
@@ -131,6 +131,41 @@
       "id": 26,
       "name": "Adeptus Titanicus",
       "color": "#334155"
+    },
+    {
+      "id": 27,
+      "name": "Alpha Legion",
+      "color": "#166534"
+    },
+    {
+      "id": 28,
+      "name": "Raven Guard",
+      "color": "#18181b"
+    },
+    {
+      "id": 29,
+      "name": "Imperial Fists",
+      "color": "#eab308"
+    },
+    {
+      "id": 30,
+      "name": "Dreadheadz",
+      "color": "#4d7c0f"
+    },
+    {
+      "id": 31,
+      "name": "Hive Fleet Locust",
+      "color": "#6d28d9"
+    },
+    {
+      "id": 32,
+      "name": "Hive Fleet Tiamat",
+      "color": "#581c87"
+    },
+    {
+      "id": 33,
+      "name": "Skaven",
+      "color": "#71717a"
     }
   ],
   "maps": [
@@ -231,8 +266,8 @@
         {
           "id": 72,
           "name": "The Sepulcher Eternal",
-          "x": 1420,
-          "y": 1073,
+          "x": 1422,
+          "y": 1067,
           "ownerId": 5,
           "size": "major",
           "description": "A tomb-world of black glass and silent monoliths, its dynasty older than most galaxies' recorded history.",
@@ -246,8 +281,8 @@
         {
           "id": 73,
           "name": "Nyxos Vault",
-          "x": 1572,
-          "y": 1215,
+          "x": 1591,
+          "y": 1187,
           "ownerId": 5,
           "size": "minor",
           "description": "A subterranean data-vault sealed since before the current galaxy had a name worth using.",
@@ -261,8 +296,8 @@
         {
           "id": 74,
           "name": "The Reclamation Fields",
-          "x": 1814,
-          "y": 1050,
+          "x": 1827,
+          "y": 1041,
           "ownerId": 5,
           "size": "minor",
           "description": "A dead world being methodically stripped and rebuilt by tireless Necron labor constructs.",
@@ -276,8 +311,8 @@
         {
           "id": 75,
           "name": "The Devouring Maw",
-          "x": 1721,
-          "y": 484,
+          "x": 1723,
+          "y": 483,
           "ownerId": 8,
           "size": "major",
           "description": "The forward feeding-ground of a hive fleet splinter, already reduced to bone and ash.",
@@ -351,8 +386,8 @@
         {
           "id": 80,
           "name": "The Apostate's Reach",
-          "x": 351,
-          "y": 1480,
+          "x": 350,
+          "y": 1481,
           "ownerId": 2,
           "size": "minor",
           "description": "A former Imperial shrine-world, its iconography inverted rather than removed.",
@@ -381,8 +416,8 @@
         {
           "id": 82,
           "name": "Saim-Hann's Echo",
-          "x": 1470,
-          "y": 258,
+          "x": 1491,
+          "y": 304,
           "ownerId": 9,
           "size": "minor",
           "description": "A scout-waystone named for a Craftworld that isn't actually present, for reasons nobody's willing to clarify.",
@@ -411,8 +446,8 @@
         {
           "id": 84,
           "name": "Oathkeep Station",
-          "x": 1411,
-          "y": 1225,
+          "x": 1386,
+          "y": 1217,
           "ownerId": 1,
           "size": "major",
           "description": "A fortress-monastery in high orbit, garrisoned by a Chapter keeping an oath nobody outside it fully understands.",
@@ -426,8 +461,8 @@
         {
           "id": 85,
           "name": "The Vigil Redoubt",
-          "x": 1506,
-          "y": 1393,
+          "x": 1510,
+          "y": 1420,
           "ownerId": 1,
           "size": "minor",
           "description": "A watch-post maintained in permanent readiness for a threat that hasn't materialized yet.",
@@ -486,8 +521,8 @@
         {
           "id": 89,
           "name": "The New Dawn Expanse",
-          "x": 2216,
-          "y": 911,
+          "x": 2212,
+          "y": 918,
           "ownerId": 7,
           "size": "minor",
           "description": "A frontier colony extending the Greater Good into a region that never asked for it.",
@@ -501,8 +536,8 @@
         {
           "id": 90,
           "name": "The Screaming Gate",
-          "x": 824,
-          "y": 1481,
+          "x": 850,
+          "y": 1511,
           "ownerId": 10,
           "size": "major",
           "description": "A webway port thick with the residue of a thousand raids, none of them officially acknowledged.",
@@ -621,8 +656,8 @@
         {
           "id": 98,
           "name": "Prospero's Echo",
-          "x": 1683,
-          "y": 1107,
+          "x": 1692,
+          "y": 1086,
           "ownerId": 21,
           "size": "major",
           "description": "A fortress-library built in mourning for a homeworld that burned ten thousand years before anyone here was born.",
@@ -666,8 +701,8 @@
         {
           "id": 101,
           "name": "Whispering Depths",
-          "x": 1596,
-          "y": 554,
+          "x": 1595,
+          "y": 546,
           "ownerId": 25,
           "size": "minor",
           "description": "A mining colony whose productivity reports have been quietly authored by something other than management for some time.",
@@ -711,8 +746,8 @@
         {
           "id": 104,
           "name": "The Golden Bastion",
-          "x": 1311,
-          "y": 964,
+          "x": 1310,
+          "y": 963,
           "ownerId": 12,
           "size": "major",
           "description": "A single fortress-shrine garrisoned by a bare handful of Custodians — which is, everyone assures each other, still more than enough.",
@@ -726,8 +761,8 @@
         {
           "id": 105,
           "name": "The Bleeding Rift",
-          "x": 466,
-          "y": 1399,
+          "x": 467,
+          "y": 1398,
           "ownerId": 13,
           "size": "major",
           "description": "A permanent tear in the fabric of reality, through which considerably more than light occasionally passes.",
@@ -831,8 +866,8 @@
         {
           "id": 112,
           "name": "House Ferroth's Hold",
-          "x": 1445,
-          "y": 1511,
+          "x": 1447,
+          "y": 1535,
           "ownerId": 24,
           "size": "minor",
           "description": "A modest Knight household seat, its throne-engines maintained with near-religious devotion.",
@@ -855,6 +890,141 @@
             {
               "ts": "Founding, Day 1",
               "text": "The Titan's Grave registers a power spike from a Titan officially listed as inoperative for three centuries."
+            }
+          ]
+        },
+        {
+          "id": 114,
+          "name": "Alpha Legion's Hydra Cell",
+          "x": 750,
+          "y": 1394,
+          "ownerId": 27,
+          "size": "major",
+          "description": "A Legion that answers to no single banner, its warbands equally comfortable posing as loyalists as they are burning them alive.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Alpha Legion cells activate across a dozen worlds simultaneously. Nobody can yet say which ones were already there."
+            }
+          ]
+        },
+        {
+          "id": 115,
+          "name": "Ravensgard Watch",
+          "x": 1509,
+          "y": 1288,
+          "ownerId": 28,
+          "size": "minor",
+          "description": "A stealth-doctrine Chapter that prefers its wars fought in shadow, its victories claimed only after the fact.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Raven Guard strike teams report a clean insertion. Nobody on the ground even knew to look."
+            }
+          ]
+        },
+        {
+          "id": 116,
+          "name": "The Phalanx Redoubt",
+          "x": 1348,
+          "y": 1424,
+          "ownerId": 29,
+          "size": "major",
+          "description": "A Chapter built on siegecraft and stubbornness in equal measure, its fortress-monastery designed to never fall.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Imperial Fists engineers reinforce the outer walls for the third time this cycle. It was already the strongest wall in the sector."
+            }
+          ]
+        },
+        {
+          "id": 117,
+          "name": "Da Dreadheadz Warcamp",
+          "x": 1223,
+          "y": 1650,
+          "ownerId": 30,
+          "size": "minor",
+          "description": "An Ork warband distinguished mainly by an inexplicable fondness for oversized headgear and an even more inexplicable combat record.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Dreadheadz claim another victory. Their tactics remain, charitably, undocumented."
+            }
+          ]
+        },
+        {
+          "id": 118,
+          "name": "The Locust Vanguard",
+          "x": 1432,
+          "y": 174,
+          "ownerId": 31,
+          "size": "major",
+          "description": "A second splinter fleet, unrelated to the swarm gorging itself elsewhere in the sector, translating in-system with its own hunger and its own agenda.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Hive Fleet Locust's vanguard organisms make landfall. Local auspex crews stop bothering to count them."
+            }
+          ]
+        },
+        {
+          "id": 119,
+          "name": "The Tiamat Splinter",
+          "x": 892,
+          "y": 154,
+          "ownerId": 32,
+          "size": "minor",
+          "description": "A smaller, faster splinter fleet, more scalpel than hammer compared to its siblings.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Hive Fleet Tiamat's bio-ships bypass the nearest fortified world entirely. Whatever it wants, it isn't there."
+            }
+          ]
+        },
+        {
+          "id": 120,
+          "name": "The Gnawhollow",
+          "x": 2277,
+          "y": 804,
+          "ownerId": 33,
+          "size": "minor",
+          "description": "Something that should not exist in this galaxy at all — a chittering, verminous horde answering to a warp-tainted pantheon nobody in the Imperium has a classification for.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Skaven war-parties are sighted for the first time. The Ordo Xenos does not yet have a form for this."
+            }
+          ]
+        },
+        {
+          "id": 121,
+          "name": "The Fractured Expanse",
+          "x": 1955,
+          "y": 1066,
+          "ownerId": null,
+          "size": "minor",
+          "description": "A debris-strewn stretch of the sector, claimed by nobody and surveyed even less.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Long-range scans of the Fractured Expanse return nothing conclusive. Nobody's volunteered to look closer."
+            }
+          ]
+        },
+        {
+          "id": 122,
+          "name": "The Silent Marches",
+          "x": 1582,
+          "y": 688,
+          "ownerId": null,
+          "size": "major",
+          "description": "An unusually quiet region of the sector, conspicuous mostly for how little anyone knows about it.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Silent Marches remain exactly that. No fleet has claimed it. No fleet has explained why not."
             }
           ]
         }
@@ -947,6 +1117,22 @@
         [
           101,
           100
+        ],
+        [
+          115,
+          84
+        ],
+        [
+          116,
+          84
+        ],
+        [
+          114,
+          78
+        ],
+        [
+          117,
+          69
         ]
       ],
       "eventLog": [

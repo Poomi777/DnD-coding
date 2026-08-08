@@ -67,6 +67,7 @@ select,.select{background:var(--bg-input);border:1px solid var(--border);border-
 .col-main{flex:1;min-width:0;}
 .toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
 .mode-hint{font-size:11.5px;color:var(--text-muted);margin-left:4px;}
+.zoom-label{font-size:11.5px;color:var(--text-muted);min-width:38px;text-align:center;}
 
 .canvas-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:auto;height:calc(100vh - 130px);position:relative;}
 .canvas-wrap::-webkit-scrollbar{height:8px;width:8px;}
@@ -139,9 +140,14 @@ svg#canvas.mode-select{cursor:default;}
         <button id="modeAddBtn" class="btn btn-sm" data-mode="add">＋ Add Zone</button>
         <button id="modeConnectBtn" class="btn btn-sm" data-mode="connect">⤡ Connect Zones</button>
         <span class="mode-hint" id="modeHint"></span>
+        <div class="header-spacer"></div>
+        <button id="zoomOutBtn" class="btn btn-sm" title="Zoom out">－</button>
+        <span class="zoom-label" id="zoomLabel">100%</span>
+        <button id="zoomInBtn" class="btn btn-sm" title="Zoom in">＋</button>
+        <button id="zoomResetBtn" class="btn btn-sm" title="Reset zoom">Reset</button>
       </div>
       <div class="canvas-wrap">
-        <svg id="canvas" class="mode-select" width="2400" height="2000"></svg>
+        <svg id="canvas" class="mode-select" width="2400" height="2000" viewBox="0 0 2400 2000"></svg>
       </div>
     </div>
   </div>
@@ -249,6 +255,9 @@ var mode='select';
 var connectFirst=null;
 var selectedZoneId=null;
 var drag=null;
+var zoomLevel=1;
+var ZOOM_MIN=0.4, ZOOM_MAX=2.5;
+var BASE_W=2400, BASE_H=2000;
 
 function uid(){state.nextId=(state.nextId||1)+1;return state.nextId-1;}
 
@@ -587,13 +596,57 @@ function setMode(m){
 function svgPoint(evt){
   var svg=document.getElementById('canvas');
   var rect=svg.getBoundingClientRect();
-  var scaleX=svg.width.baseVal.value/rect.width;
-  var scaleY=svg.height.baseVal.value/rect.height;
-  return {x:(evt.clientX-rect.left)*scaleX,y:(evt.clientY-rect.top)*scaleY};
+  var vb=svg.viewBox.baseVal;
+  var scaleX=vb.width/rect.width;
+  var scaleY=vb.height/rect.height;
+  return {x:(evt.clientX-rect.left)*scaleX+vb.x,y:(evt.clientY-rect.top)*scaleY+vb.y};
+}
+
+/* ---------- zoom ---------- */
+
+function applyZoom(){
+  var svg=document.getElementById('canvas');
+  svg.setAttribute('width',Math.round(BASE_W*zoomLevel));
+  svg.setAttribute('height',Math.round(BASE_H*zoomLevel));
+  document.getElementById('zoomLabel').textContent=Math.round(zoomLevel*100)+'%';
+}
+
+function zoomAt(clientX,clientY,factor){
+  var svg=document.getElementById('canvas');
+  var wrap=document.querySelector('.canvas-wrap');
+  var rect=svg.getBoundingClientRect();
+  var wrapRect=wrap.getBoundingClientRect();
+  var vb=svg.viewBox.baseVal;
+  var lx=(clientX-rect.left)*(vb.width/rect.width)+vb.x;
+  var ly=(clientY-rect.top)*(vb.height/rect.height)+vb.y;
+  var newZoom=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,zoomLevel*factor));
+  if(newZoom===zoomLevel)return;
+  zoomLevel=newZoom;
+  applyZoom();
+  var physX=lx*zoomLevel,physY=ly*zoomLevel;
+  wrap.scrollLeft=physX-(clientX-wrapRect.left);
+  wrap.scrollTop=physY-(clientY-wrapRect.top);
+}
+
+function zoomButton(factor){
+  var wrap=document.querySelector('.canvas-wrap');
+  var r=wrap.getBoundingClientRect();
+  zoomAt(r.left+r.width/2,r.top+r.height/2,factor);
+}
+
+function resetZoom(){
+  zoomLevel=1;
+  applyZoom();
 }
 
 function initCanvasEvents(){
   var svg=document.getElementById('canvas');
+
+  svg.addEventListener('wheel',function(evt){
+    if(!evt.ctrlKey)return;
+    evt.preventDefault();
+    zoomAt(evt.clientX,evt.clientY,evt.deltaY<0?1.1:1/1.1);
+  },{passive:false});
 
   svg.addEventListener('pointerdown',function(evt){
     var grp=evt.target.closest('.zone-grp');
@@ -654,6 +707,9 @@ function initUI(){
   document.getElementById('modeSelectBtn').addEventListener('click',function(){setMode('select');});
   document.getElementById('modeAddBtn').addEventListener('click',function(){setMode('add');});
   document.getElementById('modeConnectBtn').addEventListener('click',function(){setMode('connect');});
+  document.getElementById('zoomInBtn').addEventListener('click',function(){zoomButton(1.25);});
+  document.getElementById('zoomOutBtn').addEventListener('click',function(){zoomButton(1/1.25);});
+  document.getElementById('zoomResetBtn').addEventListener('click',resetZoom);
 
   document.getElementById('addFactionBtn').addEventListener('click',function(){
     state.factions.push({id:uid(),name:'New Faction',color:'#64748b'});
@@ -665,6 +721,7 @@ function initUI(){
     connectFirst=null;
     closeZoneDrawer();
     closeLogDrawer();
+    resetZoom();
     save();renderAll();
   });
   document.getElementById('newMapBtn').addEventListener('click',function(){
@@ -793,6 +850,7 @@ function initUI(){
 state=load();
 initUI();
 initCanvasEvents();
+applyZoom();
 setMode('select');
 renderAll();
 
