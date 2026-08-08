@@ -1,6 +1,6 @@
 {
-  "nextId": 66,
-  "activeMapId": 28,
+  "nextId": 114,
+  "activeMapId": 27,
   "factions": [
     {
       "id": 1,
@@ -137,9 +137,834 @@
     {
       "id": 27,
       "name": "Gladius Prime",
-      "zones": [],
-      "connections": [],
-      "eventLog": []
+      "zones": [
+        {
+          "id": 66,
+          "name": "Kasrkin's Redoubt",
+          "x": 1083,
+          "y": 808,
+          "ownerId": 4,
+          "size": "major",
+          "description": "A hardened garrison world anchoring the Militarum's claim on this stretch of the galaxy, its trench networks visible from orbit.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Kasrkin garrison digs in the moment the relief fleet reaches orbit — Militarum doctrine has never much cared for subtlety."
+            }
+          ]
+        },
+        {
+          "id": 67,
+          "name": "The Long Trench",
+          "x": 1118,
+          "y": 517,
+          "ownerId": 4,
+          "size": "minor",
+          "description": "A fortified supply corridor stretching between garrison worlds, more ditch than world.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Sappers finish the Long Trench's third redoubt line inside a week. Nobody's told them to stop yet."
+            }
+          ]
+        },
+        {
+          "id": 68,
+          "name": "Bastion Ferrum",
+          "x": 800,
+          "y": 525,
+          "ownerId": 4,
+          "size": "minor",
+          "description": "An armor depot and staging ground, its motor pools running day and night.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Bastion Ferrum's tank companies roll out on schedule, on doctrine, and without a shred of imagination. It works anyway."
+            }
+          ]
+        },
+        {
+          "id": 69,
+          "name": "Da Big Smoke",
+          "x": 1155,
+          "y": 1518,
+          "ownerId": 3,
+          "size": "major",
+          "description": "A sprawling scrapworld wreathed in permanent industrial haze, home to more Orks than anyone's bothered counting.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Da Big Smoke's factories never really stop — they just occasionally explode, which the Orks consider a feature."
+            }
+          ]
+        },
+        {
+          "id": 70,
+          "name": "Skabgrot's Junktown",
+          "x": 940,
+          "y": 1714,
+          "ownerId": 3,
+          "size": "minor",
+          "description": "A junk-moon ruled, loosely, by a Mek named Skabgrot who mostly just wants people to stop touching his stuff.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Skabgrot declares Junktown a 'No Touchin' Zone.' Enforcement is, predictably, violent."
+            }
+          ]
+        },
+        {
+          "id": 71,
+          "name": "Gorkanaut's Rest",
+          "x": 1370,
+          "y": 1910,
+          "ownerId": 3,
+          "size": "minor",
+          "description": "A boneyard of decommissioned war-walkers, most of which are 'decommissioned' in name only.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Three 'dead' Gorkanauts reactivate overnight. Nobody remembers switching them off in the first place."
+            }
+          ]
+        },
+        {
+          "id": 72,
+          "name": "The Sepulcher Eternal",
+          "x": 1420,
+          "y": 1073,
+          "ownerId": 5,
+          "size": "major",
+          "description": "A tomb-world of black glass and silent monoliths, its dynasty older than most galaxies' recorded history.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Reanimation beacons across the Sepulcher flicker to life in perfect, wordless unison."
+            }
+          ]
+        },
+        {
+          "id": 73,
+          "name": "Nyxos Vault",
+          "x": 1572,
+          "y": 1215,
+          "ownerId": 5,
+          "size": "minor",
+          "description": "A subterranean data-vault sealed since before the current galaxy had a name worth using.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Nyxos Vault's outer seal cracks for the first time in sixty million years. Nothing has yet emerged to explain why."
+            }
+          ]
+        },
+        {
+          "id": 74,
+          "name": "The Reclamation Fields",
+          "x": 1814,
+          "y": 1050,
+          "ownerId": 5,
+          "size": "minor",
+          "description": "A dead world being methodically stripped and rebuilt by tireless Necron labor constructs.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Reclamation Fields report completion of a task nobody outside the dynasty was told had started."
+            }
+          ]
+        },
+        {
+          "id": 75,
+          "name": "The Devouring Maw",
+          "x": 1721,
+          "y": 484,
+          "ownerId": 8,
+          "size": "major",
+          "description": "The forward feeding-ground of a hive fleet splinter, already reduced to bone and ash.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Devouring Maw's biomass count triples in a single cycle. Whatever's left down there won't last the week."
+            }
+          ]
+        },
+        {
+          "id": 76,
+          "name": "Bileroot Expanse",
+          "x": 1979,
+          "y": 550,
+          "ownerId": 8,
+          "size": "minor",
+          "description": "A world consumed so thoroughly its original biosphere is a matter of historical record only.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Surveyors confirm Bileroot Expanse's original ecosystem is, definitively, gone."
+            }
+          ]
+        },
+        {
+          "id": 77,
+          "name": "The Hunger Tide",
+          "x": 1730,
+          "y": 90,
+          "ownerId": 8,
+          "size": "minor",
+          "description": "A moving swarm-front more than a fixed location, tracked more than mapped.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Hunger Tide changes course toward the nearest concentration of anything that thinks. As always."
+            }
+          ]
+        },
+        {
+          "id": 78,
+          "name": "The Blackened Throne",
+          "x": 781,
+          "y": 1171,
+          "ownerId": 2,
+          "size": "major",
+          "description": "A fortress-cathedral raised to no god in particular and several at once, seat of a warband that answers to nobody.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Blackened Throne's banners are repainted for the third time this cycle. Allegiances here are, charitably, fluid."
+            }
+          ]
+        },
+        {
+          "id": 79,
+          "name": "Scarhold",
+          "x": 504,
+          "y": 1067,
+          "ownerId": 2,
+          "size": "minor",
+          "description": "A scarred garrison moon held by veterans of a Legion that stopped keeping count of its own losses centuries ago.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Scarhold's garrison repels a probing raid without apparent difficulty or apparent interest."
+            }
+          ]
+        },
+        {
+          "id": 80,
+          "name": "The Apostate's Reach",
+          "x": 351,
+          "y": 1480,
+          "ownerId": 2,
+          "size": "minor",
+          "description": "A former Imperial shrine-world, its iconography inverted rather than removed.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Pilgrims still arrive at the Apostate's Reach. The welcome they receive has changed considerably."
+            }
+          ]
+        },
+        {
+          "id": 81,
+          "name": "The Whispering Path",
+          "x": 1250,
+          "y": 432,
+          "ownerId": 9,
+          "size": "major",
+          "description": "A webway anchor-point maintained by a Craftworld that has never once explained its presence here.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Seers walk the Whispering Path in silence, as they have for longer than anyone's kept records."
+            }
+          ]
+        },
+        {
+          "id": 82,
+          "name": "Saim-Hann's Echo",
+          "x": 1470,
+          "y": 258,
+          "ownerId": 9,
+          "size": "minor",
+          "description": "A scout-waystone named for a Craftworld that isn't actually present, for reasons nobody's willing to clarify.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Saim-Hann's Echo relays a warning in a dialect three translation-servitors fail to fully parse."
+            }
+          ]
+        },
+        {
+          "id": 83,
+          "name": "The Starbound Sanctum",
+          "x": 1028,
+          "y": 90,
+          "ownerId": 9,
+          "size": "minor",
+          "description": "A hidden reliquary-shrine tucked into a stable pocket of otherwise lethal void.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Starbound Sanctum's wards flicker — the first change in their pattern in living memory."
+            }
+          ]
+        },
+        {
+          "id": 84,
+          "name": "Oathkeep Station",
+          "x": 1411,
+          "y": 1225,
+          "ownerId": 1,
+          "size": "major",
+          "description": "A fortress-monastery in high orbit, garrisoned by a Chapter keeping an oath nobody outside it fully understands.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Oathkeep's garrison completes another silent, unremarked-upon patrol cycle."
+            }
+          ]
+        },
+        {
+          "id": 85,
+          "name": "The Vigil Redoubt",
+          "x": 1506,
+          "y": 1393,
+          "ownerId": 1,
+          "size": "minor",
+          "description": "A watch-post maintained in permanent readiness for a threat that hasn't materialized yet.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Vigil Redoubt's garrison rotates out. The replacement crew looks exactly as bored as the last."
+            }
+          ]
+        },
+        {
+          "id": 86,
+          "name": "The Cogforge Deep",
+          "x": 887,
+          "y": 867,
+          "ownerId": 6,
+          "size": "major",
+          "description": "A forge-world built into the shell of something considerably older than the Mechanicus itself.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Tech-priests at the Cogforge Deep report 'promising' readings from strata nobody's supposed to be drilling into."
+            }
+          ]
+        },
+        {
+          "id": 87,
+          "name": "Ferrum Sanctum",
+          "x": 700,
+          "y": 641,
+          "ownerId": 6,
+          "size": "minor",
+          "description": "A refinery-shrine processing ore of unusually — and suspiciously — consistent purity.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Ferrum Sanctum's output quietly exceeds every projection. No explanation is offered. None is expected."
+            }
+          ]
+        },
+        {
+          "id": 88,
+          "name": "Sept Mor'tonium",
+          "x": 2031,
+          "y": 777,
+          "ownerId": 7,
+          "size": "major",
+          "description": "A newly-founded Sept, its habitation rings assembled with characteristic efficiency and zero sentimentality.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Sept Mor'tonium reaches full operational status in record time, per Ethereal caste projections."
+            }
+          ]
+        },
+        {
+          "id": 89,
+          "name": "The New Dawn Expanse",
+          "x": 2216,
+          "y": 911,
+          "ownerId": 7,
+          "size": "minor",
+          "description": "A frontier colony extending the Greater Good into a region that never asked for it.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The New Dawn Expanse's first harvest cycle completes without incident, which the Ethereal caste treats as a minor miracle."
+            }
+          ]
+        },
+        {
+          "id": 90,
+          "name": "The Screaming Gate",
+          "x": 824,
+          "y": 1481,
+          "ownerId": 10,
+          "size": "major",
+          "description": "A webway port thick with the residue of a thousand raids, none of them officially acknowledged.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Screaming Gate processes another shipment. The manifest, as ever, is written in euphemism."
+            }
+          ]
+        },
+        {
+          "id": 91,
+          "name": "Kabal's Hollow",
+          "x": 806,
+          "y": 1742,
+          "ownerId": 10,
+          "size": "minor",
+          "description": "A raiding outpost whose Archon changes with suspicious regularity, usually violently.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Kabal's Hollow gets a new Archon. The old one is not available for comment."
+            }
+          ]
+        },
+        {
+          "id": 92,
+          "name": "The Martyr's Chapel",
+          "x": 1122,
+          "y": 660,
+          "ownerId": 11,
+          "size": "major",
+          "description": "A convent-fortress built around the relics of a saint whose name has been lost, though her miracles have not.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Martyr's Chapel's reliquary hall reports a fourth unexplained candle-lighting this cycle."
+            }
+          ]
+        },
+        {
+          "id": 93,
+          "name": "Ember Reliquary",
+          "x": 931,
+          "y": 532,
+          "ownerId": 11,
+          "size": "minor",
+          "description": "A field-shrine following the front line rather than waiting for it to arrive.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Ember Reliquary relocates for the second time this cycle, staying exactly one step ahead of the fighting."
+            }
+          ]
+        },
+        {
+          "id": 94,
+          "name": "The Rotfields",
+          "x": 442,
+          "y": 819,
+          "ownerId": 16,
+          "size": "major",
+          "description": "A world so thoroughly diseased that its original name has been forgotten by everyone but its new tenants.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Rotfields' bloom-cycle accelerates. Nobody nearby considers this good news."
+            }
+          ]
+        },
+        {
+          "id": 95,
+          "name": "The Plague Garden",
+          "x": 298,
+          "y": 672,
+          "ownerId": 16,
+          "size": "minor",
+          "description": "A cultivated blight-orchard, tended with a patience that would be admirable in literally any other context.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Plague Garden's harvest is, by Nurgle's own metrics, a resounding success."
+            }
+          ]
+        },
+        {
+          "id": 96,
+          "name": "Skullgrounds",
+          "x": 641,
+          "y": 1110,
+          "ownerId": 23,
+          "size": "major",
+          "description": "An arena-world where the fighting never really stops, mostly because nobody's tried to stop it.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Skullgrounds' body count resets to zero. It will not stay there long."
+            }
+          ]
+        },
+        {
+          "id": 97,
+          "name": "The Butcher's Path",
+          "x": 397,
+          "y": 992,
+          "ownerId": 23,
+          "size": "minor",
+          "description": "A raiding corridor marked, quite literally, by the wreckage left in its wake.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Butcher's Path claims another convoy. The survivors are not expected."
+            }
+          ]
+        },
+        {
+          "id": 98,
+          "name": "Prospero's Echo",
+          "x": 1683,
+          "y": 1107,
+          "ownerId": 21,
+          "size": "major",
+          "description": "A fortress-library built in mourning for a homeworld that burned ten thousand years before anyone here was born.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Prospero's Echo's archives grow by another sealed volume. Access remains, as always, restricted."
+            }
+          ]
+        },
+        {
+          "id": 99,
+          "name": "The Athenaeum Occult",
+          "x": 1877,
+          "y": 1273,
+          "ownerId": 21,
+          "size": "minor",
+          "description": "A repository of forbidden knowledge that the Thousand Sons insist is 'mostly' stable.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Athenaeum Occult's wards hold. 'Mostly' remains the operative word."
+            }
+          ]
+        },
+        {
+          "id": 100,
+          "name": "The Broodhollow",
+          "x": 1417,
+          "y": 652,
+          "ownerId": 25,
+          "size": "major",
+          "description": "An infested hab-world where the cult's true numbers are, by design, impossible to verify.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Broodhollow's fourth-generation hybrids reach maturity ahead of even the cult's own schedule."
+            }
+          ]
+        },
+        {
+          "id": 101,
+          "name": "Whispering Depths",
+          "x": 1596,
+          "y": 554,
+          "ownerId": 25,
+          "size": "minor",
+          "description": "A mining colony whose productivity reports have been quietly authored by something other than management for some time.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Whispering Depths' quota is met early again. Nobody in charge asks how anymore."
+            }
+          ]
+        },
+        {
+          "id": 102,
+          "name": "The Black Cathedral",
+          "x": 776,
+          "y": 762,
+          "ownerId": 15,
+          "size": "major",
+          "description": "A corrupted forge-temple where the Machine God's rites have been rewritten to answer a considerably darker congregation.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Black Cathedral's furnaces burn a color that has no place in the standard Mechanicus liturgical index."
+            }
+          ]
+        },
+        {
+          "id": 103,
+          "name": "Corrupted Forge Ilex",
+          "x": 646,
+          "y": 522,
+          "ownerId": 15,
+          "size": "minor",
+          "description": "A stripped-down manufactory producing weapons that the Cogforge Deep, half a galaxy away, would very much like to un-know about.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Corrupted Forge Ilex ships its latest batch. The buyers, as usual, don't ask questions."
+            }
+          ]
+        },
+        {
+          "id": 104,
+          "name": "The Golden Bastion",
+          "x": 1311,
+          "y": 964,
+          "ownerId": 12,
+          "size": "major",
+          "description": "A single fortress-shrine garrisoned by a bare handful of Custodians — which is, everyone assures each other, still more than enough.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Golden Bastion's garrison hasn't changed in millennia. It hasn't needed to."
+            }
+          ]
+        },
+        {
+          "id": 105,
+          "name": "The Bleeding Rift",
+          "x": 466,
+          "y": 1399,
+          "ownerId": 13,
+          "size": "major",
+          "description": "A permanent tear in the fabric of reality, through which considerably more than light occasionally passes.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Bleeding Rift widens by a measurable margin. Nobody's volunteering to measure it a second time."
+            }
+          ]
+        },
+        {
+          "id": 106,
+          "name": "Ironshard Hold",
+          "x": 239,
+          "y": 1132,
+          "ownerId": 14,
+          "size": "minor",
+          "description": "A shattered fortress-manor housing a Knight household that swore its oaths to the wrong side generations ago.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "Ironshard Hold's engines cycle for the first time in years. Something has finally been judged worth walking for."
+            }
+          ]
+        },
+        {
+          "id": 107,
+          "name": "The Perfect Discord",
+          "x": 520,
+          "y": 937,
+          "ownerId": 17,
+          "size": "minor",
+          "description": "A pleasure-fortress turned battlefield, its aesthetics considered — by its occupants — more important than its defenses.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Perfect Discord's latest 'performance' leaves considerably more than the audience in ruins."
+            }
+          ]
+        },
+        {
+          "id": 108,
+          "name": "The Silver Sanctum",
+          "x": 1459,
+          "y": 916,
+          "ownerId": 18,
+          "size": "major",
+          "description": "A secretive fortress-monastery whose existence most of the Imperium is not cleared to acknowledge.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Silver Sanctum reports a 'contained' incident. The word is doing a great deal of work in that sentence."
+            }
+          ]
+        },
+        {
+          "id": 109,
+          "name": "The Siege Eternal",
+          "x": 224,
+          "y": 1264,
+          "ownerId": 19,
+          "size": "minor",
+          "description": "A fortress that has, at this point, been under siege for so long nobody remembers who started it.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Siege Eternal's walls hold. They have held before. They will, grudgingly, hold again."
+            }
+          ]
+        },
+        {
+          "id": 110,
+          "name": "The Umbral Reach",
+          "x": 476,
+          "y": 1256,
+          "ownerId": 20,
+          "size": "minor",
+          "description": "A raiding waystation lit, deliberately, by absolutely nothing.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Umbral Reach reports a successful raid. The victims never saw it coming, which was rather the point."
+            }
+          ]
+        },
+        {
+          "id": 111,
+          "name": "The Temple of Lorgar",
+          "x": 495,
+          "y": 1548,
+          "ownerId": 22,
+          "size": "major",
+          "description": "A cathedral-world raised in devotion to a Primarch who, by all accounts, appreciates the effort more than the Emperor ever did.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Temple of Lorgar's congregation grows. Conversion here rarely looks voluntary, but it counts all the same."
+            }
+          ]
+        },
+        {
+          "id": 112,
+          "name": "House Ferroth's Hold",
+          "x": 1445,
+          "y": 1511,
+          "ownerId": 24,
+          "size": "minor",
+          "description": "A modest Knight household seat, its throne-engines maintained with near-religious devotion.",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "House Ferroth's Hold answers a muster nobody outside the household actually sent."
+            }
+          ]
+        },
+        {
+          "id": 113,
+          "name": "The Titan's Grave",
+          "x": 968,
+          "y": 679,
+          "ownerId": 26,
+          "size": "major",
+          "description": "A necropolis of fallen God-Engines, several of which the Legio insists are merely 'resting.'",
+          "log": [
+            {
+              "ts": "Founding, Day 1",
+              "text": "The Titan's Grave registers a power spike from a Titan officially listed as inoperative for three centuries."
+            }
+          ]
+        }
+      ],
+      "connections": [
+        [
+          85,
+          84
+        ],
+        [
+          79,
+          78
+        ],
+        [
+          80,
+          78
+        ],
+        [
+          70,
+          69
+        ],
+        [
+          71,
+          69
+        ],
+        [
+          67,
+          66
+        ],
+        [
+          68,
+          66
+        ],
+        [
+          73,
+          72
+        ],
+        [
+          74,
+          72
+        ],
+        [
+          87,
+          86
+        ],
+        [
+          89,
+          88
+        ],
+        [
+          76,
+          75
+        ],
+        [
+          77,
+          75
+        ],
+        [
+          82,
+          81
+        ],
+        [
+          83,
+          81
+        ],
+        [
+          91,
+          90
+        ],
+        [
+          93,
+          92
+        ],
+        [
+          103,
+          102
+        ],
+        [
+          95,
+          94
+        ],
+        [
+          99,
+          98
+        ],
+        [
+          97,
+          96
+        ],
+        [
+          101,
+          100
+        ]
+      ],
+      "eventLog": [
+        {
+          "ts": "Founding, Day 1",
+          "text": "THE GLADIUS SECTOR AWAKENS\n\nEvery major power in the sector is active at once, for the first time anyone can document. The Imperium in all its fractured pillars — Militarum, Astartes, Mechanicus, Sororitas, Custodes, and more besides. The Orks, the Necron dynasties, the hive fleets, the Aeldari and their kin in the dark. And Chaos, fractured a dozen ways and answering to a dozen masters, spread across nearly a third of the charted rim.\n\nNobody commissioned this convergence. Nobody is in charge of it. Every banner on this map got here under its own power, for its own reasons, and none of them are inclined to explain themselves to anyone else. Whatever the Gladius Sector becomes, it will not be decided by any one side alone."
+        }
+      ],
+      "rings": {
+        "cx": 1200,
+        "cy": 1000,
+        "radii": [
+          180,
+          420,
+          680,
+          950
+        ]
+      }
     },
     {
       "id": 28,
@@ -568,6 +1393,10 @@
             {
               "ts": "Cycle 001, Day 12",
               "text": "The dust settles, and it's a Mechanicus banner planted over what's left of the Cindergate. Eldar and Drukhari tore into each other before either could reach the structure, the Gallowspire's warband got caught in the crossfire, and the Tyranid broodswarm arrived just in time to feed on the wreckage of all three. The Techpriest expedition walked in when it mattered and walked out with whatever the Cindergate was hiding."
+            },
+            {
+              "ts": "Cycle 001, Day 17",
+              "text": "Vox-intercepts from Aurun's Forge describe 'anomalous immaterial bleed' at the Cindergate excavation — Mechanicus-speak for something that has attracted considerably more attention than a salvage claim should. The Gallowspire has clearly been listening."
             }
           ]
         },
@@ -996,6 +1825,10 @@
         {
           "ts": "Cycle 001, Day 16",
           "text": "THE BASTION RECLAIMED\n\nThe counter-offensive was never going to be easy, and it wasn't. The T'au warfleet struck first, confident and characteristically well-coordinated — right up until the Tyranid vanguard flanked them from an angle nobody had accounted for. Imperial guns and hive-fleet claws made for unlikely, unspoken company against a common target, and the T'au expedition didn't survive the arrangement.\n\nThat, unfortunately, still left two invaders standing. The Sisters of Battle and the Astra Militarum found themselves fighting a two-front war in earnest — Tyranids pressing from the west, Orks from the north, both still willing to turn on each other whenever the opportunity presented itself. It did, more than once, and every round of Ork-on-Tyranid violence bought the Imperium ground it hadn't had to bleed for.\n\nThe Tyranid line broke first, ground down by a war of attrition it couldn't out-regenerate fast enough to win. The Orks took much longer — a long, grinding, back-and-forth slog that Skarnag Grimjaw's Krew fought for every meter — but they broke too, eventually.\n\nSolthane Bastion, the Sanctum Vigil, and Highwatch Priory all fly Imperial colours again. It cost the Sisters of Battle a campaign they will be telling stories about for a long time. The Munitorum, characteristically, is already asking when the next push starts."
+        },
+        {
+          "ts": "Cycle 001, Day 17",
+          "text": "CHAOS RETURNS FOR THE CINDERGATE\n\nThe Gallowspire's warband hasn't forgotten Ghoul Reef. They were there for the first scramble over the Cindergate and got nothing for it but a mauling from Eldar and Drukhari blades — a humiliation that doesn't sit well with anyone who answers to the Ruinous Powers.\n\nThis time there's no five-way chaos to hide in. Three Chaos warbands, organized and coordinated in a way the first attempt never was, commit fully to taking Ghoul Reef outright. Whatever the Techpriests are doing to the Cindergate's remains, the warp has apparently taken notice — and that has Chaos considerably more interested than mere salvage rights would explain.\n\nThe Adeptus Mechanicus isn't giving up a find like this without a fight. Three full cohorts stand ready to defend the dig. Neither side is interested in half-measures this time."
         }
       ]
     }

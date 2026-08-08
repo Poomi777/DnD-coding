@@ -74,6 +74,7 @@ select,.select{background:var(--bg-input);border:1px solid var(--border);border-
 svg#canvas{display:block;cursor:crosshair;}
 svg#canvas.mode-select{cursor:default;}
 .conn-line{stroke:var(--border);stroke-width:2;}
+.ring-guide{fill:none;stroke:rgba(201,162,75,.3);stroke-width:1.5;stroke-dasharray:4 6;}
 .zone-grp{cursor:pointer;}
 .zone-grp .zone-circle{stroke:rgba(255,255,255,.3);stroke-width:2;transition:stroke .12s,stroke-width .12s;}
 .zone-grp:hover .zone-circle{stroke:#fff;}
@@ -407,6 +408,12 @@ function renderCanvas(){
   var svg=document.getElementById('canvas');
   svg.innerHTML='';
   var map=getActiveMap();
+
+  if(map.rings&&map.rings.radii){
+    map.rings.radii.forEach(function(r){
+      svg.appendChild(el('circle',{class:'ring-guide',cx:map.rings.cx,cy:map.rings.cy,r:r}));
+    });
+  }
 
   map.connections.forEach(function(pair){
     var a=findZone(map,pair[0]),b=findZone(map,pair[1]);
