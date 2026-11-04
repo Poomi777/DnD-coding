@@ -86,7 +86,9 @@ select,.select{background:var(--bg-input);border:1px solid var(--border);border-
 .terrain-btn{display:inline-flex;align-items:center;gap:5px;}
 .terrain-chip{width:12px;height:12px;border-radius:3px;border:1px solid rgba(255,255,255,.2);}
 
-.canvas-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:auto;height:calc(100vh - 150px);position:relative;}
+.canvas-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:auto;height:calc(100vh - 110px);position:relative;display:flex;}
+.canvas-wrap.with-brush{height:calc(100vh - 156px);}
+svg#canvas{margin:auto;flex-shrink:0;}
 .canvas-wrap::-webkit-scrollbar{height:8px;width:8px;}
 .canvas-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
 svg#canvas{display:block;cursor:crosshair;touch-action:none;user-select:none;}
@@ -177,7 +179,7 @@ input[type=range]{width:100%;accent-color:var(--accent);}
         <button id="zoomOutBtn" class="btn btn-sm" title="Zoom out">－</button>
         <span class="zoom-label" id="zoomLabel">100%</span>
         <button id="zoomInBtn" class="btn btn-sm" title="Zoom in">＋</button>
-        <button id="zoomResetBtn" class="btn btn-sm" title="Reset zoom">Reset</button>
+        <button id="zoomResetBtn" class="btn btn-sm" title="Fit whole map (F)">⤢ Fit</button>
       </div>
 
       <div class="toolbar brushbar" id="brushBar" hidden>
@@ -289,11 +291,11 @@ input[type=range]{width:100%;accent-color:var(--accent);}
       <div class="field-row">
         <div>
           <label class="field-label">Columns</label>
-          <input type="number" id="msCols" class="field-input" min="8" max="120">
+          <input type="number" id="msCols" class="field-input" min="8" max="160">
         </div>
         <div>
           <label class="field-label">Rows</label>
-          <input type="number" id="msRows" class="field-input" min="6" max="100">
+          <input type="number" id="msRows" class="field-input" min="6" max="120">
         </div>
       </div>
       <div>
@@ -323,6 +325,12 @@ input[type=range]{width:100%;accent-color:var(--accent);}
         <div class="field-note">Replaces terrain only. Influence, names, features and history are kept.</div>
       </div>
 
+      <div class="section-title">Published Campaign</div>
+      <div>
+        <button id="msLoadCampaign" class="btn btn-sm">⟳ Load Published Campaign</button>
+        <div class="field-note" id="msCampaignNote"></div>
+      </div>
+
       <div class="section-title">Danger Zone</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button id="msClearInfluence" class="btn btn-sm btn-danger">Clear All Influence</button>
@@ -331,6 +339,7 @@ input[type=range]{width:100%;accent-color:var(--accent);}
   </div>
 </div>
 
+<script src="campaign.js"></script>
 <script>
 (function(){
 'use strict';
@@ -423,7 +432,9 @@ var brushSize=0;
 var brushFactionId=null; // null = erase
 var brushTerrain='grass';
 var selectedHex=null;
-var zoomLevel=1, ZOOM_MIN=0.35, ZOOM_MAX=3;
+var zoomLevel=1, ZOOM_MIN=0.15, ZOOM_MAX=4;
+var spaceHeld=false;
+var touches={}, pinch=null;
 var view={terrain:true,influence:true,grid:true,labels:true,realms:true};
 var polys=[];
 var pointer=null;
@@ -440,7 +451,7 @@ function freshState(){
   var s={nextId:1,factions:[],maps:[],activeMapId:null};
   var n=1;
   DEFAULT_FACTIONS.forEach(function(f){s.factions.push({id:n++,name:f[0],color:f[1],culture:f[2]});});
-  var m=newMap(n++,'The Realm',36,24);
+  var m=newMap(n++,'The Realm',72,48);
   s.maps.push(m);s.activeMapId=m.id;s.nextId=n;
   generateTerrain(m,'surface',35,Math.floor(Math.random()*1e9));
   return s;
@@ -458,12 +469,64 @@ function normalize(d){
   return d;
 }
 
+/* ---------- published campaign (campaign.js) ---------- */
+var TERRAIN_CODES={g:'grass',f:'forest',s:'swamp',h:'hills',m:'mountain',d:'desert',t:'tundra',v:'volcanic',w:'shallow',o:'deep',c:'cavern',x:'chasm',_:'void'};
+var CAMPAIGN=window.AOW4_CAMPAIGN||null;
+
+function campaignToState(camp){
+  var s={nextId:1,factions:[],maps:[],activeMapId:null,campaignVersion:camp.version};
+  var maxId=0,keyToId={};
+  camp.factions.forEach(function(f){
+    s.factions.push({id:f.id,name:f.name,color:f.color,culture:f.culture||''});
+    keyToId[f.key]=f.id;maxId=Math.max(maxId,f.id);
+  });
+  camp.maps.forEach(function(cm){
+    var m=newMap(cm.id,cm.name,cm.cols,cm.rows);
+    maxId=Math.max(maxId,cm.id);
+    if(cm.gen)m.gen=cm.gen;
+    for(var r=0;r<cm.rows;r++){
+      var trow=(cm.terrain&&cm.terrain[r])||'',irow=(cm.influence&&cm.influence[r])||'';
+      for(var c=0;c<cm.cols;c++){
+        var h=ensureHex(m,c,r);
+        h.t=TERRAIN_CODES[trow.charAt(c)]||'grass';
+        var fk=irow.charAt(c);
+        if(keyToId[fk]!=null&&h.t!=='void')h.o=keyToId[fk];
+      }
+    }
+    (cm.places||[]).forEach(function(p){
+      if(!inBounds(m,p.c,p.r))return;
+      var h=ensureHex(m,p.c,p.r);
+      if(p.name)h.n=p.name;
+      if(p.feature)h.f=p.feature;
+      if(p.desc)h.d=p.desc;
+      if(p.owner&&keyToId[p.owner]!=null)h.o=keyToId[p.owner];
+      if(p.log)h.log=p.log.map(function(e){return {ts:e.ts,text:e.text};});
+    });
+    m.eventLog=(cm.chronicle||[]).map(function(e){return {ts:e.ts,text:e.text};});
+    s.maps.push(m);
+  });
+  s.activeMapId=camp.activeMapId||s.maps[0].id;
+  s.nextId=maxId+1;
+  return s;
+}
+
 function load(){
+  var local=null;
   try{
     var raw=localStorage.getItem(STORAGE_KEY);
-    if(raw){var d=JSON.parse(raw);if(d&&d.maps&&d.maps.length&&d.factions)return normalize(d);}
+    if(raw){var d=JSON.parse(raw);if(d&&d.maps&&d.maps.length&&d.factions)local=normalize(d);}
   }catch(e){}
-  return freshState();
+  if(local){
+    var seen=Math.max(local.campaignVersion||0,local.skippedCampaignVersion||0);
+    if(CAMPAIGN&&seen<CAMPAIGN.version){
+      if(confirm('The published campaign map has been updated (v'+CAMPAIGN.version+(CAMPAIGN.updated?', '+CAMPAIGN.updated:'')+').\n\nLoad it now? This replaces the map saved in this browser.\nCancel keeps your local version (you can load the campaign later from Map Settings).')){
+        return campaignToState(CAMPAIGN);
+      }
+      local.skippedCampaignVersion=CAMPAIGN.version;
+    }
+    return local;
+  }
+  return CAMPAIGN?campaignToState(CAMPAIGN):freshState();
 }
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
 
@@ -842,13 +905,14 @@ function renderFactions(){
 function renderOverview(){
   var list=document.getElementById('overviewList');list.innerHTML='';
   var map=getActiveMap();
-  var land=0,counts={},cities={},claimed=0;
+  var land=0,counts={},cities={},claimed=0,landOwned={};
   for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++){
     var h=getHex(map,c,r),t=terrainOf(h);
     if(!NON_LAND[t])land++;
     if(t==='void'||!h)continue;
     if(h.o!=null&&getFaction(h.o)){
-      counts[h.o]=(counts[h.o]||0)+1;claimed++;
+      counts[h.o]=(counts[h.o]||0)+1;
+      if(!NON_LAND[t]){landOwned[h.o]=(landOwned[h.o]||0)+1;claimed++;}
       if(CITY_FEATURES[h.f])cities[h.o]=(cities[h.o]||0)+1;
     }
   }
@@ -857,10 +921,11 @@ function renderOverview(){
   if(!rows.length){list.innerHTML='<div class="empty-note">No influence painted yet.<br>Pick a faction and use 🖌 Paint Influence.</div>';return;}
   var max=counts[rows[0].id];
   rows.forEach(function(f){
-    var n=counts[f.id],ct=cities[f.id]||0;
-    var pct=land?Math.round(n/land*100):0;
+    var n=counts[f.id],ct=cities[f.id]||0,ln=landOwned[f.id]||0;
+    var pct=land?Math.round(ln/land*100):0;
     var div=document.createElement('div');div.className='ov-row';
-    div.innerHTML='<div class="ov-top"><span class="ov-swatch" style="background:'+f.color+'"></span><span class="ov-name">'+escapeHtml(f.name)+'</span><span class="ov-count">'+n+' hex · '+ct+' '+(ct===1?'city':'cities')+' · '+pct+'%</span></div>'+
+    div.title=ln+' land + '+(n-ln)+' sea hexes · '+pct+'% of all land';
+    div.innerHTML='<div class="ov-top"><span class="ov-swatch" style="background:'+f.color+'"></span><span class="ov-name">'+escapeHtml(f.name)+'</span><span class="ov-count">'+ln+' land · '+(n-ln)+' sea · '+ct+' '+(ct===1?'city':'cities')+'</span></div>'+
       '<div class="ov-bar"><span style="width:'+(n/max*100).toFixed(1)+'%;background:'+f.color+'"></span></div>';
     list.appendChild(div);
   });
@@ -982,6 +1047,9 @@ function openSettings(){
   document.getElementById('msWater').value=map.gen.water||35;
   document.getElementById('msWaterVal').textContent=map.gen.water||35;
   document.getElementById('msSeed').value=map.gen.seed||'';
+  document.getElementById('msCampaignNote').textContent=CAMPAIGN
+    ?'Published campaign: v'+CAMPAIGN.version+(CAMPAIGN.updated?' ('+CAMPAIGN.updated+')':'')+'. This browser: '+(state.campaignVersion?'v'+state.campaignVersion:'local edits only')+'.'
+    :'No campaign.js found next to this page.';
   document.getElementById('settingsOverlay').classList.add('open');
 }
 function closeSettings(){document.getElementById('settingsOverlay').classList.remove('open');}
@@ -991,9 +1059,10 @@ function setMode(m){
   mode=m;
   ['modeSelectBtn','modeInfBtn','modeTerBtn'].forEach(function(id){document.getElementById(id).classList.remove('active');});
   document.getElementById({select:'modeSelectBtn',influence:'modeInfBtn',terrain:'modeTerBtn'}[m]).classList.add('active');
-  var hints={select:'Click a hex to name it, place a city or log history. Drag to pan.',influence:'Click / drag to spread influence.',terrain:'Click / drag to paint terrain.'};
+  var hints={select:'Click a hex to inspect · drag to pan · scroll to zoom',influence:'Drag to paint influence · right-drag or Space+drag to pan',terrain:'Drag to paint terrain · right-drag or Space+drag to pan'};
   document.getElementById('modeHint').textContent=hints[m];
   document.getElementById('brushBar').hidden=(m==='select');
+  document.getElementById('canvasWrap').classList.toggle('with-brush',m!=='select');
   document.getElementById('infTools').style.display=m==='influence'?'inline-flex':'none';
   document.getElementById('terTools').style.display=m==='terrain'?'inline-flex':'none';
   applySvgClasses();
@@ -1035,6 +1104,15 @@ function zoomAt(clientX,clientY,factor){
   wrap.scrollTop=offY+pt.y*zoomLevel-(clientY-wr.top);
 }
 function zoomButton(f){var r=document.getElementById('canvasWrap').getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,f);}
+function fitView(){
+  var wrap=document.getElementById('canvasWrap');
+  var sz=canvasSize(getActiveMap());
+  var z=Math.min((wrap.clientWidth-8)/sz.w,(wrap.clientHeight-8)/sz.h);
+  zoomLevel=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,z));
+  applyZoom();
+  wrap.scrollLeft=(wrap.scrollWidth-wrap.clientWidth)/2;
+  wrap.scrollTop=(wrap.scrollHeight-wrap.clientHeight)/2;
+}
 
 function svgPoint(evt){
   var svg=document.getElementById('canvas');
@@ -1046,15 +1124,32 @@ function svgPoint(evt){
 function initCanvasEvents(){
   var svg=document.getElementById('canvas'),wrap=document.getElementById('canvasWrap');
 
-  svg.addEventListener('wheel',function(evt){
-    if(!evt.ctrlKey)return;
+  // mouse wheel / trackpad pinch = zoom at cursor
+  wrap.addEventListener('wheel',function(evt){
     evt.preventDefault();
-    zoomAt(evt.clientX,evt.clientY,evt.deltaY<0?1.1:1/1.1);
+    var dy=evt.deltaMode===1?evt.deltaY*16:evt.deltaY;
+    var factor=Math.exp(-dy*(evt.ctrlKey?0.01:0.0018));
+    zoomAt(evt.clientX,evt.clientY,Math.max(0.5,Math.min(2,factor)));
   },{passive:false});
+  svg.addEventListener('contextmenu',function(evt){evt.preventDefault();});
+
+  function touchDist(){var k=Object.keys(touches),a=touches[k[0]],b=touches[k[1]];return {d:Math.hypot(a.x-b.x,a.y-b.y),x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
 
   svg.addEventListener('pointerdown',function(evt){
+    if(evt.pointerType==='touch'){
+      touches[evt.pointerId]={x:evt.clientX,y:evt.clientY};
+      if(Object.keys(touches).length===2){
+        // second finger: abandon paint/pan, start pinch
+        if(pointer&&pointer.type==='paint'&&pointer.changed){save();renderOverview();}
+        pointer=null;
+        var t=touchDist();pinch={d:t.d,x:t.x,y:t.y};
+        return;
+      }
+      if(Object.keys(touches).length>2)return;
+    }
     var pt=svgPoint(evt),hx=pixelToHex(pt.x,pt.y);
-    if(evt.button===1||(evt.button===0&&mode==='select')){
+    var wantPan=evt.button===1||evt.button===2||(evt.button===0&&(mode==='select'||spaceHeld));
+    if(wantPan){
       evt.preventDefault();
       pointer={type:'pan',button:evt.button,sx:evt.clientX,sy:evt.clientY,sl:wrap.scrollLeft,st:wrap.scrollTop,moved:false,hex:hx};
       svg.setPointerCapture(evt.pointerId);
@@ -1069,6 +1164,16 @@ function initCanvasEvents(){
   });
 
   svg.addEventListener('pointermove',function(evt){
+    if(evt.pointerType==='touch'&&touches[evt.pointerId]){
+      touches[evt.pointerId]={x:evt.clientX,y:evt.clientY};
+      if(pinch&&Object.keys(touches).length===2){
+        var t=touchDist();
+        if(pinch.d>0)zoomAt(t.x,t.y,t.d/pinch.d);
+        wrap.scrollLeft-=t.x-pinch.x;wrap.scrollTop-=t.y-pinch.y;
+        pinch={d:t.d,x:t.x,y:t.y};
+        return;
+      }
+    }
     if(pointer&&pointer.type==='pan'){
       var dx=evt.clientX-pointer.sx,dy=evt.clientY-pointer.sy;
       if(!pointer.moved&&(Math.abs(dx)>4||Math.abs(dy)>4)){pointer.moved=true;applySvgClasses();}
@@ -1083,7 +1188,11 @@ function initCanvasEvents(){
     }
   });
 
-  function end(){
+  function end(evt){
+    if(evt&&evt.pointerType==='touch'){
+      delete touches[evt.pointerId];
+      if(pinch){if(Object.keys(touches).length<2)pinch=null;pointer=null;return;}
+    }
     if(!pointer)return;
     var p=pointer;pointer=null;
     if(p.type==='pan'){
@@ -1117,7 +1226,8 @@ function initUI(){
 
   on('zoomInBtn','click',function(){zoomButton(1.25);});
   on('zoomOutBtn','click',function(){zoomButton(1/1.25);});
-  on('zoomResetBtn','click',function(){zoomLevel=1;applyZoom();});
+  on('zoomResetBtn','click',fitView);
+  window.addEventListener('resize',function(){applyZoom();});
 
   on('addFactionBtn','click',function(){
     var f={id:uid(),name:'New Faction',color:'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0'),culture:''};
@@ -1128,7 +1238,7 @@ function initUI(){
   on('mapSelect','change',function(e){
     state.activeMapId=parseInt(e.target.value,10);
     closeHexDrawer();closeSettings();
-    zoomLevel=1;save();renderAll();
+    save();renderAll();fitView();
   });
   on('newMapBtn','click',function(){
     var name=window.prompt('New map name (e.g. "Underground", "Realm of Ash"):','New Realm');
@@ -1139,7 +1249,7 @@ function initUI(){
     m.gen.style=under?'underground':'surface';
     generateTerrain(m,m.gen.style,m.gen.water,Math.floor(Math.random()*1e9));
     state.maps.push(m);state.activeMapId=m.id;
-    save();renderAll();openSettings();
+    save();renderAll();fitView();openSettings();
   });
   on('deleteMapBtn','click',function(){
     if(state.maps.length<=1){alert('At least one map must remain.');return;}
@@ -1158,8 +1268,8 @@ function initUI(){
   on('msWater','input',function(e){document.getElementById('msWaterVal').textContent=e.target.value;});
   on('msApplySize','click',function(){
     var m=getActiveMap();
-    var c=Math.max(8,Math.min(120,parseInt(document.getElementById('msCols').value,10)||m.cols));
-    var r=Math.max(6,Math.min(100,parseInt(document.getElementById('msRows').value,10)||m.rows));
+    var c=Math.max(8,Math.min(160,parseInt(document.getElementById('msCols').value,10)||m.cols));
+    var r=Math.max(6,Math.min(120,parseInt(document.getElementById('msRows').value,10)||m.rows));
     if(c<m.cols||r<m.rows){if(!confirm('Shrinking will delete hexes outside '+c+'×'+r+'. Continue?'))return;}
     Object.keys(m.hexes).forEach(function(k){var p=k.split(',');if(+p[0]>=c||+p[1]>=r)delete m.hexes[k];});
     for(var rr=0;rr<r;rr++)for(var cc=0;cc<c;cc++)ensureHex(m,cc,rr);
@@ -1177,6 +1287,13 @@ function initUI(){
     m.gen={style:style,water:water,seed:seedTxt};
     generateTerrain(m,style,water,seed);
     save();refreshAllFills();renderBorders();renderFeatures();renderOverview();
+  });
+  on('msLoadCampaign','click',function(){
+    if(!CAMPAIGN){alert('No published campaign file (campaign.js) was found.');return;}
+    if(!confirm('Load the published campaign (v'+CAMPAIGN.version+')? This replaces everything saved in this browser. Export first if you want a backup.'))return;
+    state=campaignToState(CAMPAIGN);
+    closeHexDrawer();closeSettings();
+    save();renderAll();fitView();
   });
   on('msClearInfluence','click',function(){
     var m=getActiveMap();
@@ -1246,10 +1363,16 @@ function initUI(){
   });
 
   // keyboard
+  document.addEventListener('keyup',function(e){if(e.code==='Space')spaceHeld=false;});
+  window.addEventListener('blur',function(){spaceHeld=false;});
   document.addEventListener('keydown',function(e){
     var tag=(e.target.tagName||'').toLowerCase();
     if(tag==='input'||tag==='textarea'||tag==='select'||e.ctrlKey||e.metaKey)return;
     var k=e.key.toLowerCase();
+    if(e.code==='Space'){spaceHeld=true;e.preventDefault();return;}
+    if(k==='+'||k==='='){zoomButton(1.25);return;}
+    if(k==='-'||k==='_'){zoomButton(1/1.25);return;}
+    if(k==='f'||k==='0'){fitView();return;}
     if(k==='escape'){closeHexDrawer();closeSettings();document.getElementById('logOverlay').classList.remove('open');}
     else if(k==='s')setMode('select');
     else if(k==='i')setMode('influence');
@@ -1265,6 +1388,7 @@ initUI();
 initCanvasEvents();
 renderAll();
 setMode('select');
+fitView();
 save();
 
 })();
