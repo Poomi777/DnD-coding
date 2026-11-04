@@ -14,6 +14,7 @@
   --r-sm:4px; --r-md:8px; --r-lg:12px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+[hidden]{display:none!important;}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(167,139,250,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(45,212,191,.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
 
@@ -95,6 +96,8 @@ svg#canvas.panning{cursor:grabbing;}
 svg.no-grid .hex{stroke:none;}
 .hex.void{fill:transparent;stroke:rgba(255,255,255,.03);}
 .border-path{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
+.realm-name{font-family:Georgia,'Palatino Linotype','Book Antiqua',serif;font-weight:700;paint-order:stroke;stroke:rgba(8,6,12,.55);stroke-linejoin:round;opacity:.88;pointer-events:none;}
+svg.no-realms .realm-layer{display:none;}
 .feat-bg{fill:rgba(10,9,14,.72);stroke:rgba(255,255,255,.35);stroke-width:1;}
 .feat-icon{font-size:12px;text-anchor:middle;dominant-baseline:central;fill:#fff;pointer-events:none;}
 .hex-label{font-size:10px;font-weight:600;text-anchor:middle;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.85);stroke-width:3px;stroke-linejoin:round;pointer-events:none;}
@@ -168,6 +171,7 @@ input[type=range]{width:100%;accent-color:var(--accent);}
         <label class="check"><input type="checkbox" id="viewTerrain" checked> Terrain</label>
         <label class="check"><input type="checkbox" id="viewInfluence" checked> Influence</label>
         <label class="check"><input type="checkbox" id="viewGrid" checked> Grid</label>
+        <label class="check"><input type="checkbox" id="viewRealms" checked> Realm names</label>
         <label class="check"><input type="checkbox" id="viewLabels" checked> Labels</label>
         <div class="toolbar-sep"></div>
         <button id="zoomOutBtn" class="btn btn-sm" title="Zoom out">－</button>
@@ -420,7 +424,7 @@ var brushFactionId=null; // null = erase
 var brushTerrain='grass';
 var selectedHex=null;
 var zoomLevel=1, ZOOM_MIN=0.35, ZOOM_MAX=3;
-var view={terrain:true,influence:true,grid:true,labels:true};
+var view={terrain:true,influence:true,grid:true,labels:true,realms:true};
 var polys=[];
 var pointer=null;
 var lastPaintKey=null;
@@ -584,7 +588,7 @@ function buildCanvas(){
   svg.innerHTML='';
   var sz=canvasSize(map);
   svg.setAttribute('viewBox','0 0 '+sz.w+' '+sz.h);
-  ['hex','border','feat','label','overlay'].forEach(function(n){layers[n]=el('g',{});svg.appendChild(layers[n]);});
+  ['hex','border','realm','feat','label','overlay'].forEach(function(n){layers[n]=el('g',{class:n+'-layer'});svg.appendChild(layers[n]);});
   polys=new Array(map.cols*map.rows);
   var frag=document.createDocumentFragment();
   for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++){
@@ -641,6 +645,114 @@ function renderBorders(){
   Object.keys(paths).forEach(function(o){
     var f=getFaction(parseInt(o,10));
     g.appendChild(el('path',{d:paths[o],class:'border-path',stroke:f.color}));
+  });
+  scheduleRealmNames();
+}
+
+/* ---------- realm names (stretched across territory) ---------- */
+var realmNamesQueued=false;
+function scheduleRealmNames(){
+  if(realmNamesQueued)return;
+  realmNamesQueued=true;
+  requestAnimationFrame(function(){realmNamesQueued=false;renderRealmNames();});
+}
+
+function findRegions(map){
+  var seen={},regions=[];
+  for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++){
+    var o=ownerOf(map,c,r);
+    if(o==null||seen[key(c,r)]||!getFaction(o))continue;
+    var cells=[],stack=[[c,r]];seen[key(c,r)]=1;
+    while(stack.length){
+      var cur=stack.pop();cells.push(cur);
+      var dirs=(cur[1]&1)?DIRS_ODD:DIRS_EVEN;
+      for(var d=0;d<6;d++){
+        var nc=cur[0]+dirs[d][0],nr=cur[1]+dirs[d][1],nk=key(nc,nr);
+        if(!seen[nk]&&ownerOf(map,nc,nr)===o){seen[nk]=1;stack.push([nc,nr]);}
+      }
+    }
+    regions.push({owner:o,cells:cells});
+  }
+  return regions;
+}
+
+function solve3(m,v){ // Cramer's rule for 3x3
+  function det(a){return a[0][0]*(a[1][1]*a[2][2]-a[1][2]*a[2][1])-a[0][1]*(a[1][0]*a[2][2]-a[1][2]*a[2][0])+a[0][2]*(a[1][0]*a[2][1]-a[1][1]*a[2][0]);}
+  var D=det(m);if(Math.abs(D)<1e-9)return null;
+  var out=[];
+  for(var i=0;i<3;i++){var mm=m.map(function(row,ri){return row.map(function(x,ci){return ci===i?v[ri]:x;});});out.push(det(mm)/D);}
+  return out;
+}
+
+function renderRealmNames(){
+  var g=layers.realm;if(!g)return;g.innerHTML='';
+  if(!view.influence||!view.realms)return;
+  var map=getActiveMap();
+  var regions=findRegions(map);
+  var largest={};
+  regions.forEach(function(rg){if(!largest[rg.owner]||rg.cells.length>largest[rg.owner].cells.length)largest[rg.owner]=rg;});
+  var idx=0;
+  regions.forEach(function(rg){
+    var n=rg.cells.length;
+    if(n<4&&!(largest[rg.owner]===rg&&n>=2))return;
+    var f=getFaction(rg.owner);
+    var pts=rg.cells.map(function(cr){return center(cr[0],cr[1]);});
+
+    // principal axis
+    var mx=0,my=0;pts.forEach(function(p){mx+=p.x;my+=p.y;});mx/=n;my/=n;
+    var sxx=0,syy=0,sxy=0;
+    pts.forEach(function(p){var dx=p.x-mx,dy=p.y-my;sxx+=dx*dx;syy+=dy*dy;sxy+=dx*dy;});
+    var th=0.5*Math.atan2(2*sxy,sxx-syy);
+    var lim=Math.PI/180*60;th=Math.max(-lim,Math.min(lim,th));
+    var ux=Math.cos(th),uy=Math.sin(th);
+
+    // rotated frame + quadratic fit v = a u^2 + b u + c
+    var uv=pts.map(function(p){var dx=p.x-mx,dy=p.y-my;return [dx*ux+dy*uy,-dx*uy+dy*ux];});
+    var uMin=Infinity,uMax=-Infinity;
+    uv.forEach(function(q){if(q[0]<uMin)uMin=q[0];if(q[0]>uMax)uMax=q[0];});
+    var span=uMax-uMin+HW*0.8;
+    var a=0,b=0,cc=0;
+    if(n>=6){
+      var s0=n,s1=0,s2=0,s3=0,s4=0,t0=0,t1=0,t2=0;
+      uv.forEach(function(q){var u=q[0],v=q[1],u2=u*u;s1+=u;s2+=u2;s3+=u2*u;s4+=u2*u2;t0+=v;t1+=u*v;t2+=u2*v;});
+      var sol=solve3([[s4,s3,s2],[s3,s2,s1],[s2,s1,s0]],[t2,t1,t0]);
+      if(sol){a=sol[0];b=sol[1];cc=sol[2];}
+      var half=span/2,maxSag=0.16*span;
+      if(Math.abs(a)*half*half>maxSag)a=Math.sign(a)*maxSag/(half*half);
+      b=Math.max(-0.35,Math.min(0.35,b));
+    }
+    var fit=function(u){return a*u*u+b*u+cc;};
+
+    // thickness of the region around the fitted curve
+    var res=0;uv.forEach(function(q){var d=q[1]-fit(q[0]);res+=d*d;});
+    var thick=Math.sqrt(res/n)*3.46+S*1.5;
+
+    var um=(uMin+uMax)/2,target=Math.max(HW*1.3,span*0.84);
+    var u0=um-target*0.56,u1=um+target*0.56;
+    function toXY(u,v){return {x:mx+u*ux-v*uy,y:my+u*uy+v*ux};}
+    var P0=toXY(u0,fit(u0)),P2=toXY(u1,fit(u1));
+    var Pc=toXY(um,2*fit(um)-(fit(u0)+fit(u1))/2);
+    var pid='realmPath'+(idx++);
+    g.appendChild(el('path',{id:pid,d:'M'+P0.x.toFixed(1)+' '+P0.y.toFixed(1)+'Q'+Pc.x.toFixed(1)+' '+Pc.y.toFixed(1)+' '+P2.x.toFixed(1)+' '+P2.y.toFixed(1),fill:'none'}));
+
+    var label=f.name.toUpperCase();
+    var fs=Math.min(thick*0.55,64);
+    var txt=el('text',{class:'realm-name','font-size':fs.toFixed(1),fill:mix(f.color,'#ffffff',0.55)});
+    var tp=el('textPath',{href:'#'+pid,startOffset:'50%','text-anchor':'middle'});
+    tp.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href','#'+pid);
+    tp.textContent=label;
+    txt.appendChild(tp);
+    g.appendChild(txt);
+
+    var nat=0;try{nat=txt.getComputedTextLength();}catch(e){}
+    if(!nat)nat=label.length*fs*0.72;
+    if(nat>target){fs*=target/nat;nat=target;}
+    if(fs<7){g.removeChild(txt);return;}
+    var gaps=Math.max(1,label.length-1);
+    var spacing=Math.min((target-nat)/gaps,fs*2.2);
+    txt.setAttribute('font-size',fs.toFixed(1));
+    txt.setAttribute('letter-spacing',spacing.toFixed(1));
+    txt.setAttribute('stroke-width',(fs*0.14).toFixed(1));
   });
 }
 
@@ -708,7 +820,7 @@ function renderFactions(){
 
     var txt=document.createElement('div');txt.className='faction-text';
     var nm=document.createElement('input');nm.type='text';nm.className='faction-name';nm.value=f.name;
-    nm.addEventListener('change',function(){f.name=nm.value.trim()||'Unnamed';save();renderOverview();renderBrushFaction();renderOwnerOptions();});
+    nm.addEventListener('change',function(){f.name=nm.value.trim()||'Unnamed';save();renderOverview();renderBrushFaction();renderOwnerOptions();scheduleRealmNames();});
     var cu=document.createElement('input');cu.type='text';cu.className='faction-culture';cu.value=f.culture||'';cu.placeholder='Culture / ruler';cu.setAttribute('list','cultureList');
     cu.addEventListener('change',function(){f.culture=cu.value.trim();save();});
     txt.appendChild(nm);txt.appendChild(cu);
@@ -898,6 +1010,7 @@ function applySvgClasses(){
   if(pointer&&pointer.type==='pan'&&pointer.moved)cls.push('panning');
   if(!view.grid)cls.push('no-grid');
   if(!view.labels)cls.push('no-labels');
+  if(!view.realms)cls.push('no-realms');
   document.getElementById('canvas').setAttribute('class',cls.join(' '));
 }
 
@@ -998,7 +1111,7 @@ function initUI(){
   document.querySelectorAll('.size-btn').forEach(function(b){b.addEventListener('click',function(){setBrushSize(+b.getAttribute('data-size'));});});
   on('brushFaction','change',function(e){brushFactionId=e.target.value===''?null:parseInt(e.target.value,10);renderFactions();});
 
-  [['viewTerrain','terrain'],['viewInfluence','influence'],['viewGrid','grid'],['viewLabels','labels']].forEach(function(p){
+  [['viewTerrain','terrain'],['viewInfluence','influence'],['viewGrid','grid'],['viewLabels','labels'],['viewRealms','realms']].forEach(function(p){
     on(p[0],'change',function(e){view[p[1]]=e.target.checked;applySvgClasses();refreshAllFills();renderBorders();});
   });
 
