@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realms of Wonder — AoW4 Influence Map</title>
+<style>
+:root{
+  --bg:#0c0b10; --bg-surface:#15141b; --bg-elevated:#1d1b25; --bg-input:#100f15;
+  --border:#2c2a38; --border-dim:#1d1b25;
+  --text:#e7e5ee; --text-muted:#928fa3; --text-dim:#4a4758;
+  --accent:#a78bfa; --accent-bg:rgba(167,139,250,.13); --accent-border:rgba(167,139,250,.42);
+  --danger:#dc2626; --danger-bg:rgba(220,38,38,.1); --danger-border:rgba(220,38,38,.3);
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 15% 10%,rgba(167,139,250,.06) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(45,212,191,.05) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+.app{position:relative;max-width:1700px;margin:0 auto;padding:16px 16px 24px;z-index:1;}
+
+.header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,#a78bfa,#4c3a8f);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 2px 10px rgba(167,139,250,.35);}
+.header-text{margin-right:8px;}
+h1{font-size:16px;font-weight:600;letter-spacing:-.3px;}
+.header-sub{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.spacer{flex:1;}
+
+select,.select{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 10px;font-size:13px;color:var(--text);font-family:inherit;}
+.select-sm{padding:4px 8px;font-size:12px;}
+
+.btn{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 12px;font-size:12.5px;font-family:inherit;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .12s,border-color .12s,transform .1s;white-space:nowrap;}
+.btn:hover{background:#26232f;border-color:#3d394c;}
+.btn:active{transform:scale(.97);}
+.btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);}
+.btn-primary{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);}
+.btn-primary:hover{background:rgba(167,139,250,.22);}
+.btn-danger{background:var(--danger-bg);border-color:var(--danger-border);color:#fca5a5;}
+.btn-danger:hover{background:rgba(220,38,38,.2);}
+.btn-sm{padding:4px 9px;font-size:11.5px;}
+.icon-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px 6px;border-radius:var(--r-sm);font-size:14px;display:flex;align-items:center;transition:color .12s,background .12s;}
+.icon-btn:hover{color:var(--text);background:var(--bg-elevated);}
+
+.app-shell{display:flex;gap:14px;align-items:flex-start;}
+
+.sidebar{width:270px;flex-shrink:0;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;flex-direction:column;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:hidden;}
+.sidebar-head{display:flex;align-items:center;gap:7px;padding:9px 12px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);flex-shrink:0;}
+.sidebar-head:first-child{border-top:none;}
+.sidebar-head-title{flex:1;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);}
+.sidebar-body{overflow-y:auto;max-height:40vh;}
+.sidebar-body::-webkit-scrollbar{width:3px;}
+.sidebar-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+.faction-row{display:flex;align-items:center;gap:7px;padding:6px 10px 6px 8px;border-bottom:1px solid var(--border-dim);border-left:2px solid transparent;cursor:pointer;}
+.faction-row:last-child{border-bottom:none;}
+.faction-row.brush{border-left-color:var(--accent);background:rgba(167,139,250,.06);}
+.swatch{width:20px;height:20px;border-radius:50%;border:1px solid rgba(255,255,255,.25);flex-shrink:0;cursor:pointer;padding:0;background:none;}
+.swatch::-webkit-color-swatch-wrapper{padding:0;}
+.swatch::-webkit-color-swatch{border:none;border-radius:50%;}
+.faction-text{flex:1;min-width:0;display:flex;flex-direction:column;}
+.faction-name,.faction-culture{width:100%;background:none;border:none;color:var(--text);font-size:12px;font-family:inherit;padding:2px 4px;border-radius:var(--r-sm);}
+.faction-culture{font-size:10.5px;color:var(--text-muted);}
+.faction-name:hover,.faction-name:focus,.faction-culture:hover,.faction-culture:focus{background:var(--bg-elevated);outline:none;}
+.faction-del{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:3px;font-size:12px;flex-shrink:0;}
+.faction-del:hover{color:#fca5a5;}
+.empty-note{padding:16px 12px;text-align:center;color:var(--text-muted);font-size:11.5px;}
+
+.ov-row{padding:7px 10px;border-bottom:1px solid var(--border-dim);font-size:12px;}
+.ov-row:last-child{border-bottom:none;}
+.ov-top{display:flex;align-items:center;gap:7px;}
+.ov-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ov-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ov-count{color:var(--text-muted);font-size:11px;white-space:nowrap;}
+.ov-bar{height:3px;background:var(--bg-elevated);border-radius:3px;margin-top:5px;overflow:hidden;}
+.ov-bar>span{display:block;height:100%;border-radius:3px;}
+
+.col-main{flex:1;min-width:0;}
+.toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.toolbar-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.mode-hint{font-size:11.5px;color:var(--text-muted);margin-left:4px;}
+.zoom-label{font-size:11.5px;color:var(--text-muted);min-width:38px;text-align:center;}
+.tool-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-right:2px;}
+.check{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-muted);cursor:pointer;user-select:none;}
+.brushbar{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-md);padding:6px 8px;}
+.terrain-btn{display:inline-flex;align-items:center;gap:5px;}
+.terrain-chip{width:12px;height:12px;border-radius:3px;border:1px solid rgba(255,255,255,.2);}
+
+.canvas-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:auto;height:calc(100vh - 150px);position:relative;}
+.canvas-wrap::-webkit-scrollbar{height:8px;width:8px;}
+.canvas-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+svg#canvas{display:block;cursor:crosshair;touch-action:none;user-select:none;}
+svg#canvas.mode-select{cursor:grab;}
+svg#canvas.panning{cursor:grabbing;}
+.hex{stroke:rgba(0,0,0,.28);stroke-width:.7;}
+svg.no-grid .hex{stroke:none;}
+.hex.void{fill:transparent;stroke:rgba(255,255,255,.03);}
+.border-path{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
+.feat-bg{fill:rgba(10,9,14,.72);stroke:rgba(255,255,255,.35);stroke-width:1;}
+.feat-icon{font-size:12px;text-anchor:middle;dominant-baseline:central;fill:#fff;pointer-events:none;}
+.hex-label{font-size:10px;font-weight:600;text-anchor:middle;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.85);stroke-width:3px;stroke-linejoin:round;pointer-events:none;}
+.hex-label.capital{font-size:11.5px;font-weight:700;}
+svg.no-labels .hex-label{display:none;}
+.brush-outline{fill:rgba(255,255,255,.08);stroke:rgba(255,255,255,.75);stroke-width:1.2;pointer-events:none;}
+.sel-outline{fill:none;stroke:var(--accent);stroke-width:2.5;pointer-events:none;}
+
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none;align-items:stretch;justify-content:flex-end;}
+.drawer-overlay.open{display:flex;}
+.drawer{width:340px;max-width:90vw;background:var(--bg-surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100%;}
+.drawer-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.drawer-title{flex:1;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);}
+.drawer-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+.field-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:5px;display:block;}
+.field-input,.field-select,.field-textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 10px;font-size:13px;color:var(--text);font-family:inherit;}
+.field-textarea{resize:vertical;min-height:56px;}
+.field-row{display:flex;gap:8px;}
+.field-row>div{flex:1;}
+.field-note{font-size:11px;color:var(--text-dim);margin-top:5px;}
+.section-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.7px;border-top:1px solid var(--border);padding-top:12px;}
+.log-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.log-entry{background:var(--bg-elevated);border:1px solid var(--border-dim);border-radius:var(--r-md);padding:8px 10px;}
+.log-ts{font-size:10px;color:var(--text-dim);margin-bottom:3px;}
+.log-text{font-size:12.5px;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+.log-empty{font-size:11.5px;color:var(--text-dim);text-align:center;padding:10px 0;}
+.drawer-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;}
+input[type=range]{width:100%;accent-color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">✦</div>
+    <div class="header-text">
+      <h1>Realms of Wonder</h1>
+      <div class="header-sub">Age of Wonders 4 · influence &amp; campaign map</div>
+    </div>
+    <select id="mapSelect" class="select"></select>
+    <button id="newMapBtn" class="btn btn-sm">+ Map</button>
+    <button id="settingsBtn" class="btn btn-sm">⚙ Map Settings</button>
+    <button id="deleteMapBtn" class="btn btn-sm btn-danger">Delete Map</button>
+    <div class="spacer"></div>
+    <button id="logBtn" class="btn btn-sm">📜 Chronicle</button>
+    <button id="exportBtn" class="btn btn-sm">Export</button>
+    <button id="importBtn" class="btn btn-sm">Import</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+  </div>
+
+  <div class="app-shell">
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <span class="sidebar-head-title">Factions</span>
+        <button id="addFactionBtn" class="icon-btn" title="Add faction">＋</button>
+      </div>
+      <div class="sidebar-body" id="factionList"></div>
+      <div class="sidebar-head">
+        <span class="sidebar-head-title">Influence</span>
+        <span class="ov-count" id="landTotal"></span>
+      </div>
+      <div class="sidebar-body" id="overviewList"></div>
+    </div>
+
+    <div class="col-main">
+      <div class="toolbar">
+        <button id="modeSelectBtn" class="btn btn-sm active" title="S">✋ Inspect / Pan</button>
+        <button id="modeInfBtn" class="btn btn-sm" title="I">🖌 Paint Influence</button>
+        <button id="modeTerBtn" class="btn btn-sm" title="T">⛰ Paint Terrain</button>
+        <span class="mode-hint" id="modeHint"></span>
+        <div class="spacer"></div>
+        <label class="check"><input type="checkbox" id="viewTerrain" checked> Terrain</label>
+        <label class="check"><input type="checkbox" id="viewInfluence" checked> Influence</label>
+        <label class="check"><input type="checkbox" id="viewGrid" checked> Grid</label>
+        <label class="check"><input type="checkbox" id="viewLabels" checked> Labels</label>
+        <div class="toolbar-sep"></div>
+        <button id="zoomOutBtn" class="btn btn-sm" title="Zoom out">－</button>
+        <span class="zoom-label" id="zoomLabel">100%</span>
+        <button id="zoomInBtn" class="btn btn-sm" title="Zoom in">＋</button>
+        <button id="zoomResetBtn" class="btn btn-sm" title="Reset zoom">Reset</button>
+      </div>
+
+      <div class="toolbar brushbar" id="brushBar" hidden>
+        <span class="tool-label">Brush</span>
+        <button class="btn btn-sm size-btn active" data-size="0" title="1">1 hex</button>
+        <button class="btn btn-sm size-btn" data-size="1" title="2">7 hex</button>
+        <button class="btn btn-sm size-btn" data-size="2" title="3">19 hex</button>
+        <div class="toolbar-sep"></div>
+        <span id="infTools">
+          <select id="brushFaction" class="select select-sm"></select>
+          <label class="check" style="margin-left:8px;" title="Painting won't overwrite hexes held by another faction"><input type="checkbox" id="protectOthers"> Don't overwrite others</label>
+        </span>
+        <span id="terTools" style="display:inline-flex;gap:4px;flex-wrap:wrap;"></span>
+        <span class="mode-hint">Alt+click to pick</span>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <svg id="canvas" class="mode-select"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<datalist id="cultureList">
+  <option value="Barbarian"><option value="Dark"><option value="Feudal"><option value="High">
+  <option value="Industrious"><option value="Mystic"><option value="Oathsworn"><option value="Primal">
+  <option value="Free City"><option value="Independent">
+</datalist>
+
+<!-- hex drawer -->
+<div class="drawer-overlay" id="hexOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title" id="hexTitle">Hex</span>
+      <button class="icon-btn" id="hexCloseBtn">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div>
+        <label class="field-label">Name</label>
+        <input type="text" id="hexName" class="field-input" placeholder="e.g. Emberhold, The Shattered Spire">
+      </div>
+      <div>
+        <label class="field-label">Influence</label>
+        <select id="hexOwner" class="field-select"></select>
+      </div>
+      <div class="field-row">
+        <div>
+          <label class="field-label">Terrain</label>
+          <select id="hexTerrain" class="field-select"></select>
+        </div>
+        <div>
+          <label class="field-label">Feature</label>
+          <select id="hexFeature" class="field-select"></select>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Description</label>
+        <textarea id="hexDesc" class="field-textarea" placeholder="What is this place?"></textarea>
+      </div>
+      <div>
+        <label class="field-label">Add log entry</label>
+        <textarea id="hexLogInput" class="field-textarea" placeholder="Siege, annexation, a hero falls..."></textarea>
+        <button id="hexLogAddBtn" class="btn btn-sm btn-primary" style="margin-top:6px;">Add Entry</button>
+      </div>
+      <div>
+        <label class="field-label">History</label>
+        <div class="log-list" id="hexLogList"></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <button id="hexClearBtn" class="btn btn-danger" style="flex:1;">Clear Name, Feature &amp; History</button>
+    </div>
+  </div>
+</div>
+
+<!-- chronicle drawer -->
+<div class="drawer-overlay" id="logOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title">Chronicle</span>
+      <button class="icon-btn" id="logCloseBtn">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div>
+        <label class="field-label">Add event</label>
+        <textarea id="campaignLogInput" class="field-textarea" placeholder="What happened across the realm this turn?"></textarea>
+        <button id="campaignLogAddBtn" class="btn btn-sm btn-primary" style="margin-top:6px;">Add Entry</button>
+      </div>
+      <div>
+        <label class="field-label">History</label>
+        <div class="log-list" id="campaignLogList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- map settings drawer -->
+<div class="drawer-overlay" id="settingsOverlay">
+  <div class="drawer">
+    <div class="drawer-head">
+      <span class="drawer-title">Map Settings</span>
+      <button class="icon-btn" id="settingsCloseBtn">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div>
+        <label class="field-label">Map name</label>
+        <input type="text" id="msName" class="field-input">
+      </div>
+      <div class="field-row">
+        <div>
+          <label class="field-label">Columns</label>
+          <input type="number" id="msCols" class="field-input" min="8" max="120">
+        </div>
+        <div>
+          <label class="field-label">Rows</label>
+          <input type="number" id="msRows" class="field-input" min="6" max="100">
+        </div>
+      </div>
+      <div>
+        <button id="msApplySize" class="btn btn-sm">Apply Size</button>
+        <div class="field-note">Shrinking removes hexes outside the new bounds.</div>
+      </div>
+
+      <div class="section-title">Terrain Generator</div>
+      <div>
+        <label class="field-label">Style</label>
+        <select id="msStyle" class="field-select">
+          <option value="surface">Surface — continents</option>
+          <option value="islands">Surface — islands</option>
+          <option value="underground">Underground — caverns</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Water / chasm level: <span id="msWaterVal"></span>%</label>
+        <input type="range" id="msWater" min="5" max="75" value="35">
+      </div>
+      <div>
+        <label class="field-label">Seed (blank = random)</label>
+        <input type="text" id="msSeed" class="field-input" placeholder="random">
+      </div>
+      <div>
+        <button id="msGenerate" class="btn btn-primary">🎲 Generate Terrain</button>
+        <div class="field-note">Replaces terrain only. Influence, names, features and history are kept.</div>
+      </div>
+
+      <div class="section-title">Danger Zone</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="msClearInfluence" class="btn btn-sm btn-danger">Clear All Influence</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var STORAGE_KEY='aow4-realms-state';
+
+var TERRAINS=[
+  {id:'grass',   name:'Grassland',     color:'#6a8a3e'},
+  {id:'forest',  name:'Forest',        color:'#2f5e36'},
+  {id:'swamp',   name:'Swamp',         color:'#4b5d3a'},
+  {id:'hills',   name:'Hills',         color:'#8c7b4d'},
+  {id:'mountain',name:'Mountains',     color:'#77716b'},
+  {id:'desert',  name:'Desert',        color:'#c4a15c'},
+  {id:'tundra',  name:'Tundra',        color:'#aab8bc'},
+  {id:'volcanic',name:'Volcanic',      color:'#5e2c22'},
+  {id:'shallow', name:'Shallow Water', color:'#2f6f8f'},
+  {id:'deep',    name:'Deep Water',    color:'#1c3d63'},
+  {id:'cavern',  name:'Cavern',        color:'#4a4152'},
+  {id:'chasm',   name:'Chasm',         color:'#1d1924'},
+  {id:'void',    name:'Off-map',       color:'#0c0b10'}
+];
+var TERRAIN_BY_ID={};TERRAINS.forEach(function(t){TERRAIN_BY_ID[t.id]=t;});
+var NON_LAND={shallow:1,deep:1,chasm:1,void:1};
+
+var FEATURES=[
+  {id:'',        name:'None',          icon:''},
+  {id:'capital', name:'Capital',       icon:'♛'},
+  {id:'city',    name:'City',          icon:'◆'},
+  {id:'vassal',  name:'Vassal City',   icon:'◇'},
+  {id:'freecity',name:'Free City',     icon:'⚑'},
+  {id:'outpost', name:'Outpost',       icon:'▲'},
+  {id:'wonder',  name:'Ancient Wonder',icon:'❖'},
+  {id:'landmark',name:'Landmark',      icon:'✦'},
+  {id:'dungeon', name:'Dungeon / Ruin',icon:'☗'},
+  {id:'portal',  name:'Portal / Gate', icon:'◎'},
+  {id:'battle',  name:'Battle Site',   icon:'⚔'}
+];
+var FEATURE_BY_ID={};FEATURES.forEach(function(f){FEATURE_BY_ID[f.id]=f;});
+var CITY_FEATURES={capital:1,city:1,vassal:1,freecity:1};
+
+var DEFAULT_FACTIONS=[
+  ['Your Empire','#d4a72c','Feudal'],
+  ['The Ashen Dominion','#c0262d','Dark'],
+  ['Verdant Circle','#22a35a','Primal'],
+  ['Stormborn Clans','#2f6fe0','Barbarian'],
+  ['Lumen Concord','#e2e8f0','High'],
+  ['Forgeholt League','#ea6a12','Industrious'],
+  ['Free Cities','#94a3b8','Free City']
+];
+
+/* ---------- hex geometry (pointy-top, odd-r offset) ---------- */
+var S=20, SQ3=Math.sqrt(3), HW=SQ3*S, RH=1.5*S, PAD=24;
+var CORNERS=[];
+for(var i=0;i<6;i++){var a=Math.PI/180*(60*i-30);CORNERS.push([S*Math.cos(a),S*Math.sin(a)]);}
+var DIRS_EVEN=[[1,0],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1]];
+var DIRS_ODD =[[1,0],[1,-1],[0,-1],[-1,0],[0,1],[1,1]];
+var EDGE=[[0,1],[5,0],[4,5],[3,4],[2,3],[1,2]];
+
+function center(c,r){return {x:PAD+HW*(c+0.5*(r&1))+HW/2,y:PAD+S+RH*r};}
+function canvasSize(map){return {w:Math.ceil(PAD*2+HW*(map.cols+0.5)),h:Math.ceil(PAD*2+RH*(map.rows-1)+2*S)};}
+function hexPoints(c,r,scale){
+  var p=center(c,r),k=scale||1,out=[];
+  for(var i=0;i<6;i++)out.push((p.x+CORNERS[i][0]*k).toFixed(1)+','+(p.y+CORNERS[i][1]*k).toFixed(1));
+  return out.join(' ');
+}
+function pixelToHex(x,y){
+  var px=x-PAD-HW/2,py=y-PAD-S;
+  var q=(SQ3/3*px-py/3)/S, r=(2/3*py)/S;
+  var cx=q,cz=r,cy=-cx-cz;
+  var rx=Math.round(cx),ry=Math.round(cy),rz=Math.round(cz);
+  var dx=Math.abs(rx-cx),dy=Math.abs(ry-cy),dz=Math.abs(rz-cz);
+  if(dx>dy&&dx>dz)rx=-ry-rz;else if(dy<=dz)rz=-rx-ry;
+  return {c:rx+(rz-(rz&1))/2,r:rz};
+}
+function hexesInRadius(c,r,R){
+  var q=c-(r-(r&1))/2,out=[];
+  for(var dq=-R;dq<=R;dq++){
+    for(var dr=Math.max(-R,-dq-R);dr<=Math.min(R,-dq+R);dr++){
+      var rr=r+dr,qq=q+dq;
+      out.push({c:qq+(rr-(rr&1))/2,r:rr});
+    }
+  }
+  return out;
+}
+
+/* ---------- state ---------- */
+var state=null;
+var mode='select';
+var brushSize=0;
+var brushFactionId=null; // null = erase
+var brushTerrain='grass';
+var selectedHex=null;
+var zoomLevel=1, ZOOM_MIN=0.35, ZOOM_MAX=3;
+var view={terrain:true,influence:true,grid:true,labels:true};
+var polys=[];
+var pointer=null;
+var lastPaintKey=null;
+
+function uid(){state.nextId=(state.nextId||1)+1;return state.nextId-1;}
+function key(c,r){return c+','+r;}
+
+function newMap(id,name,cols,rows){
+  return {id:id,name:name,cols:cols,rows:rows,hexes:{},eventLog:[],gen:{style:'surface',water:35,seed:''}};
+}
+
+function freshState(){
+  var s={nextId:1,factions:[],maps:[],activeMapId:null};
+  var n=1;
+  DEFAULT_FACTIONS.forEach(function(f){s.factions.push({id:n++,name:f[0],color:f[1],culture:f[2]});});
+  var m=newMap(n++,'The Realm',36,24);
+  s.maps.push(m);s.activeMapId=m.id;s.nextId=n;
+  generateTerrain(m,'surface',35,Math.floor(Math.random()*1e9));
+  return s;
+}
+
+function normalize(d){
+  d.factions.forEach(function(f){if(f.culture==null)f.culture='';});
+  d.maps.forEach(function(m){
+    if(!m.eventLog)m.eventLog=[];
+    if(!m.hexes)m.hexes={};
+    if(!m.cols)m.cols=36;
+    if(!m.rows)m.rows=24;
+    if(!m.gen)m.gen={style:'surface',water:35,seed:''};
+  });
+  return d;
+}
+
+function load(){
+  try{
+    var raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){var d=JSON.parse(raw);if(d&&d.maps&&d.maps.length&&d.factions)return normalize(d);}
+  }catch(e){}
+  return freshState();
+}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+
+function getActiveMap(){
+  for(var i=0;i<state.maps.length;i++)if(state.maps[i].id===state.activeMapId)return state.maps[i];
+  return state.maps[0];
+}
+function getFaction(id){
+  if(id==null)return null;
+  for(var i=0;i<state.factions.length;i++)if(state.factions[i].id===id)return state.factions[i];
+  return null;
+}
+function inBounds(map,c,r){return c>=0&&r>=0&&c<map.cols&&r<map.rows;}
+function getHex(map,c,r){return map.hexes[key(c,r)]||null;}
+function ensureHex(map,c,r){
+  var k=key(c,r);
+  if(!map.hexes[k])map.hexes[k]={t:'grass',o:null};
+  return map.hexes[k];
+}
+function terrainOf(h){return h&&h.t&&TERRAIN_BY_ID[h.t]?h.t:'grass';}
+function ownerOf(map,c,r){
+  if(!inBounds(map,c,r))return undefined;
+  var h=getHex(map,c,r);
+  if(!h||terrainOf(h)==='void')return undefined;
+  return h.o==null?null:h.o;
+}
+
+/* ---------- colour helpers ---------- */
+function rgb(hex){
+  var c=hex.replace('#','');
+  if(c.length===3)c=c.split('').map(function(ch){return ch+ch;}).join('');
+  return [parseInt(c.substr(0,2),16),parseInt(c.substr(2,2),16),parseInt(c.substr(4,2),16)];
+}
+function mix(a,b,t){
+  var A=rgb(a),B=rgb(b);
+  return 'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+Math.round(A[1]+(B[1]-A[1])*t)+','+Math.round(A[2]+(B[2]-A[2])*t)+')';
+}
+function escapeHtml(s){var d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
+
+/* ---------- terrain generation ---------- */
+function hash2(x,y,seed){
+  var h=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^Math.imul(seed|0,1442695041);
+  h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;
+  return (h>>>0)/4294967296;
+}
+function vnoise(x,y,seed){
+  var xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi;
+  var u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);
+  var a=hash2(xi,yi,seed),b=hash2(xi+1,yi,seed),c=hash2(xi,yi+1,seed),d=hash2(xi+1,yi+1,seed);
+  return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;
+}
+function fbm(x,y,seed,oct){
+  var t=0,amp=1,f=1,norm=0;
+  for(var i=0;i<oct;i++){t+=amp*vnoise(x*f,y*f,seed+i*1013);norm+=amp;amp*=.5;f*=2.03;}
+  return t/norm;
+}
+function seedFromText(txt){
+  if(/^\d+$/.test(txt))return parseInt(txt,10)%2147483647;
+  var h=2166136261;
+  for(var i=0;i<txt.length;i++){h^=txt.charCodeAt(i);h=Math.imul(h,16777619);}
+  return h>>>0;
+}
+function percentile(sorted,p){return sorted[Math.max(0,Math.min(sorted.length-1,Math.floor(p*sorted.length)))];}
+
+function generateTerrain(map,style,water,seed){
+  var cells=[],cols=map.cols,rows=map.rows;
+  var featureSize=HW*(style==='islands'?5:8);
+  for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
+    var p=center(c,r);
+    var e=fbm(p.x/featureSize,p.y/featureSize,seed,5);
+    var m=fbm(p.x/(HW*7),p.y/(HW*7),seed+77,3);
+    var v=fbm(p.x/(HW*3),p.y/(HW*3),seed+313,2);
+    if(style!=='underground'){
+      var dx=Math.abs(2*c/(cols-1)-1),dy=Math.abs(2*r/(rows-1)-1);
+      var d=Math.max(dx,dy);
+      e-=(style==='islands'?0.18:0.22)*Math.pow(d,3);
+    }
+    cells.push({c:c,r:r,e:e,m:m,v:v,lat:Math.abs(2*r/(rows-1)-1)});
+  }
+  var es=cells.map(function(x){return x.e;}).sort(function(a,b){return a-b;});
+  var ms=cells.map(function(x){return x.m;}).sort(function(a,b){return a-b;});
+  var vs=cells.map(function(x){return x.v;}).sort(function(a,b){return a-b;});
+  var w=water/100;
+  var deepT=percentile(es,w*0.55),waterT=percentile(es,w);
+  var mountT=percentile(es,0.93),hillT=percentile(es,0.82);
+  var dryT=percentile(ms,0.2),wetT=percentile(ms,0.9),forestT=percentile(ms,0.58);
+  var volT=percentile(vs,0.97);
+
+  cells.forEach(function(x){
+    var t;
+    if(style==='underground'){
+      if(x.e<waterT)t='chasm';
+      else if(x.e>mountT)t='mountain';
+      else if(x.v>volT)t='volcanic';
+      else if(x.m>wetT)t='swamp';
+      else t='cavern';
+    }else{
+      if(x.e<deepT)t='deep';
+      else if(x.e<waterT)t='shallow';
+      else if(x.e>mountT)t=(x.v>percentile(vs,0.8))?'volcanic':'mountain';
+      else if(x.e>hillT)t='hills';
+      else if(x.lat+(x.v-0.5)*0.3>0.84)t='tundra';
+      else if(x.m<dryT&&x.lat<0.7)t='desert';
+      else if(x.m>wetT&&x.e<percentile(es,Math.min(0.95,w+0.2)))t='swamp';
+      else if(x.m>forestT)t='forest';
+      else if(x.v>volT)t='volcanic';
+      else t='grass';
+    }
+    var h=ensureHex(map,x.c,x.r);
+    h.t=t;
+  });
+}
+
+/* ---------- rendering ---------- */
+var svgNS='http://www.w3.org/2000/svg';
+function el(tag,attrs){var e=document.createElementNS(svgNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+var layers={};
+
+function buildCanvas(){
+  var svg=document.getElementById('canvas');
+  var map=getActiveMap();
+  svg.innerHTML='';
+  var sz=canvasSize(map);
+  svg.setAttribute('viewBox','0 0 '+sz.w+' '+sz.h);
+  ['hex','border','feat','label','overlay'].forEach(function(n){layers[n]=el('g',{});svg.appendChild(layers[n]);});
+  polys=new Array(map.cols*map.rows);
+  var frag=document.createDocumentFragment();
+  for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++){
+    var p=el('polygon',{points:hexPoints(c,r),class:'hex'});
+    polys[r*map.cols+c]=p;
+    frag.appendChild(p);
+  }
+  layers.hex.appendChild(frag);
+  refreshAllFills();
+  renderBorders();
+  renderFeatures();
+  renderOverlay();
+  applyZoom();
+}
+
+function hexFill(h){
+  var t=terrainOf(h);
+  var tc=TERRAIN_BY_ID[t].color;
+  var f=view.influence&&h?getFaction(h.o):null;
+  if(!view.terrain){
+    if(t==='void')return null;
+    var base=NON_LAND[t]?'#121119':'#23212c';
+    return f?mix(base,f.color,0.78):base;
+  }
+  return f?mix(tc,f.color,0.5):tc;
+}
+function refreshHex(map,c,r){
+  var p=polys[r*map.cols+c];if(!p)return;
+  var h=getHex(map,c,r);
+  var isVoid=terrainOf(h)==='void';
+  p.setAttribute('class',isVoid?'hex void':'hex');
+  if(isVoid)p.removeAttribute('fill');else p.setAttribute('fill',hexFill(h));
+}
+function refreshAllFills(){
+  var map=getActiveMap();
+  for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++)refreshHex(map,c,r);
+}
+
+function renderBorders(){
+  var g=layers.border;g.innerHTML='';
+  if(!view.influence)return;
+  var map=getActiveMap();
+  var paths={},k=(S-1.9)/S;
+  for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++){
+    var o=ownerOf(map,c,r);
+    if(o==null||!getFaction(o))continue;
+    var dirs=(r&1)?DIRS_ODD:DIRS_EVEN,p=center(c,r);
+    for(var d=0;d<6;d++){
+      if(ownerOf(map,c+dirs[d][0],r+dirs[d][1])===o)continue;
+      var a=CORNERS[EDGE[d][0]],b=CORNERS[EDGE[d][1]];
+      paths[o]=(paths[o]||'')+'M'+(p.x+a[0]*k).toFixed(1)+' '+(p.y+a[1]*k).toFixed(1)+'L'+(p.x+b[0]*k).toFixed(1)+' '+(p.y+b[1]*k).toFixed(1);
+    }
+  }
+  Object.keys(paths).forEach(function(o){
+    var f=getFaction(parseInt(o,10));
+    g.appendChild(el('path',{d:paths[o],class:'border-path',stroke:f.color}));
+  });
+}
+
+function renderFeatures(){
+  var fg=layers.feat,lg=layers.label;fg.innerHTML='';lg.innerHTML='';
+  var map=getActiveMap();
+  Object.keys(map.hexes).forEach(function(k){
+    var h=map.hexes[k];
+    var parts=k.split(','),c=+parts[0],r=+parts[1];
+    if(!inBounds(map,c,r))return;
+    var p=center(c,r);
+    var feat=h.f&&FEATURE_BY_ID[h.f];
+    if(feat&&feat.icon){
+      var f=getFaction(h.o);
+      var big=h.f==='capital';
+      fg.appendChild(el('circle',{class:'feat-bg',cx:p.x,cy:p.y,r:big?10.5:9,stroke:f?f.color:'rgba(255,255,255,.35)','stroke-width':big?2:1.2}));
+      var t=el('text',{class:'feat-icon',x:p.x,y:p.y+0.5});
+      if(big)t.setAttribute('font-size','13px');
+      t.textContent=feat.icon;
+      fg.appendChild(t);
+    }
+    if(h.n){
+      var lbl=el('text',{class:'hex-label'+(h.f==='capital'?' capital':''),x:p.x,y:p.y+S+6});
+      lbl.textContent=h.n;
+      lg.appendChild(lbl);
+    }
+  });
+}
+
+var hoverHex=null;
+function renderOverlay(){
+  var g=layers.overlay;if(!g)return;g.innerHTML='';
+  var map=getActiveMap();
+  if(hoverHex&&mode!=='select'){
+    hexesInRadius(hoverHex.c,hoverHex.r,brushSize).forEach(function(h){
+      if(inBounds(map,h.c,h.r))g.appendChild(el('polygon',{points:hexPoints(h.c,h.r,0.92),class:'brush-outline'}));
+    });
+  }
+  if(selectedHex)g.appendChild(el('polygon',{points:hexPoints(selectedHex.c,selectedHex.r,0.9),class:'sel-outline'}));
+}
+
+function renderMapSelect(){
+  var sel=document.getElementById('mapSelect');sel.innerHTML='';
+  state.maps.forEach(function(m){
+    var o=document.createElement('option');o.value=m.id;o.textContent=m.name;
+    if(m.id===state.activeMapId)o.selected=true;sel.appendChild(o);
+  });
+}
+
+function renderFactions(){
+  var list=document.getElementById('factionList');list.innerHTML='';
+  if(!state.factions.length){list.innerHTML='<div class="empty-note">No factions yet. Click + to add one.</div>';return;}
+  state.factions.forEach(function(f){
+    var row=document.createElement('div');
+    row.className='faction-row'+(mode==='influence'&&brushFactionId===f.id?' brush':'');
+    row.title='Click to use as influence brush';
+    row.addEventListener('click',function(evt){
+      if(evt.target.tagName==='INPUT'||evt.target.tagName==='BUTTON')return;
+      brushFactionId=f.id;
+      if(mode!=='influence')setMode('influence');else{renderFactions();renderBrushFaction();}
+    });
+
+    var sw=document.createElement('input');sw.type='color';sw.className='swatch';sw.value=f.color;
+    sw.addEventListener('input',function(){f.color=sw.value;save();refreshAllFills();renderBorders();renderFeatures();renderOverview();});
+
+    var txt=document.createElement('div');txt.className='faction-text';
+    var nm=document.createElement('input');nm.type='text';nm.className='faction-name';nm.value=f.name;
+    nm.addEventListener('change',function(){f.name=nm.value.trim()||'Unnamed';save();renderOverview();renderBrushFaction();renderOwnerOptions();});
+    var cu=document.createElement('input');cu.type='text';cu.className='faction-culture';cu.value=f.culture||'';cu.placeholder='Culture / ruler';cu.setAttribute('list','cultureList');
+    cu.addEventListener('change',function(){f.culture=cu.value.trim();save();});
+    txt.appendChild(nm);txt.appendChild(cu);
+
+    var del=document.createElement('button');del.className='faction-del';del.textContent='✕';del.title='Delete faction';
+    del.addEventListener('click',function(){
+      if(!confirm('Delete faction "'+f.name+'"? Its influence on every map is cleared.'))return;
+      state.factions=state.factions.filter(function(x){return x.id!==f.id;});
+      state.maps.forEach(function(m){Object.keys(m.hexes).forEach(function(k){if(m.hexes[k].o===f.id)m.hexes[k].o=null;});});
+      if(brushFactionId===f.id)brushFactionId=null;
+      save();renderAll();
+    });
+
+    row.appendChild(sw);row.appendChild(txt);row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function renderOverview(){
+  var list=document.getElementById('overviewList');list.innerHTML='';
+  var map=getActiveMap();
+  var land=0,counts={},cities={},claimed=0;
+  for(var r=0;r<map.rows;r++)for(var c=0;c<map.cols;c++){
+    var h=getHex(map,c,r),t=terrainOf(h);
+    if(!NON_LAND[t])land++;
+    if(t==='void'||!h)continue;
+    if(h.o!=null&&getFaction(h.o)){
+      counts[h.o]=(counts[h.o]||0)+1;claimed++;
+      if(CITY_FEATURES[h.f])cities[h.o]=(cities[h.o]||0)+1;
+    }
+  }
+  document.getElementById('landTotal').textContent=land+' land hexes';
+  var rows=state.factions.filter(function(f){return counts[f.id];}).sort(function(a,b){return counts[b.id]-counts[a.id];});
+  if(!rows.length){list.innerHTML='<div class="empty-note">No influence painted yet.<br>Pick a faction and use 🖌 Paint Influence.</div>';return;}
+  var max=counts[rows[0].id];
+  rows.forEach(function(f){
+    var n=counts[f.id],ct=cities[f.id]||0;
+    var pct=land?Math.round(n/land*100):0;
+    var div=document.createElement('div');div.className='ov-row';
+    div.innerHTML='<div class="ov-top"><span class="ov-swatch" style="background:'+f.color+'"></span><span class="ov-name">'+escapeHtml(f.name)+'</span><span class="ov-count">'+n+' hex · '+ct+' '+(ct===1?'city':'cities')+' · '+pct+'%</span></div>'+
+      '<div class="ov-bar"><span style="width:'+(n/max*100).toFixed(1)+'%;background:'+f.color+'"></span></div>';
+    list.appendChild(div);
+  });
+  var free=land-claimed;
+  if(free>0){
+    var div=document.createElement('div');div.className='ov-row';
+    div.innerHTML='<div class="ov-top"><span class="ov-swatch" style="border:1px dashed var(--text-dim)"></span><span class="ov-name" style="color:var(--text-muted)">Unclaimed land</span><span class="ov-count">~'+free+' hex</span></div>';
+    list.appendChild(div);
+  }
+}
+
+function renderOwnerOptions(){
+  var sel=document.getElementById('hexOwner');
+  sel.innerHTML='<option value="">— None —</option>';
+  state.factions.forEach(function(f){var o=document.createElement('option');o.value=f.id;o.textContent=f.name;sel.appendChild(o);});
+}
+function renderBrushFaction(){
+  var sel=document.getElementById('brushFaction');
+  sel.innerHTML='<option value="">✕ Erase influence</option>';
+  state.factions.forEach(function(f){var o=document.createElement('option');o.value=f.id;o.textContent='● '+f.name;o.style.color=f.color;sel.appendChild(o);});
+  if(brushFactionId!=null&&!getFaction(brushFactionId))brushFactionId=null;
+  sel.value=brushFactionId==null?'':String(brushFactionId);
+}
+function renderTerrainTools(){
+  var box=document.getElementById('terTools');box.innerHTML='';
+  TERRAINS.forEach(function(t){
+    var b=document.createElement('button');
+    b.className='btn btn-sm terrain-btn'+(brushTerrain===t.id?' active':'');
+    b.innerHTML='<span class="terrain-chip" style="background:'+t.color+'"></span>'+t.name;
+    b.addEventListener('click',function(){brushTerrain=t.id;renderTerrainTools();});
+    box.appendChild(b);
+  });
+}
+
+function renderAll(){
+  renderMapSelect();renderFactions();renderBrushFaction();renderTerrainTools();renderOwnerOptions();
+  buildCanvas();renderOverview();
+}
+
+/* ---------- painting ---------- */
+function paintAt(c,r){
+  var map=getActiveMap();
+  var changed=false;
+  hexesInRadius(c,r,brushSize).forEach(function(p){
+    if(!inBounds(map,p.c,p.r))return;
+    var h=ensureHex(map,p.c,p.r);
+    if(mode==='influence'){
+      if(terrainOf(h)==='void')return;
+      var target=brushFactionId;
+      if(document.getElementById('protectOthers').checked&&target!=null&&h.o!=null&&h.o!==target&&getFaction(h.o))return;
+      if(h.o===target)return;
+      h.o=target;
+    }else{
+      if(h.t===brushTerrain)return;
+      h.t=brushTerrain;
+      if(brushTerrain==='void')h.o=null;
+    }
+    refreshHex(map,p.c,p.r);changed=true;
+  });
+  if(changed){renderBorders();if(mode==='terrain'&&brushTerrain==='void')renderFeatures();}
+  return changed;
+}
+function eyedrop(c,r){
+  var map=getActiveMap();if(!inBounds(map,c,r))return;
+  var h=getHex(map,c,r);
+  if(mode==='influence'){brushFactionId=h&&getFaction(h.o)?h.o:null;renderBrushFaction();renderFactions();}
+  else{brushTerrain=terrainOf(h);renderTerrainTools();}
+}
+
+/* ---------- hex drawer ---------- */
+function openHexDrawer(c,r){
+  var map=getActiveMap();if(!inBounds(map,c,r))return;
+  selectedHex={c:c,r:r};
+  var h=getHex(map,c,r)||{t:'grass',o:null};
+  renderOwnerOptions();
+  document.getElementById('hexTitle').textContent='Hex '+c+', '+r;
+  document.getElementById('hexName').value=h.n||'';
+  document.getElementById('hexOwner').value=h.o!=null&&getFaction(h.o)?String(h.o):'';
+  document.getElementById('hexTerrain').value=terrainOf(h);
+  document.getElementById('hexFeature').value=h.f||'';
+  document.getElementById('hexDesc').value=h.d||'';
+  document.getElementById('hexLogInput').value='';
+  renderLogList(document.getElementById('hexLogList'),h.log,'No history yet.');
+  document.getElementById('hexOverlay').classList.add('open');
+  renderOverlay();
+}
+function closeHexDrawer(){
+  selectedHex=null;
+  document.getElementById('hexOverlay').classList.remove('open');
+  renderOverlay();
+}
+function selHex(){
+  if(!selectedHex)return null;
+  return ensureHex(getActiveMap(),selectedHex.c,selectedHex.r);
+}
+function afterHexEdit(){
+  var map=getActiveMap();
+  refreshHex(map,selectedHex.c,selectedHex.r);
+  renderBorders();renderFeatures();renderOverview();save();
+}
+function renderLogList(list,log,emptyText){
+  list.innerHTML='';
+  if(!log||!log.length){list.innerHTML='<div class="log-empty">'+emptyText+'</div>';return;}
+  log.slice().reverse().forEach(function(entry){
+    var div=document.createElement('div');div.className='log-entry';
+    div.innerHTML='<div class="log-ts">'+escapeHtml(entry.ts)+'</div><div class="log-text"></div>';
+    div.querySelector('.log-text').textContent=entry.text;
+    list.appendChild(div);
+  });
+}
+
+/* ---------- settings drawer ---------- */
+function openSettings(){
+  var map=getActiveMap();
+  document.getElementById('msName').value=map.name;
+  document.getElementById('msCols').value=map.cols;
+  document.getElementById('msRows').value=map.rows;
+  document.getElementById('msStyle').value=map.gen.style||'surface';
+  document.getElementById('msWater').value=map.gen.water||35;
+  document.getElementById('msWaterVal').textContent=map.gen.water||35;
+  document.getElementById('msSeed').value=map.gen.seed||'';
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings(){document.getElementById('settingsOverlay').classList.remove('open');}
+
+/* ---------- mode ---------- */
+function setMode(m){
+  mode=m;
+  ['modeSelectBtn','modeInfBtn','modeTerBtn'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  document.getElementById({select:'modeSelectBtn',influence:'modeInfBtn',terrain:'modeTerBtn'}[m]).classList.add('active');
+  var hints={select:'Click a hex to name it, place a city or log history. Drag to pan.',influence:'Click / drag to spread influence.',terrain:'Click / drag to paint terrain.'};
+  document.getElementById('modeHint').textContent=hints[m];
+  document.getElementById('brushBar').hidden=(m==='select');
+  document.getElementById('infTools').style.display=m==='influence'?'inline-flex':'none';
+  document.getElementById('terTools').style.display=m==='terrain'?'inline-flex':'none';
+  applySvgClasses();
+  renderFactions();renderOverlay();
+}
+function setBrushSize(n){
+  brushSize=n;
+  document.querySelectorAll('.size-btn').forEach(function(b){b.classList.toggle('active',+b.getAttribute('data-size')===n);});
+  renderOverlay();
+}
+function applySvgClasses(){
+  var cls=[];
+  if(mode==='select')cls.push('mode-select');
+  if(pointer&&pointer.type==='pan'&&pointer.moved)cls.push('panning');
+  if(!view.grid)cls.push('no-grid');
+  if(!view.labels)cls.push('no-labels');
+  document.getElementById('canvas').setAttribute('class',cls.join(' '));
+}
+
+/* ---------- zoom ---------- */
+function applyZoom(){
+  var svg=document.getElementById('canvas');
+  var sz=canvasSize(getActiveMap());
+  svg.setAttribute('width',Math.round(sz.w*zoomLevel));
+  svg.setAttribute('height',Math.round(sz.h*zoomLevel));
+  document.getElementById('zoomLabel').textContent=Math.round(zoomLevel*100)+'%';
+}
+function zoomAt(clientX,clientY,factor){
+  var svg=document.getElementById('canvas'),wrap=document.getElementById('canvasWrap');
+  var pt=svgPoint({clientX:clientX,clientY:clientY});
+  var wr=wrap.getBoundingClientRect();
+  var nz=Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,zoomLevel*factor));
+  if(nz===zoomLevel)return;
+  zoomLevel=nz;applyZoom();
+  var rect=svg.getBoundingClientRect();
+  var offX=rect.left-wr.left+wrap.scrollLeft, offY=rect.top-wr.top+wrap.scrollTop;
+  wrap.scrollLeft=offX+pt.x*zoomLevel-(clientX-wr.left);
+  wrap.scrollTop=offY+pt.y*zoomLevel-(clientY-wr.top);
+}
+function zoomButton(f){var r=document.getElementById('canvasWrap').getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,f);}
+
+function svgPoint(evt){
+  var svg=document.getElementById('canvas');
+  var rect=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;
+  return {x:(evt.clientX-rect.left)*(vb.width/rect.width)+vb.x,y:(evt.clientY-rect.top)*(vb.height/rect.height)+vb.y};
+}
+
+/* ---------- canvas events ---------- */
+function initCanvasEvents(){
+  var svg=document.getElementById('canvas'),wrap=document.getElementById('canvasWrap');
+
+  svg.addEventListener('wheel',function(evt){
+    if(!evt.ctrlKey)return;
+    evt.preventDefault();
+    zoomAt(evt.clientX,evt.clientY,evt.deltaY<0?1.1:1/1.1);
+  },{passive:false});
+
+  svg.addEventListener('pointerdown',function(evt){
+    var pt=svgPoint(evt),hx=pixelToHex(pt.x,pt.y);
+    if(evt.button===1||(evt.button===0&&mode==='select')){
+      evt.preventDefault();
+      pointer={type:'pan',button:evt.button,sx:evt.clientX,sy:evt.clientY,sl:wrap.scrollLeft,st:wrap.scrollTop,moved:false,hex:hx};
+      svg.setPointerCapture(evt.pointerId);
+      return;
+    }
+    if(evt.button!==0)return;
+    if(evt.altKey){eyedrop(hx.c,hx.r);return;}
+    pointer={type:'paint',changed:false};
+    lastPaintKey=key(hx.c,hx.r);
+    if(paintAt(hx.c,hx.r))pointer.changed=true;
+    svg.setPointerCapture(evt.pointerId);
+  });
+
+  svg.addEventListener('pointermove',function(evt){
+    if(pointer&&pointer.type==='pan'){
+      var dx=evt.clientX-pointer.sx,dy=evt.clientY-pointer.sy;
+      if(!pointer.moved&&(Math.abs(dx)>4||Math.abs(dy)>4)){pointer.moved=true;applySvgClasses();}
+      if(pointer.moved){wrap.scrollLeft=pointer.sl-dx;wrap.scrollTop=pointer.st-dy;}
+      return;
+    }
+    var pt=svgPoint(evt),hx=pixelToHex(pt.x,pt.y),k=key(hx.c,hx.r);
+    if(mode!=='select'&&(!hoverHex||key(hoverHex.c,hoverHex.r)!==k)){hoverHex=hx;renderOverlay();}
+    if(pointer&&pointer.type==='paint'&&k!==lastPaintKey){
+      lastPaintKey=k;
+      if(paintAt(hx.c,hx.r))pointer.changed=true;
+    }
+  });
+
+  function end(){
+    if(!pointer)return;
+    var p=pointer;pointer=null;
+    if(p.type==='pan'){
+      applySvgClasses();
+      if(!p.moved&&p.button===0&&mode==='select')openHexDrawer(p.hex.c,p.hex.r);
+    }else if(p.changed){save();renderOverview();}
+  }
+  svg.addEventListener('pointerup',end);
+  svg.addEventListener('pointercancel',end);
+  svg.addEventListener('pointerleave',function(){if(!pointer&&hoverHex){hoverHex=null;renderOverlay();}});
+}
+
+/* ---------- UI wiring ---------- */
+function on(id,ev,fn){document.getElementById(id).addEventListener(ev,fn);}
+
+function initUI(){
+  var tsel=document.getElementById('hexTerrain');
+  TERRAINS.forEach(function(t){var o=document.createElement('option');o.value=t.id;o.textContent=t.name;tsel.appendChild(o);});
+  var fsel=document.getElementById('hexFeature');
+  FEATURES.forEach(function(f){var o=document.createElement('option');o.value=f.id;o.textContent=(f.icon?f.icon+'  ':'')+f.name;fsel.appendChild(o);});
+
+  on('modeSelectBtn','click',function(){setMode('select');});
+  on('modeInfBtn','click',function(){setMode('influence');});
+  on('modeTerBtn','click',function(){setMode('terrain');});
+  document.querySelectorAll('.size-btn').forEach(function(b){b.addEventListener('click',function(){setBrushSize(+b.getAttribute('data-size'));});});
+  on('brushFaction','change',function(e){brushFactionId=e.target.value===''?null:parseInt(e.target.value,10);renderFactions();});
+
+  [['viewTerrain','terrain'],['viewInfluence','influence'],['viewGrid','grid'],['viewLabels','labels']].forEach(function(p){
+    on(p[0],'change',function(e){view[p[1]]=e.target.checked;applySvgClasses();refreshAllFills();renderBorders();});
+  });
+
+  on('zoomInBtn','click',function(){zoomButton(1.25);});
+  on('zoomOutBtn','click',function(){zoomButton(1/1.25);});
+  on('zoomResetBtn','click',function(){zoomLevel=1;applyZoom();});
+
+  on('addFactionBtn','click',function(){
+    var f={id:uid(),name:'New Faction',color:'#'+Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0'),culture:''};
+    state.factions.push(f);
+    save();renderFactions();renderBrushFaction();renderOwnerOptions();
+  });
+
+  on('mapSelect','change',function(e){
+    state.activeMapId=parseInt(e.target.value,10);
+    closeHexDrawer();closeSettings();
+    zoomLevel=1;save();renderAll();
+  });
+  on('newMapBtn','click',function(){
+    var name=window.prompt('New map name (e.g. "Underground", "Realm of Ash"):','New Realm');
+    if(!name)return;
+    var cur=getActiveMap();
+    var m=newMap(uid(),name.trim(),cur.cols,cur.rows);
+    var under=/under|cave|deep/i.test(name);
+    m.gen.style=under?'underground':'surface';
+    generateTerrain(m,m.gen.style,m.gen.water,Math.floor(Math.random()*1e9));
+    state.maps.push(m);state.activeMapId=m.id;
+    save();renderAll();openSettings();
+  });
+  on('deleteMapBtn','click',function(){
+    if(state.maps.length<=1){alert('At least one map must remain.');return;}
+    var map=getActiveMap();
+    if(!confirm('Delete map "'+map.name+'" and everything on it?'))return;
+    state.maps=state.maps.filter(function(m){return m.id!==map.id;});
+    state.activeMapId=state.maps[0].id;
+    save();renderAll();
+  });
+
+  // settings
+  on('settingsBtn','click',openSettings);
+  on('settingsCloseBtn','click',closeSettings);
+  on('settingsOverlay','click',function(e){if(e.target.id==='settingsOverlay')closeSettings();});
+  on('msName','change',function(e){var m=getActiveMap();m.name=e.target.value.trim()||m.name;save();renderMapSelect();});
+  on('msWater','input',function(e){document.getElementById('msWaterVal').textContent=e.target.value;});
+  on('msApplySize','click',function(){
+    var m=getActiveMap();
+    var c=Math.max(8,Math.min(120,parseInt(document.getElementById('msCols').value,10)||m.cols));
+    var r=Math.max(6,Math.min(100,parseInt(document.getElementById('msRows').value,10)||m.rows));
+    if(c<m.cols||r<m.rows){if(!confirm('Shrinking will delete hexes outside '+c+'×'+r+'. Continue?'))return;}
+    Object.keys(m.hexes).forEach(function(k){var p=k.split(',');if(+p[0]>=c||+p[1]>=r)delete m.hexes[k];});
+    for(var rr=0;rr<r;rr++)for(var cc=0;cc<c;cc++)ensureHex(m,cc,rr);
+    m.cols=c;m.rows=r;
+    document.getElementById('msCols').value=c;document.getElementById('msRows').value=r;
+    save();buildCanvas();renderOverview();
+  });
+  on('msGenerate','click',function(){
+    var m=getActiveMap();
+    if(!confirm('Regenerate all terrain on "'+m.name+'"? Influence and named places are kept.'))return;
+    var style=document.getElementById('msStyle').value;
+    var water=parseInt(document.getElementById('msWater').value,10);
+    var seedTxt=document.getElementById('msSeed').value.trim();
+    var seed=seedTxt?seedFromText(seedTxt):Math.floor(Math.random()*1e9);
+    m.gen={style:style,water:water,seed:seedTxt};
+    generateTerrain(m,style,water,seed);
+    save();refreshAllFills();renderBorders();renderFeatures();renderOverview();
+  });
+  on('msClearInfluence','click',function(){
+    var m=getActiveMap();
+    if(!confirm('Remove ALL faction influence from "'+m.name+'"?'))return;
+    Object.keys(m.hexes).forEach(function(k){m.hexes[k].o=null;});
+    save();refreshAllFills();renderBorders();renderFeatures();renderOverview();
+  });
+
+  // hex drawer
+  on('hexCloseBtn','click',closeHexDrawer);
+  on('hexOverlay','click',function(e){if(e.target.id==='hexOverlay')closeHexDrawer();});
+  on('hexName','change',function(e){var h=selHex();if(!h)return;h.n=e.target.value.trim();afterHexEdit();});
+  on('hexOwner','change',function(e){var h=selHex();if(!h)return;h.o=e.target.value===''?null:parseInt(e.target.value,10);afterHexEdit();});
+  on('hexTerrain','change',function(e){var h=selHex();if(!h)return;h.t=e.target.value;if(h.t==='void')h.o=null;afterHexEdit();});
+  on('hexFeature','change',function(e){var h=selHex();if(!h)return;h.f=e.target.value;afterHexEdit();});
+  on('hexDesc','change',function(e){var h=selHex();if(!h)return;h.d=e.target.value.trim();save();});
+  on('hexLogAddBtn','click',function(){
+    var ta=document.getElementById('hexLogInput'),text=ta.value.trim();if(!text)return;
+    var h=selHex();if(!h)return;
+    if(!h.log)h.log=[];
+    h.log.push({ts:new Date().toLocaleString(),text:text});
+    ta.value='';save();
+    renderLogList(document.getElementById('hexLogList'),h.log,'No history yet.');
+  });
+  on('hexClearBtn','click',function(){
+    var h=selHex();if(!h)return;
+    if(!confirm('Clear this hex\'s name, feature, description and history? Terrain and influence stay.'))return;
+    delete h.n;delete h.f;delete h.d;delete h.log;
+    afterHexEdit();openHexDrawer(selectedHex.c,selectedHex.r);
+  });
+
+  // chronicle
+  on('logBtn','click',function(){renderLogList(document.getElementById('campaignLogList'),getActiveMap().eventLog,'No events yet.');document.getElementById('logOverlay').classList.add('open');});
+  on('logCloseBtn','click',function(){document.getElementById('logOverlay').classList.remove('open');});
+  on('logOverlay','click',function(e){if(e.target.id==='logOverlay')e.target.classList.remove('open');});
+  on('campaignLogAddBtn','click',function(){
+    var ta=document.getElementById('campaignLogInput'),text=ta.value.trim();if(!text)return;
+    var m=getActiveMap();
+    m.eventLog.push({ts:new Date().toLocaleString(),text:text});
+    ta.value='';save();
+    renderLogList(document.getElementById('campaignLogList'),m.eventLog,'No events yet.');
+  });
+
+  // export / import
+  on('exportBtn','click',function(){
+    var blob=new Blob([JSON.stringify(state,null,1)],{type:'application/json'});
+    var url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='aow4-realms-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  });
+  on('importBtn','click',function(){document.getElementById('importFile').click();});
+  on('importFile','change',function(evt){
+    var file=evt.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var d=JSON.parse(reader.result);
+        if(!d||!d.maps||!d.factions)throw new Error('bad format');
+        if(!confirm('Import will replace your current realm data. Continue?'))return;
+        state=normalize(d);
+        if(!state.activeMapId&&state.maps.length)state.activeMapId=state.maps[0].id;
+        closeHexDrawer();closeSettings();
+        save();renderAll();
+      }catch(e){alert('Could not import file: not a valid Realms of Wonder export.');}
+    };
+    reader.readAsText(file);evt.target.value='';
+  });
+
+  // keyboard
+  document.addEventListener('keydown',function(e){
+    var tag=(e.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select'||e.ctrlKey||e.metaKey)return;
+    var k=e.key.toLowerCase();
+    if(k==='escape'){closeHexDrawer();closeSettings();document.getElementById('logOverlay').classList.remove('open');}
+    else if(k==='s')setMode('select');
+    else if(k==='i')setMode('influence');
+    else if(k==='t')setMode('terrain');
+    else if(k==='1'||k==='2'||k==='3')setBrushSize(+k-1);
+  });
+}
+
+/* ---------- boot ---------- */
+state=load();
+if(state.factions.length)brushFactionId=state.factions[0].id;
+initUI();
+initCanvasEvents();
+renderAll();
+setMode('select');
+save();
+
+})();
+</script>
+</body>
+</html>

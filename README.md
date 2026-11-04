@@ -12,6 +12,7 @@ A personal collection of Dungeons & Dragons tools built as standalone web apps �
 | [Map Creator](map-creator/) | 🔜 Planned | Build and annotate encounter maps |
 | [Character Creator](character-creator/) | 🔜 Planned | Build and manage character sheets |
 | [Gladius Frontier](gladius-frontier/) | ✅ Live | Warhammer 40K Gladius territory & campaign map |
+| [Realms of Wonder](aow4-realms/) | ✅ Live | Age of Wonders 4 hex map — paint faction influence, terrain, cities & chronicle |
 
 ## Usage
 
